@@ -1,46 +1,116 @@
 package com.facilitation.view
 
+import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.facilitation.view.ui.theme.ViewTheme
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.TextView
+import android.widget.Toast
+import com.vuzix.hud.actionmenu.ActionMenuActivity
 
-class MainActivity : ComponentActivity() {
+
+class MainActivity : ActionMenuActivity() {
+    var HelloMenuItem: MenuItem? = null
+    var SpotifyMenuItem: MenuItem? = null
+    var mainText: TextView? = null
+    private var broadcastReceiver: BroadcastReceiver? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            ViewTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
+        setContentView(R.layout.activity_main)
+        initializeBroadcastReceiver()
+    }
+
+    override fun onCreateActionMenu(menu: Menu): Boolean {
+        super.onCreateActionMenu(menu)
+        menuInflater.inflate(R.menu.menu, menu)
+        HelloMenuItem = menu.findItem(R.id.item1)
+        SpotifyMenuItem = menu.findItem(R.id.item2)
+        mainText = findViewById(R.id.mainTextView)
+        updateMenuItems()
+        return true
+    }
+    override fun alwaysShowActionMenu(): Boolean {
+        return false
+    }
+
+    private fun updateMenuItems() {
+        if (HelloMenuItem == null) {
+            return
+        }
+        SpotifyMenuItem?.isEnabled = false
+    }
+
+    //Action Menu Click events
+    //This events where register via the XML for the menu definitions.
+    fun showHello(item: MenuItem?) {
+        val broadcastIntent = Intent("com.facilitation.view.GET")
+        broadcastIntent.putExtra("broadcastMessage", "Goodbye World!")
+        sendBroadcast(broadcastIntent)
+        mainText?.let {
+            it.text = "Hello World!"
+        }
+        SpotifyMenuItem?.isEnabled = true
+    }
+
+    fun showSpotify(item: MenuItem?) {
+        showToast("Spotify!")
+        mainText?.let {
+            it.text = "Spotify!"
+        }
+        HelloMenuItem?.isEnabled = true
+    }
+
+    private fun showToast(text: String) {
+        val activity: Activity = this
+        activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
+    }
+
+    fun isAppInstalled(context: Context, packageName: String?): Boolean {
+        return try {
+            context.packageManager.getApplicationInfo(packageName!!, 0)
+            true // App is installed
+        } catch (e: PackageManager.NameNotFoundException) {
+            false // App is not installed
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // Register the BroadcastReceiver when the activity is in the foreground
+        registerBroadcastReceiver()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        // Unregister the BroadcastReceiver when the activity is in the background
+        unregisterBroadcastReceiver()
+    }
+
+    private fun initializeBroadcastReceiver() {
+        broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent != null) {
+                    val message = intent.action
+                    showToast("Received broadcast: $message")
                 }
             }
         }
+        registerBroadcastReceiver()
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun registerBroadcastReceiver() {
+        val intentFilter = IntentFilter("com.facilitation.view.GET")
+        registerReceiver(broadcastReceiver, intentFilter)
+    }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ViewTheme {
-        Greeting("Android")
+    private fun unregisterBroadcastReceiver() {
+        unregisterReceiver(broadcastReceiver)
     }
 }
