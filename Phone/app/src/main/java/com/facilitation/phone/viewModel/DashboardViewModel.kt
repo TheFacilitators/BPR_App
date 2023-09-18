@@ -1,4 +1,4 @@
-package com.facilitation.phone.ui.dashboard
+package com.facilitation.phone.viewModel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
