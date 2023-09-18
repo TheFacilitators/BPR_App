@@ -1,4 +1,4 @@
-package com.facilitation.phone.ui.dashboard
+package com.facilitation.phone.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.facilitation.phone.viewModel.DashboardViewModel
 import com.facilitation.phone.databinding.FragmentDashboardBinding
 
 class DashboardFragment : Fragment() {
