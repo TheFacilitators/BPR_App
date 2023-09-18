@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -68,15 +67,6 @@ class MainActivity : ActionMenuActivity() {
     private fun showToast(text: String) {
         val activity: Activity = this
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
-    }
-
-    fun isAppInstalled(context: Context, packageName: String?): Boolean {
-        return try {
-            context.packageManager.getApplicationInfo(packageName!!, 0)
-            true // App is installed
-        } catch (e: PackageManager.NameNotFoundException) {
-            false // App is not installed
-        }
     }
 
     override fun onResume() {
