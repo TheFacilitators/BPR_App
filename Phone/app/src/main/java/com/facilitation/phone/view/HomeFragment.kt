@@ -32,6 +32,9 @@ class HomeFragment : Fragment() {
         binding.HelloVuzix.setOnClickListener {
             homeViewModel.sayHelloToVuzix()
         }
+        binding.MusicToVuzix.setOnClickListener {
+            homeViewModel.sendMusicToVuzix()
+        }
     }
     override fun onDestroyView() {
         super.onDestroyView()
