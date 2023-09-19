@@ -8,7 +8,6 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
 import android.widget.Toast
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
@@ -16,7 +15,6 @@ import com.vuzix.hud.actionmenu.ActionMenuActivity
 class MainActivity : ActionMenuActivity() {
     var SpotifyMenuItem: MenuItem? = null
     var SnakeMenuItem: MenuItem? = null
-    var mainText: TextView? = null
     private var broadcastReceiver: BroadcastReceiver? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +27,6 @@ class MainActivity : ActionMenuActivity() {
         menuInflater.inflate(R.menu.menu, menu)
         SpotifyMenuItem = menu.findItem(R.id.item1)
         SnakeMenuItem = menu.findItem(R.id.item2)
-        mainText = findViewById(R.id.mainTextView)
         updateMenuItems()
         return true
     }
@@ -43,15 +40,10 @@ class MainActivity : ActionMenuActivity() {
     }
 
     fun showSpotify(item: MenuItem?) {
-        val broadcastIntent = Intent("com.facilitation.view.GET")
-        broadcastIntent.putExtra("broadcastMessage", "Goodbye World!")
-        sendBroadcast(broadcastIntent)
-
         showToast("Spotify!")
     }
 
     fun showSnake(item: MenuItem?) {
-
         showToast("Snake II: Cold blooded revenge!")
     }
 
