@@ -4,10 +4,12 @@
         android:id="@+id/item1"
         android:title="Spotify"
         android:icon="@drawable/ic_spotify"
+        android:enabled="true"
         android:onClick="showSpotify"/>
     <item
         android:id="@+id/item2"
         android:title="Snake II"
         android:icon="@drawable/ic_snake"
+        android:enabled="true"
         android:onClick="showSnake"/>
 </menu>

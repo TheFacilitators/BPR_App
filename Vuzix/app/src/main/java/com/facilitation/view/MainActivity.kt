@@ -11,11 +11,12 @@ import android.view.MenuItem
 import android.widget.Toast
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
-
 class MainActivity : ActionMenuActivity() {
+
     var SpotifyMenuItem: MenuItem? = null
     var SnakeMenuItem: MenuItem? = null
     private var broadcastReceiver: BroadcastReceiver? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -27,20 +28,25 @@ class MainActivity : ActionMenuActivity() {
         menuInflater.inflate(R.menu.menu, menu)
         SpotifyMenuItem = menu.findItem(R.id.item1)
         SnakeMenuItem = menu.findItem(R.id.item2)
-        updateMenuItems()
         return true
     }
-    override fun alwaysShowActionMenu(): Boolean {
-        return false
+
+    override fun getDefaultAction(): Int {
+        return 1
     }
 
-    private fun updateMenuItems() {
-        SpotifyMenuItem?.isEnabled = true
-        SnakeMenuItem?.isEnabled = true
+    override fun alwaysShowActionMenu(): Boolean {
+        return true
+    }
+
+    override fun setCurrentMenuItem(item: MenuItem?, animate: Boolean) {
+        super.setCurrentMenuItem(item, animate)
     }
 
     fun showSpotify(item: MenuItem?) {
         showToast("Spotify!")
+        val intent = Intent(this, SpotifyActivity::class.java)
+        startActivity(intent)
     }
 
     fun showSnake(item: MenuItem?) {
