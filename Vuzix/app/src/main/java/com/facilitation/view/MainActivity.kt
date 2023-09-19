@@ -14,8 +14,8 @@ import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 
 class MainActivity : ActionMenuActivity() {
-    var HelloMenuItem: MenuItem? = null
     var SpotifyMenuItem: MenuItem? = null
+    var SnakeMenuItem: MenuItem? = null
     var mainText: TextView? = null
     private var broadcastReceiver: BroadcastReceiver? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,8 +27,8 @@ class MainActivity : ActionMenuActivity() {
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
         menuInflater.inflate(R.menu.menu, menu)
-        HelloMenuItem = menu.findItem(R.id.item1)
-        SpotifyMenuItem = menu.findItem(R.id.item2)
+        SpotifyMenuItem = menu.findItem(R.id.item1)
+        SnakeMenuItem = menu.findItem(R.id.item2)
         mainText = findViewById(R.id.mainTextView)
         updateMenuItems()
         return true
@@ -38,30 +38,21 @@ class MainActivity : ActionMenuActivity() {
     }
 
     private fun updateMenuItems() {
-        if (HelloMenuItem == null) {
-            return
-        }
-        SpotifyMenuItem?.isEnabled = false
-    }
-
-    //Action Menu Click events
-    //This events where register via the XML for the menu definitions.
-    fun showHello(item: MenuItem?) {
-        val broadcastIntent = Intent("com.facilitation.view.GET")
-        broadcastIntent.putExtra("broadcastMessage", "Goodbye World!")
-        sendBroadcast(broadcastIntent)
-        mainText?.let {
-            it.text = "Hello World!"
-        }
         SpotifyMenuItem?.isEnabled = true
+        SnakeMenuItem?.isEnabled = true
     }
 
     fun showSpotify(item: MenuItem?) {
+        val broadcastIntent = Intent("com.facilitation.view.GET")
+        broadcastIntent.putExtra("broadcastMessage", "Goodbye World!")
+        sendBroadcast(broadcastIntent)
+
         showToast("Spotify!")
-        mainText?.let {
-            it.text = "Spotify!"
-        }
-        HelloMenuItem?.isEnabled = true
+    }
+
+    fun showSnake(item: MenuItem?) {
+
+        showToast("Snake II: Cold blooded revenge!")
     }
 
     private fun showToast(text: String) {

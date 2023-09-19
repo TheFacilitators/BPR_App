@@ -2,10 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/item1"
-        android:title="HelloWorld"
-        android:onClick="showHello"/>
+        android:title="Spotify"
+        android:icon="@drawable/ic_spotify"
+        android:onClick="showSpotify"/>
     <item
         android:id="@+id/item2"
-        android:title="Spotify"
-        android:onClick="showSpotify"/>
+        android:title="Snake II"
+        android:icon="@drawable/ic_snake"
+        android:onClick="showSnake"/>
 </menu>
