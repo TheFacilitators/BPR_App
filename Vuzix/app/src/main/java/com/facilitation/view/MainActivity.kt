@@ -26,8 +26,8 @@ class MainActivity : ActionMenuActivity() {
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
         menuInflater.inflate(R.menu.menu, menu)
-        SpotifyMenuItem = menu.findItem(R.id.item1)
-        SnakeMenuItem = menu.findItem(R.id.item2)
+        SpotifyMenuItem = menu.findItem(R.id.menu_item1)
+        SnakeMenuItem = menu.findItem(R.id.menu_item2)
         return true
     }
 

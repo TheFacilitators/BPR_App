@@ -22,10 +22,10 @@ class SpotifyActivity : ActionMenuActivity() {
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
         menuInflater.inflate(R.menu.menu_spotify, menu)
-        PrevSongMenuItem = menu.findItem(R.id.item1)
-        PlayPauseMenuItem = menu.findItem(R.id.item2)
-        NextSongMenuItem = menu.findItem(R.id.item3)
-        SongDetailsMenuItem = menu.findItem(R.id.item4)
+        PrevSongMenuItem = menu.findItem(R.id.menu_spotify_item1)
+        PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item2)
+        NextSongMenuItem = menu.findItem(R.id.menu_spotify_item3)
+        SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
         return true
     }
 
