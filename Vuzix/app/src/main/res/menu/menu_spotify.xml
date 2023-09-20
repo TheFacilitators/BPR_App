@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_spotify_item1"
+        android:title=""
+        android:icon="@drawable/ic_backward_step"
+        android:enabled="true"
+        android:onClick="previousSong"/>
+    <item
+        android:id="@+id/menu_spotify_item2"
+        android:title=""
+        android:icon="@drawable/ic_play"
+        android:enabled="true"
+        android:onClick="togglePlayPause"/>
+    <item
+        android:id="@+id/menu_spotify_item3"
+        android:title=""
+        android:icon="@drawable/ic_forward_step"
+        android:enabled="true"
+        android:onClick="nextSong"/>
+    <item
+        android:id="@+id/menu_spotify_item4"
+        android:title=""
+        android:icon="@drawable/ic_song_details"
+        android:enabled="true"
+        android:onClick="showSongDetails"/>
+</menu>

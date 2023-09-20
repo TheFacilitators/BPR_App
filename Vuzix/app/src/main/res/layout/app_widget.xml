@@ -4,16 +4,13 @@
     android:layout_height="match_parent"
     android:theme="@style/Theme.View.AppWidgetContainer">
 
-    <TextView
+    <ImageView
         android:id="@+id/appwidget_text"
-        style="@style/Widget.View.AppWidget.InnerView"
+        style="@style/HudTheme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_margin="8dp"
-        android:contentDescription="@string/appwidget_text"
-        android:text="@string/appwidget_text"
-        android:textSize="24sp"
+        android:src="@drawable/ic_bpr"
         android:textStyle="bold|italic" />
 </RelativeLayout>

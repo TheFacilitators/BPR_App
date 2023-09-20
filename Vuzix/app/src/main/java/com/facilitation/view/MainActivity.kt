@@ -8,16 +8,15 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
 import android.widget.Toast
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
-
 class MainActivity : ActionMenuActivity() {
-    var HelloMenuItem: MenuItem? = null
+
     var SpotifyMenuItem: MenuItem? = null
-    var mainText: TextView? = null
+    var SnakeMenuItem: MenuItem? = null
     private var broadcastReceiver: BroadcastReceiver? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -27,41 +26,31 @@ class MainActivity : ActionMenuActivity() {
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
         menuInflater.inflate(R.menu.menu, menu)
-        HelloMenuItem = menu.findItem(R.id.item1)
-        SpotifyMenuItem = menu.findItem(R.id.item2)
-        mainText = findViewById(R.id.mainTextView)
-        updateMenuItems()
+        SpotifyMenuItem = menu.findItem(R.id.menu_item1)
+        SnakeMenuItem = menu.findItem(R.id.menu_item2)
         return true
     }
+
+    override fun getDefaultAction(): Int {
+        return 1
+    }
+
     override fun alwaysShowActionMenu(): Boolean {
-        return false
+        return true
     }
 
-    private fun updateMenuItems() {
-        if (HelloMenuItem == null) {
-            return
-        }
-        SpotifyMenuItem?.isEnabled = false
-    }
-
-    //Action Menu Click events
-    //This events where register via the XML for the menu definitions.
-    fun showHello(item: MenuItem?) {
-        val broadcastIntent = Intent("com.facilitation.view.GET")
-        broadcastIntent.putExtra("broadcastMessage", "Goodbye World!")
-        sendBroadcast(broadcastIntent)
-        mainText?.let {
-            it.text = "Hello World!"
-        }
-        SpotifyMenuItem?.isEnabled = true
+    override fun setCurrentMenuItem(item: MenuItem?, animate: Boolean) {
+        super.setCurrentMenuItem(item, animate)
     }
 
     fun showSpotify(item: MenuItem?) {
         showToast("Spotify!")
-        mainText?.let {
-            it.text = "Spotify!"
-        }
-        HelloMenuItem?.isEnabled = true
+        val intent = Intent(this, SpotifyActivity::class.java)
+        startActivity(intent)
+    }
+
+    fun showSnake(item: MenuItem?) {
+        showToast("Snake II: Cold blooded revenge!")
     }
 
     private fun showToast(text: String) {
