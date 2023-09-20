@@ -13,7 +13,8 @@ android {
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
-
+        manifestPlaceholders["redirectHostName"] = "Google"
+        manifestPlaceholders["redirectSchemeName"] = "default"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
