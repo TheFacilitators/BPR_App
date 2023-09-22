@@ -3,6 +3,7 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_login">Login</string>
     <string name="client_id">f02608b7c5c84adb873b8c93c7262f40</string>
     <string name="redirect_uri">google.com</string>
 </resources>
