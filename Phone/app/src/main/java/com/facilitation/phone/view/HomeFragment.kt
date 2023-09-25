@@ -29,9 +29,9 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.HelloVuzix.setOnClickListener {
-            homeViewModel.sayHelloToVuzix()
-        }
+//        binding.HelloVuzix.setOnClickListener {
+//            homeViewModel.sayHelloToVuzix()
+//        }
     }
     override fun onDestroyView() {
         super.onDestroyView()

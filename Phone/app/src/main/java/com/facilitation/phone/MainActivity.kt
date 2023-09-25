@@ -1,8 +1,10 @@
 package com.facilitation.phone
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -14,16 +16,14 @@ import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import com.spotify.protocol.types.Track
 import com.spotify.sdk.android.auth.AuthorizationClient
-import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val clientID = "f02608b7c5c84adb873b8c93c7262f40"
-    private val redirectURI = "google.com"
-    private var spotifyAppRemote: SpotifyAppRemote? = null
-    private val REQUEST_CODE = 1337
+    private lateinit var navController: NavController
+    private lateinit var spotifyAppRemote: SpotifyAppRemote
+    private var token:String? = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
 
         val navView: BottomNavigationView = binding.navView
 
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        navController = findNavController(R.id.nav_host_fragment_activity_main)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
@@ -55,25 +55,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        spotifyAppRemote?.let {
+        spotifyAppRemote.let {
             SpotifyAppRemote.disconnect(it)
         }
     }
 
-    private fun initSpotifyAuth()
-    {
-        val builder =
-            AuthorizationRequest.Builder(getString(R.string.client_id), AuthorizationResponse.Type.TOKEN, getString(R.string.redirect_uri))
-
-        builder.setScopes(arrayOf("streaming"))
-        val request = builder.build()
-
-        AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request)
-    }
-
     private fun setupSpotifyConnection() {
-        val connectionParams = ConnectionParams.Builder(clientID)
-            .setRedirectUri(redirectURI)
+        val connectionParams = ConnectionParams.Builder(getString(R.string.client_id))
+            .setRedirectUri(getString(R.string.redirect_uri))
             .showAuthView(true)
             .build()
         SpotifyAppRemote.connect(this, connectionParams, object : Connector.ConnectionListener {
@@ -90,9 +79,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun subscribeToSpotifyState() {
-        spotifyAppRemote!!.playerApi.subscribeToPlayerState().setEventCallback {
+        spotifyAppRemote.playerApi.subscribeToPlayerState().setEventCallback {
             val song: Track = it.track
             Log.d("Spotify INFO", "Currently playing ${song.name} - ${song.artist.name}")
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode === requestCode) {
+            val response = AuthorizationClient.getResponse(resultCode, intent)
+            when (response.type) {
+                AuthorizationResponse.Type.TOKEN -> {
+                    token = response.accessToken
+                    navController.navigate(R.id.navigation_home)
+                }
+                AuthorizationResponse.Type.ERROR -> {
+                    //TODO: Display failure toast - Aldís 20.09.23
+                }
+                else -> {
+                    //TODO: Display connectivity failure - Aldís 20.09.23
+                }
+            }
         }
     }
 }

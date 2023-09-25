@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.facilitation.phone"
-        minSdk = 30
+        minSdk = 31
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -52,6 +52,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation(files("libs/spotify-app-remote-release-0.8.0.aar"))
     implementation(files("libs/spotify-auth-release-2.1.0.aar"))
+    implementation("androidx.annotation:annotation:1.7.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
