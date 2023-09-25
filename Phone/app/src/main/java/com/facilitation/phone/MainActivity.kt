@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        setupSpotifyConnection()
+//        setupSpotifyConnection()
     }
 
     override fun onStop() {

@@ -13,7 +13,7 @@ class LoginViewModel(private val appContext: Application) : AndroidViewModel(app
     var IsLoggedIn = false
     var EmailAddress:String = ""
 
-    private fun initSpotifyAuth() {
+     fun initSpotifyAuth(activity: Activity) {
         val builder = AuthorizationRequest.Builder(R.string.client_id.toString(),
             AuthorizationResponse.Type.TOKEN,
             R.string.redirect_uri.toString())
@@ -21,8 +21,6 @@ class LoginViewModel(private val appContext: Application) : AndroidViewModel(app
         builder.setScopes(arrayOf("streaming"))
         val request = builder.build()
 
-        AuthorizationClient.openLoginActivity(appContext.applicationContext as Activity, requestCode, request)
-
-//        AuthorizationClient.openLoginActivity(activity, requestCode, request)
+        AuthorizationClient.openLoginActivity(activity, requestCode, request)
     }
 }
