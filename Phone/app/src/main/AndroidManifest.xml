@@ -30,6 +30,12 @@
                     android:scheme="default" />
             </intent-filter>
         </activity>
+
+        <meta-data android:name="com.spotify.sdk.android.authentication.redirect_uri"
+            android:value="@string/redirect_uri"/>
+
+        <meta-data android:name="com.spotify.sdk.android.authentication.client_id"
+            android:value="@string/client_id"/>
     </application>
 
 </manifest>
