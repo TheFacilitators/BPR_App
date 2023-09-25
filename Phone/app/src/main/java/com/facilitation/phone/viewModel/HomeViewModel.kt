@@ -1,5 +1,6 @@
 package com.facilitation.phone.viewModel
 
+import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.os.Environment
@@ -27,11 +28,11 @@ class HomeViewModel(private val appContext: Application) : AndroidViewModel(appC
             Toast.makeText(appContext, "Vuzix not found. Cannot send message.", Toast.LENGTH_SHORT).show()
         }
     }
-    fun sendMusicToVuzix() {
+    fun sendMusicToVuzix(activity: Activity) {
         if (device.name.equals("BPR Blade")) {
             val mp3File = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "BPRAnthem.mp3")
             if (mp3File.exists() && mp3File.isFile) {
-                BluetoothServer(appContext, mp3File)
+                BluetoothServer(appContext, mp3File, activity)
             } else {
                 Toast.makeText(appContext, "MP3 file not found", Toast.LENGTH_SHORT).show()
             }

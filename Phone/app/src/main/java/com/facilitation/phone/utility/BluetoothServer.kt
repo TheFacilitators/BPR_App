@@ -1,11 +1,15 @@
 package com.facilitation.phone.utility
 
 import android.Manifest
+import android.app.Activity
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import java.io.File
@@ -13,10 +17,11 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.util.UUID
 
-class BluetoothServer(private val appContext: Application, private val mp3File: File) {
+class BluetoothServer(private val appContext: Application, private val mp3File: File, private val activity : Activity) {
 
         private var btAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         private var serverSocket: BluetoothServerSocket? = null
+        val mainHandler = Handler(Looper.getMainLooper())
     init {
         startServer()
     }
@@ -30,11 +35,16 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
         val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         try {
             if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(appContext, "Bluetooth_connect permission is missing", Toast.LENGTH_SHORT).show()
+                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
+                return
+            }
+            if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 2)
                 return
             }
             btAdapter.bondedDevices
             serverSocket = btAdapter.listenUsingRfcommWithServiceRecord("BPRPhone", uuid)
+            Toast.makeText(appContext, "The server is up", Toast.LENGTH_SHORT).show()
         } catch (e: IOException) {
             e.printStackTrace()
             return
@@ -43,6 +53,9 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
         // Start listening for incoming connections in a separate thread
         Thread {
             var socket: BluetoothSocket?
+            mainHandler.post {
+                Toast.makeText(appContext, "I am in a thread!", Toast.LENGTH_SHORT).show()
+            }
             while (true) {
                 try {
                     socket = serverSocket?.accept()
@@ -67,7 +80,7 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
         try {
             val outputStream = socket.outputStream
             val fileInputStream = FileInputStream(mp3File)
-            val buffer = ByteArray(1024)
+            val buffer = ByteArray(4096)
             var bytesRead: Int
 
             while (true) {
@@ -76,13 +89,11 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
                 outputStream.write(buffer, 0, bytesRead)
                 outputStream.flush()
             }
-            Toast.makeText(appContext, "Music file sent to Vuzix", Toast.LENGTH_SHORT).show()
             fileInputStream.close()
             outputStream.close()
             stopServer()
             return
 
-            // Callback to indicate the file has been sent
         } catch (e: IOException) {
             e.printStackTrace()
         }
