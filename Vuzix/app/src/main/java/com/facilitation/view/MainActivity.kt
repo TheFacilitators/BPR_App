@@ -44,7 +44,7 @@ class MainActivity : ActionMenuActivity() {
     }
 
     fun showSpotify(item: MenuItem?) {
-        showToast("Spotify!")
+       // showToast("Spotify!")
         val intent = Intent(this, SpotifyActivity::class.java)
         startActivity(intent)
     }

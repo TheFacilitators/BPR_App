@@ -1,10 +1,18 @@
 package com.facilitation.view
 
+import android.Manifest
 import android.app.Activity
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import com.facilitation.view.utility.ConnectThread
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 
@@ -14,9 +22,13 @@ class SpotifyActivity : ActionMenuActivity() {
     var PrevSongMenuItem: MenuItem? = null
     var SongDetailsMenuItem: MenuItem? = null
     private var isPlaying = false
+    val mediaPlayer = MediaPlayer()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spotify)
+        mediaPlayer.setDataSource("/storage/self/primary/Music/test.mp3")
+        mediaPlayer.prepare()
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -47,15 +59,25 @@ class SpotifyActivity : ActionMenuActivity() {
 
     fun togglePlayPause(item: MenuItem?) {
         if (isPlaying) {
-            showToast("Pause")
+            //showToast("Pause")
+            pauseSong()
             item?.setIcon(R.drawable.ic_play)
         }
         else
         {
-            showToast("Play")
+            //showToast("Play")
+            playSong()
             item?.setIcon(R.drawable.ic_pause)
         }
         isPlaying = !isPlaying
+    }
+
+    private fun pauseSong() {
+        mediaPlayer.pause()
+    }
+
+    private fun playSong() {
+        mediaPlayer.start()
     }
 
 
@@ -64,11 +86,30 @@ class SpotifyActivity : ActionMenuActivity() {
     }
 
     fun showSongDetails(item: MenuItem?) {
-        showToast("Total Eclipse of The Heart - Bonnie Tyler")
+        //showToast("Total Eclipse of The Heart - Bonnie Tyler")
+        initBluetooth()
     }
 
     private fun showToast(text: String) {
         val activity: Activity = this
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
+    }
+
+    private fun initBluetooth() {
+        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
+        val serverDevice = bluetoothAdapter.bondedDevices.find {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
+            }
+            it.name == "Galaxy S21 5G"}
+        if (serverDevice != null) {
+            val connectThread: ConnectThread =
+                serverDevice.let { ConnectThread(it, bluetoothAdapter) }
+            connectThread.start()
+            showToast("Connection Started")
+        } else {
+            showToast("Connection Failed")
+        }
     }
 }
