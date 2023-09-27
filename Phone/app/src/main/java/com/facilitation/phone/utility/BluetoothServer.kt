@@ -60,13 +60,7 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
                     break
                 }
                 if (socket != null) {
-                    mainHandler.post {
-                        Toast.makeText(appContext, "Starting the action", Toast.LENGTH_SHORT).show()
-                    }
                     delegateSocketHandling(socket)
-                    mainHandler.post {
-                        Toast.makeText(appContext, "Finishing the action", Toast.LENGTH_SHORT).show()
-                    }
                 }
             }
         }.start()
@@ -74,7 +68,13 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
     private fun delegateSocketHandling(socket : BluetoothSocket) {
         Thread {
             val socketHandler = SocketHandler(socket)
+            mainHandler.post {
+                Toast.makeText(appContext, "Starting sending the mp3 file", Toast.LENGTH_SHORT).show()
+            }
             socketHandler.sendMP3File(mp3File)
+            mainHandler.post {
+                Toast.makeText(appContext, "Finished sending the mp3 file", Toast.LENGTH_SHORT).show()
+            }
         }.start()
     }
 }
