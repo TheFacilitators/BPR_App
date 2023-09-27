@@ -28,9 +28,8 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
         if (!btAdapter.isEnabled) {
             return
         }
-        // Create a BluetoothServerSocket with a unique UUID
-        val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         try {
+            //Checking for required permissions
             if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
                 return
@@ -39,14 +38,18 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
                 ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 2)
                 return
             }
+            // Create a BluetoothServerSocket with a unique UUID
+            val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
             btAdapter.bondedDevices
             serverSocket = btAdapter.listenUsingRfcommWithServiceRecord("BPRPhone", uuid)
+            startListeningForConnections()
             Toast.makeText(appContext, "The bluetooth server is up", Toast.LENGTH_SHORT).show()
         } catch (e: IOException) {
             e.printStackTrace()
             return
         }
-
+    }
+    private fun startListeningForConnections() {
         // Start listening for incoming connections in a separate thread
         Thread {
             var socket: BluetoothSocket?
