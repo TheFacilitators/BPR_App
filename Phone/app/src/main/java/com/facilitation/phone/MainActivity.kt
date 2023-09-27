@@ -96,10 +96,11 @@ class MainActivity : AppCompatActivity() {
             AuthorizationResponse.Type.TOKEN,
             R.string.redirect_uri.toString())
 
-        builder.setScopes(arrayOf("streaming"))
+        builder.setScopes(arrayOf("streaming", "app-remote-control"))
         val request = builder.build()
 
-        AuthorizationClient.openLoginInBrowser(this, request)
+        AuthorizationClient.openLoginActivity(this, _requestCode, request)
+//        AuthorizationClient.openLoginInBrowser(this, request)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

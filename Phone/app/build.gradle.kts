@@ -13,8 +13,10 @@ android {
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
-        manifestPlaceholders["redirectHostName"] = "Google"
+        manifestPlaceholders["redirectHostName"] = "localhost"
         manifestPlaceholders["redirectSchemeName"] = "default"
+        manifestPlaceholders["clientId"] = "f02608b7c5c84adb873b8c93c7262f40"
+        manifestPlaceholders["clientSecret"] = "ceacfbe219f641a7af795de2b33dd6be"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
