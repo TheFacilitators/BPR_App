@@ -1,19 +1,15 @@
-package com.facilitation.view
+package com.facilitation.view.activities
 
-import android.Manifest
 import android.app.Activity
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothManager
-import android.content.Context
-import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import com.facilitation.view.utility.ConnectThread
+import com.facilitation.view.R
+import com.facilitation.view.utility.BluetoothHandler
 import com.vuzix.hud.actionmenu.ActionMenuActivity
+import java.io.IOException
 
 
 class SpotifyActivity : ActionMenuActivity() {
@@ -23,12 +19,12 @@ class SpotifyActivity : ActionMenuActivity() {
     var SongDetailsMenuItem: MenuItem? = null
     private var isPlaying = false
     val mediaPlayer = MediaPlayer()
+    private var currentDataSource: String = ""
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spotify)
-        mediaPlayer.setDataSource("/storage/self/primary/Music/test.mp3")
-        mediaPlayer.prepare()
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -60,29 +56,25 @@ class SpotifyActivity : ActionMenuActivity() {
     fun togglePlayPause(item: MenuItem?) {
         if (isPlaying) {
             //showToast("Pause")
-            pauseSong()
+            mediaPlayer.pause()
             item?.setIcon(R.drawable.ic_play)
         }
         else
         {
             //showToast("Play")
-            playSong()
-            item?.setIcon(R.drawable.ic_pause)
+            if(currentDataSource == ""){
+                showToast("No Song available")
+            }else {
+                updateDataSource()
+                mediaPlayer.start()
+                item?.setIcon(R.drawable.ic_pause)
+            }
         }
         isPlaying = !isPlaying
     }
 
-    private fun pauseSong() {
-        mediaPlayer.pause()
-    }
-
-    private fun playSong() {
-        mediaPlayer.start()
-    }
-
-
     fun nextSong(item: MenuItem?) {
-        showToast("Next Song")
+        showToast("Next Song!")
     }
 
     fun showSongDetails(item: MenuItem?) {
@@ -90,26 +82,23 @@ class SpotifyActivity : ActionMenuActivity() {
         initBluetooth()
     }
 
-    private fun showToast(text: String) {
-        val activity: Activity = this
-        activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
+    private fun updateDataSource() {
+        try {
+            mediaPlayer.reset()
+            mediaPlayer.setDataSource(currentDataSource)
+            mediaPlayer.prepare()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 
     private fun initBluetooth() {
-        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
-        val serverDevice = bluetoothAdapter.bondedDevices.find {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
-            }
-            it.name == "Galaxy S21 5G"}
-        if (serverDevice != null) {
-            val connectThread: ConnectThread =
-                serverDevice.let { ConnectThread(it, bluetoothAdapter) }
-            connectThread.start()
-            showToast("Connection Started")
-        } else {
-            showToast("Connection Failed")
-        }
+        val bluetoothHandler = BluetoothHandler(this)
+        currentDataSource = bluetoothHandler.initiateConnection()
+    }
+
+    private fun showToast(text: String) {
+        val activity: Activity = this
+        activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
     }
 }
