@@ -18,11 +18,18 @@ class HomeViewModel(private val appContext: Application) : AndroidViewModel(appC
     private val connectivity: Connectivity = Connectivity.get(appContext)
     private val device: Device = connectivity.device
     private lateinit var mp3File : File
+    private var serverRunning = false
 
 
     fun initializeBluetoothServer(activity: Activity) {
-        findMusicPath()
-        BluetoothServer(appContext, mp3File, activity)
+        if(!serverRunning) {
+            findMusicPath()
+            BluetoothServer(appContext, mp3File, activity)
+            serverRunning = true
+        }
+        else{
+            Toast.makeText(appContext, "Bluetooth server is already running", Toast.LENGTH_SHORT).show()
+        }
     }
     fun sayHelloToVuzix() {
         if (device.name.equals("BPR Blade")) {
