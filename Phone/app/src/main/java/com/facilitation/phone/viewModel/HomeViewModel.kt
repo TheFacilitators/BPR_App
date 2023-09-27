@@ -30,7 +30,7 @@ class HomeViewModel(private val appContext: Application) : AndroidViewModel(appC
     }
     fun sendMusicToVuzix(activity: Activity) {
         if (device.name.equals("BPR Blade")) {
-            val mp3File = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "BPRAnthem.mp3")
+            val mp3File = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Medina_-_Kun_For_Mig.mp3")
             if (mp3File.exists() && mp3File.isFile) {
                 BluetoothServer(appContext, mp3File, activity)
             } else {

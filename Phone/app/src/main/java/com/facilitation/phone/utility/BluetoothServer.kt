@@ -21,7 +21,7 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
 
         private var btAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         private var serverSocket: BluetoothServerSocket? = null
-        val mainHandler = Handler(Looper.getMainLooper())
+        private val mainHandler = Handler(Looper.getMainLooper())
     init {
         startServer()
     }
@@ -62,48 +62,22 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
                 } catch (e: IOException) {
                     break
                 }
-
-                // If a connection is accepted, send the MP3 file
                 if (socket != null) {
-                    sendMP3File(socket)
-                    // Close the socket when done
-                    try {
-                        socket.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
+                    mainHandler.post {
+                        Toast.makeText(appContext, "Starting the action", Toast.LENGTH_SHORT).show()
+                    }
+                    delegateSocketHandling(socket)
+                    mainHandler.post {
+                        Toast.makeText(appContext, "Finishing the action", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         }.start()
     }
-    private fun sendMP3File(socket: BluetoothSocket) {
-        try {
-            val outputStream = socket.outputStream
-            val fileInputStream = FileInputStream(mp3File)
-            val buffer = ByteArray(4096)
-            var bytesRead: Int
-
-            while (true) {
-                bytesRead = fileInputStream.read(buffer)
-                if (bytesRead == -1) break
-                outputStream.write(buffer, 0, bytesRead)
-                outputStream.flush()
-            }
-            fileInputStream.close()
-            outputStream.close()
-            stopServer()
-            return
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-    private fun stopServer() {
-        // Close the server socket when done
-        try {
-            serverSocket?.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
+    private fun delegateSocketHandling(socket : BluetoothSocket) {
+        Thread {
+            val socketHandler = SocketHandler(socket)
+            socketHandler.sendMP3File(mp3File)
+        }.start()
     }
 }
