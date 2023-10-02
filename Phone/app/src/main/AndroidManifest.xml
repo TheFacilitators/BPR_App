@@ -29,8 +29,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
 
                 <data
-                    android:host="localhost:8080"
-                    android:scheme="default" />
+                    android:scheme="http"
+                    android:host="localhost"
+                    android:port="8888"
+                    android:path="/callback/"/>
             </intent-filter>
         </activity>
 

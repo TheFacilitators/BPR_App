@@ -6,7 +6,7 @@
     <string name="title_login">Login</string>
     <string name="client_id">f02608b7c5c84adb873b8c93c7262f40</string>
     <string name="client_secret">ceacfbe219f641a7af795de2b33dd6be</string>
-    <string name="redirect_uri">http://localhost:8080/callback</string>
+    <string name="redirect_uri">http://localhost:8888/callback/</string>
     <string name="request_code">9485</string>
     <!-- Strings related to login -->
     <string name="action_sign_in">Sign in</string>
