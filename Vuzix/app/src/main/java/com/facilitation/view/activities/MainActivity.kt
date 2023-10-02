@@ -40,10 +40,6 @@ class MainActivity : ActionMenuActivity() {
         return true
     }
 
-    override fun setCurrentMenuItem(item: MenuItem?, animate: Boolean) {
-        super.setCurrentMenuItem(item, animate)
-    }
-
     fun showSpotify(item: MenuItem?) {
        // showToast("Spotify!")
         val intent = Intent(this, SpotifyActivity::class.java)
@@ -51,7 +47,9 @@ class MainActivity : ActionMenuActivity() {
     }
 
     fun showSnake(item: MenuItem?) {
-        showToast("Snake II: Cold blooded revenge!")
+        //showToast("Snake II: Cold blooded revenge!")
+        val intent = Intent(this, SnakeActivity::class.java)
+        startActivity(intent)
     }
 
     private fun showToast(text: String) {
