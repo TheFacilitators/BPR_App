@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity() {
                 AuthorizationResponse.Type.TOKEN -> {
                     token = response.accessToken
                     Log.d("Spotify INFO", "Token received: ${token.toString()}")
+                    Toast.makeText(applicationContext, "Spotify token successfully obtained", Toast.LENGTH_SHORT).show()
                 }
                 AuthorizationResponse.Type.ERROR -> {
                     Toast.makeText(applicationContext, "Invalid Spotify credentials", Toast.LENGTH_LONG).show()
