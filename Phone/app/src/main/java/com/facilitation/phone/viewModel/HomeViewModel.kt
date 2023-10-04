@@ -8,10 +8,7 @@ import com.vuzix.connectivity.sdk.Device
 import android.content.Intent
 import android.os.Environment
 import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
 import com.facilitation.phone.utility.BluetoothServer
-import com.vuzix.connectivity.sdk.Connectivity
-import com.vuzix.connectivity.sdk.Device
 import java.io.File
 
 
