@@ -10,6 +10,8 @@ import android.bluetooth.BluetoothSocket
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.MediaDataSource
+import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -19,10 +21,12 @@ import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.util.UUID
 
 class BluetoothHandler(
-    private val context: Context
+    private val context: Context,
+    private val mediaPlayer: MediaPlayer
 ) {
 
     private val deviceNameToConnect = "Galaxy S21 5G"
@@ -97,7 +101,7 @@ class BluetoothHandler(
                     bytesRead = inputStream.read(buffer)
                     if (bytesRead == -1) break
                     outputStream.write(buffer, 0, bytesRead)
-                    Log.d(TAG, "File data: ${bytesRead}")
+                    Log.d(TAG, "File data: $bytesRead")
                 }
 
                 outputStream.close()
@@ -105,12 +109,44 @@ class BluetoothHandler(
                 socket.close()
 
                 Log.d(TAG, "File received and saved at: ${receivedFile.absolutePath}")
+
+                // Use the custom MediaDataSource to set data source for MediaPlayer
+                val dataSource = BluetoothMediaDataSource(receivedFile)
+                mediaPlayer.setDataSource(dataSource)
+                mediaPlayer.prepare()
+                mediaPlayer.start()
+
             } catch (e: IOException) {
                 Log.e(TAG, "Error receiving file", e)
             }
         }
     }
-    private fun showToast(toast: String){
+
+    // Custom MediaDataSource for Bluetooth data
+    inner class BluetoothMediaDataSource(private val file: File) : MediaDataSource() {
+        private val inputStream: InputStream = file.inputStream()
+
+        @Throws(IOException::class)
+        override fun readAt(position: Long, buffer: ByteArray, offset: Int, size: Int): Int {
+            try {
+                inputStream.skip(position)
+                return inputStream.read(buffer, offset, size)
+            } catch (e: IOException) {
+                e.printStackTrace()
+                return -1
+            }
+        }
+
+        override fun getSize(): Long {
+            return file.length()
+        }
+
+        override fun close() {
+            inputStream.close()
+        }
+    }
+
+    private fun showToast(toast: String) {
         mainHandler.post {
             Toast.makeText(context, toast, Toast.LENGTH_SHORT).show()
         }

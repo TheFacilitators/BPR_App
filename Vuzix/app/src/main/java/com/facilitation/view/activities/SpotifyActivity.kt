@@ -93,7 +93,7 @@ class SpotifyActivity : ActionMenuActivity() {
     }
 
     private fun initBluetooth() {
-        val bluetoothHandler = BluetoothHandler(this)
+        val bluetoothHandler = BluetoothHandler(this, mediaPlayer)
         currentDataSource = bluetoothHandler.initiateConnection()
     }
 
