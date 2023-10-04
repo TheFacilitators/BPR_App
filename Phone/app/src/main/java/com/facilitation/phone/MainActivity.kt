@@ -1,19 +1,19 @@
 package com.facilitation.phone
 
 import android.content.Intent
-import android.Manifest
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
-import androidx.core.app.ActivityCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.facilitation.phone.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.spotify.android.appremote.api.ConnectionParams
+import com.spotify.android.appremote.api.Connector
+import com.spotify.android.appremote.api.SpotifyAppRemote
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
@@ -47,48 +47,70 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        authorizationSpotify()
+        playSongFromSpotify()
+
     }
 
-    override fun onStart() {
-        super.onStart()
-        initSpotifyAuth()
-    }
 
-    private fun initSpotifyAuth() {
-        Log.d("Spotify INFO", "Starting Spotify authentication")
-        val builder = AuthorizationRequest.Builder(getString(R.string.client_id),
-            AuthorizationResponse.Type.TOKEN,
-            getString(R.string.redirect_uri))
-
+    private fun authorizationSpotify() {
+        val builder: AuthorizationRequest.Builder =
+            AuthorizationRequest.Builder("f02608b7c5c84adb873b8c93c7262f40", AuthorizationResponse.Type.TOKEN, "http://localhost:8888/callback/")
         builder.setScopes(arrayOf("streaming"))
-        val request = builder.build()
-
-        AuthorizationClient.openLoginActivity(this, _requestCode, request)
+        val request: AuthorizationRequest = builder.build()
+        AuthorizationClient.openLoginActivity(this, 9485, request)
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        navController.navigate(R.id.navigation_home)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, intent)
 
-        if (requestCode == _requestCode) {
-            val response = AuthorizationClient.getResponse(resultCode, data)
+        // Check if result comes from the correct activity
+        if (requestCode == 9485) {
+            val response = AuthorizationClient.getResponse(resultCode, intent)
+
             when (response.type) {
+                // Response was successful and contains auth token
                 AuthorizationResponse.Type.TOKEN -> {
-                    token = response.accessToken
-                    Log.d("Spotify INFO", "Token received: ${token.toString()}")
-                    Toast.makeText(applicationContext, "Spotify token successfully obtained", Toast.LENGTH_SHORT).show()
+                    val editor = getSharedPreferences("SPOTIFY", 0).edit()
+                    editor.putString("token", response.accessToken)
+                    Log.d("STARTING", "GOT AUTH TOKEN")
+                    editor.apply()
+                    //waitForUserInfo()
                 }
                 AuthorizationResponse.Type.ERROR -> {
-                    Toast.makeText(applicationContext, "Invalid Spotify credentials", Toast.LENGTH_SHORT).show()
-                    Log.d("Spotify ERROR", "Error: ${response.error}")
-
+                    Log.e("Spotify ERROR", "Error: ${response.error}")
                 }
                 else -> {
-                    Toast.makeText(applicationContext, "Unable to verify Spotify credentials", Toast.LENGTH_SHORT).show()
-                    Log.e("Spotify ERROR", "Returned authorization unknown: ${response.type}\nError: ${response.error}")
+                    Log.e("Unknown error", "Error: ${response.error}")
                 }
             }
+        }
+    }
+    private fun playSongFromSpotify() {
+        val sharedPreferencesSpotify = getSharedPreferences("SPOTIFY", 0)
+        val token = sharedPreferencesSpotify.getString("token", null)
+
+        if (token != null) {
+            val connectionParams = ConnectionParams.Builder("f02608b7c5c84adb873b8c93c7262f40")
+                .setRedirectUri("http://localhost:8888/callback/")
+                .showAuthView(false)
+                .build()
+
+            SpotifyAppRemote.connect(this, connectionParams, object : Connector.ConnectionListener {
+                override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
+                    // Connection successful
+
+                    spotifyAppRemote.playerApi.play("spotify:track:1qAuIPMALdFtGv2Ymjy5l0")
+                }
+
+                override fun onFailure(throwable: Throwable) {
+                    // Connection failed
+                    Log.e(
+                        "MainActivity",
+                        "SpotifyAppRemote connection failed: ${throwable.message}"
+                    )
+                }
+            })
         }
     }
 }

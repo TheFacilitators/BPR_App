@@ -34,10 +34,6 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
                 ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
                 return
             }
-            if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 2)
-                return
-            }
             // Create a BluetoothServerSocket with a unique UUID
             val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
             btAdapter.bondedDevices
