@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.core.app.NavUtils
 import androidx.core.view.get
 import androidx.core.view.iterator
 import com.facilitation.view.R
@@ -32,7 +33,6 @@ class SpotifyActivity(tapSDK: TapSdk) : ActionMenuActivity() {
     private var isPlaying = false
     val mediaPlayer = MediaPlayer()
     private var currentDataSource: String = ""
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,11 +71,13 @@ class SpotifyActivity(tapSDK: TapSdk) : ActionMenuActivity() {
     fun previousSong(item: MenuItem?) {
         showToast("Previous Song!")
         checkMenuItem(1)
+        TODO("Waiting for Spotify integration")
     }
 
     fun nextSong(item: MenuItem?) {
         showToast("Next Song!")
         checkMenuItem(3)
+        TODO("Waiting for Spotify integration")
     }
 
     fun showSongDetails(item: MenuItem?) {
@@ -106,6 +108,7 @@ class SpotifyActivity(tapSDK: TapSdk) : ActionMenuActivity() {
 
     fun executeSelectedMenuItem() {
         when(menuArray.indexOf(currentMenuItem)) {
+            0 -> navigateBack()
             1 -> previousSong(currentMenuItem)
             2 -> playPauseMusic()
             3 -> nextSong(currentMenuItem)
@@ -116,7 +119,7 @@ class SpotifyActivity(tapSDK: TapSdk) : ActionMenuActivity() {
 
     fun navigateBack() {
         checkMenuItem(0)
-        executeSelectedMenuItem()
+        NavUtils.navigateUpFromSameTask(this)
     }
 
     fun moveLeft() {
