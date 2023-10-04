@@ -9,21 +9,20 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.core.app.NavUtils
 import androidx.core.view.get
-import androidx.core.view.iterator
 import com.facilitation.view.R
 import com.facilitation.view.databinding.ActivitySpotifyBinding
 import com.facilitation.view.utility.BluetoothHandler
-import com.facilitation.view.utility.ITapInput
 import com.facilitation.view.utility.TapInputHandler
 import com.tapwithus.sdk.TapSdk
+import com.tapwithus.sdk.TapSdkFactory
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 import java.io.IOException
 
 
-class SpotifyActivity(tapSDK: TapSdk) : ActionMenuActivity() {
+class SpotifyActivity : ActionMenuActivity() {
     private lateinit var tapHandler : TapInputHandler
     private lateinit var binding : ActivitySpotifyBinding
-    private val tapSDK : TapSdk = tapSDK
+    private lateinit var tapSDK : TapSdk
     var PlayPauseMenuItem: MenuItem? = null
     var NextSongMenuItem: MenuItem? = null
     var PrevSongMenuItem: MenuItem? = null
@@ -38,6 +37,7 @@ class SpotifyActivity(tapSDK: TapSdk) : ActionMenuActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySpotifyBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        tapSDK = TapSdkFactory.getDefault(this)
 
         tapHandler = TapInputHandler(this, tapSDK)
     }
@@ -110,7 +110,7 @@ class SpotifyActivity(tapSDK: TapSdk) : ActionMenuActivity() {
         when(menuArray.indexOf(currentMenuItem)) {
             0 -> navigateBack()
             1 -> previousSong(currentMenuItem)
-            2 -> playPauseMusic()
+            2 -> playPauseMusic(currentMenuItem)
             3 -> nextSong(currentMenuItem)
             4 -> initBluetooth()
             else -> Log.d("ERROR", "Invalid menu item selected for execution")
@@ -134,7 +134,7 @@ class SpotifyActivity(tapSDK: TapSdk) : ActionMenuActivity() {
         setCurrentMenuItem(currentMenuItem, true)
     }
 
-    fun playPauseMusic() {
+    fun playPauseMusic(item: MenuItem?) {
         if (isPlaying) {
             //showToast("Pause")
             mediaPlayer.pause()

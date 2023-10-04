@@ -1,17 +1,9 @@
 package com.facilitation.view.utility
 
-import android.content.Context
-import android.util.Log
 import com.facilitation.view.activities.SpotifyActivity
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.enums.TapToCommandEnum
-import com.tapwithus.sdk.TapListener
 import com.tapwithus.sdk.TapSdk
-import com.tapwithus.sdk.TapSdkFactory
-import com.tapwithus.sdk.airmouse.AirMousePacket
-import com.tapwithus.sdk.mode.Point3
-import com.tapwithus.sdk.mode.RawSensorData
-import com.tapwithus.sdk.mouse.MousePacket
 
 class TapInputHandler(private val activity: SpotifyActivity, tapSDK: TapSdk) : ITapInput {
 
@@ -57,11 +49,11 @@ class TapInputHandler(private val activity: SpotifyActivity, tapSDK: TapSdk) : I
     }
 
     override fun goHome() {
-        TODO("Not yet implemented")
+        activity.finishAffinity()
     }
 
     override fun toggleMusic() {
-        activity.playPauseMusic()
+        activity.playPauseMusic(null)
     }
 
 }

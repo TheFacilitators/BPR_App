@@ -11,7 +11,7 @@
         android:title=""
         android:icon="@drawable/ic_play"
         android:enabled="true"
-        android:onClick="togglePlayPause"/>
+        android:onClick="playPauseMusic"/>
     <item
         android:id="@+id/menu_spotify_item3"
         android:title=""
