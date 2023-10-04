@@ -2,6 +2,9 @@ package com.facilitation.phone.viewModel
 
 import android.app.Activity
 import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import com.vuzix.connectivity.sdk.Connectivity
+import com.vuzix.connectivity.sdk.Device
 import android.content.Intent
 import android.os.Environment
 import android.widget.Toast
@@ -50,5 +53,4 @@ class HomeViewModel(private val appContext: Application) : AndroidViewModel(appC
         }
 
     }
-
 }
