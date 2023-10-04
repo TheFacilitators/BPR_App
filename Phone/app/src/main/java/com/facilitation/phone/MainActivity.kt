@@ -53,9 +53,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun initSpotifyAuth() {
         Log.d("Spotify INFO", "Starting Spotify authentication")
-        val builder = AuthorizationRequest.Builder("f02608b7c5c84adb873b8c93c7262f40",
+        val builder = AuthorizationRequest.Builder(getString(R.string.client_id),
             AuthorizationResponse.Type.TOKEN,
-            "http://localhost:8888/callback/")
+            getString(R.string.redirect_uri))
 
         builder.setScopes(arrayOf("streaming"))
         val request = builder.build()
