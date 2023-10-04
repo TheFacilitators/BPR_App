@@ -1,4 +1,4 @@
-package com.facilitation.view
+package com.facilitation.view.activities
 
 import android.app.Activity
 import android.content.BroadcastReceiver
@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.facilitation.view.R
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 class MainActivity : ActionMenuActivity() {
@@ -39,18 +40,16 @@ class MainActivity : ActionMenuActivity() {
         return true
     }
 
-    override fun setCurrentMenuItem(item: MenuItem?, animate: Boolean) {
-        super.setCurrentMenuItem(item, animate)
-    }
-
     fun showSpotify(item: MenuItem?) {
-        showToast("Spotify!")
+       // showToast("Spotify!")
         val intent = Intent(this, SpotifyActivity::class.java)
         startActivity(intent)
     }
 
     fun showSnake(item: MenuItem?) {
-        showToast("Snake II: Cold blooded revenge!")
+        //showToast("Snake II: Cold blooded revenge!")
+        val intent = Intent(this, SnakeActivity::class.java)
+        startActivity(intent)
     }
 
     private fun showToast(text: String) {

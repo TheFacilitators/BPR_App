@@ -1,4 +1,4 @@
-package com.facilitation.view
+package com.facilitation.view.receivers
 
 import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver

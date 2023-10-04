@@ -20,7 +20,8 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+        homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
+        homeViewModel.initializeBluetoothServer(requireActivity())
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 

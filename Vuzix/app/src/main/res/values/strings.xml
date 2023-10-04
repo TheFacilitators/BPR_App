@@ -5,4 +5,6 @@
     <string name="app_widget_description">BPR widget description</string>
     <string name="title_activity_music">MusicActivity</string>
     <string name="title_activity_spotify">SpotifyActivity</string>
+    <string name="spotify">Spotify</string>
+    <string name="snake_ii">Snake II</string>
 </resources>

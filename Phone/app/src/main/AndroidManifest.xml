@@ -9,6 +9,11 @@
         <package android:name="com.vuzix.companion" />
     </queries>
 
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -20,6 +25,7 @@
         android:theme="@style/Theme.Phone"
         tools:targetApi="33">
         <activity
+
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name">
@@ -42,5 +48,7 @@
         <meta-data android:name="com.spotify.sdk.android.authentication.client_id"
             android:value="@string/client_id"/>
     </application>
+
+
 
 </manifest>
