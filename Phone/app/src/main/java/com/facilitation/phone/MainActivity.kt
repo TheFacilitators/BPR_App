@@ -80,12 +80,12 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(applicationContext, "Spotify token successfully obtained", Toast.LENGTH_SHORT).show()
                 }
                 AuthorizationResponse.Type.ERROR -> {
-                    Toast.makeText(applicationContext, "Invalid Spotify credentials", Toast.LENGTH_LONG).show()
+                    Toast.makeText(applicationContext, "Invalid Spotify credentials", Toast.LENGTH_SHORT).show()
                     Log.d("Spotify ERROR", "Error: ${response.error}")
 
                 }
                 else -> {
-                    Toast.makeText(applicationContext, "Unable to verify Spotify credentials", Toast.LENGTH_LONG).show()
+                    Toast.makeText(applicationContext, "Unable to verify Spotify credentials", Toast.LENGTH_SHORT).show()
                     Log.e("Spotify ERROR", "Returned authorization unknown: ${response.type}\nError: ${response.error}")
                 }
             }
