@@ -89,5 +89,6 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener {
     fun exitGame(view: View) {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        finishAffinity()
     }
 }
