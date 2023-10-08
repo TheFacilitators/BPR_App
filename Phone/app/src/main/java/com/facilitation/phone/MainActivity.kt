@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun authorizationSpotify() {
         val builder: AuthorizationRequest.Builder =
-            AuthorizationRequest.Builder("f02608b7c5c84adb873b8c93c7262f40", AuthorizationResponse.Type.TOKEN, "http://localhost:8888/callback/")
+            AuthorizationRequest.Builder(getString(R.string.client_id), AuthorizationResponse.Type.TOKEN, getString(R.string.redirect_uri))
         builder.setScopes(arrayOf("streaming"))
         val request: AuthorizationRequest = builder.build()
         AuthorizationClient.openLoginActivity(this, 9485, request)
@@ -91,8 +91,8 @@ class MainActivity : AppCompatActivity() {
         val token = sharedPreferencesSpotify.getString("token", null)
 
         if (token != null) {
-            val connectionParams = ConnectionParams.Builder("f02608b7c5c84adb873b8c93c7262f40")
-                .setRedirectUri("http://localhost:8888/callback/")
+            val connectionParams = ConnectionParams.Builder(getString(R.string.client_id))
+                .setRedirectUri(getString(R.string.redirect_uri))
                 .showAuthView(false)
                 .build()
 
