@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         authorizationSpotify()
-        playSongFromSpotify()
 
     }
 
@@ -61,6 +60,7 @@ class MainActivity : AppCompatActivity() {
         AuthorizationClient.openLoginActivity(this, 9485, request)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         super.onActivityResult(requestCode, resultCode, intent)
 
@@ -84,33 +84,6 @@ class MainActivity : AppCompatActivity() {
                     Log.e("Unknown error", "Error: ${response.error}")
                 }
             }
-        }
-    }
-    private fun playSongFromSpotify() {
-        val sharedPreferencesSpotify = getSharedPreferences("SPOTIFY", 0)
-        val token = sharedPreferencesSpotify.getString("token", null)
-
-        if (token != null) {
-            val connectionParams = ConnectionParams.Builder(getString(R.string.client_id))
-                .setRedirectUri(getString(R.string.redirect_uri))
-                .showAuthView(false)
-                .build()
-
-            SpotifyAppRemote.connect(this, connectionParams, object : Connector.ConnectionListener {
-                override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
-                    // Connection successful
-
-                    spotifyAppRemote.playerApi.play("spotify:track:1qAuIPMALdFtGv2Ymjy5l0")
-                }
-
-                override fun onFailure(throwable: Throwable) {
-                    // Connection failed
-                    Log.e(
-                        "MainActivity",
-                        "SpotifyAppRemote connection failed: ${throwable.message}"
-                    )
-                }
-            })
         }
     }
 }
