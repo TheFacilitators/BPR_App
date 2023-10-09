@@ -34,13 +34,13 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
                 ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
                 return
             }
-            if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 2)
+            if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.MODIFY_AUDIO_SETTINGS), 2)
                 return
             }
             // Create a BluetoothServerSocket with a unique UUID
+            val devices = btAdapter.bondedDevices
             val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-            btAdapter.bondedDevices
             serverSocket = btAdapter.listenUsingRfcommWithServiceRecord("BPRPhone", uuid)
             startListeningForConnections()
             Toast.makeText(appContext, "The bluetooth server is up", Toast.LENGTH_SHORT).show()
@@ -69,11 +69,11 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
         Thread {
             val socketHandler = SocketHandler(socket)
             mainHandler.post {
-                Toast.makeText(appContext, "Starting sending the mp3 file", Toast.LENGTH_SHORT).show()
+                Toast.makeText(appContext, "Started broadcasting audio through bluetooth", Toast.LENGTH_SHORT).show()
             }
-            socketHandler.sendMP3File(mp3File)
+            socketHandler.playSongFromSpotify(appContext)
             mainHandler.post {
-                Toast.makeText(appContext, "Finished sending the mp3 file", Toast.LENGTH_SHORT).show()
+                Toast.makeText(appContext, "Stopped broadcasting audio through bluetooth", Toast.LENGTH_SHORT).show()
             }
         }.start()
     }
