@@ -1,7 +1,10 @@
 package com.facilitation.phone
 
+import android.bluetooth.BluetoothSocket
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
@@ -85,5 +88,30 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun playSongFromSpotify() {
+            val sharedPreferencesSpotify = getSharedPreferences("SPOTIFY", 0)
+            val token = sharedPreferencesSpotify.getString("token", null)
+            if (token != null) {
+                val connectionParams = ConnectionParams.Builder(getString(R.string.client_id))
+                    .setRedirectUri(getString(R.string.redirect_uri))
+                    .showAuthView(true)
+                    .build()
+
+                SpotifyAppRemote.connect(this, connectionParams, object : Connector.ConnectionListener {
+                    override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
+                        // Connection successful
+                        spotifyAppRemote.playerApi.play("spotify:track:1qAuIPMALdFtGv2Ymjy5l0")
+                    }
+                    override fun onFailure(throwable: Throwable) {
+                        // Connection failed
+                        Log.e(
+                            "MainActivity",
+                            "SpotifyAppRemote connection failed: ${throwable.message}"
+                        )
+                    }
+                })
+            }
     }
 }
