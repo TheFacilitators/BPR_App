@@ -9,17 +9,19 @@ import android.bluetooth.BluetoothSocket
 import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import java.io.File
+import java.io.BufferedReader
 import java.io.IOException
+import java.io.InputStreamReader
 import java.util.UUID
 
-class BluetoothServer(private val appContext: Application, private val mp3File: File, private val activity : Activity) {
+class BluetoothServer(private val appContext: Application, private val activity : Activity) {
 
         private var btAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         private var serverSocket: BluetoothServerSocket? = null
-        private val mainHandler = Handler(Looper.getMainLooper())
+        private val socketHandler: SocketHandler = SocketHandler(appContext)
     init {
         startServer()
     }
@@ -39,7 +41,6 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
                 return
             }
             // Create a BluetoothServerSocket with a unique UUID
-            val devices = btAdapter.bondedDevices
             val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
             serverSocket = btAdapter.listenUsingRfcommWithServiceRecord("BPRPhone", uuid)
             startListeningForConnections()
@@ -60,21 +61,25 @@ class BluetoothServer(private val appContext: Application, private val mp3File: 
                     break
                 }
                 if (socket != null) {
-                    delegateSocketHandling(socket)
+                    listenOnThisSocket(socket)
                 }
             }
         }.start()
     }
-    private fun delegateSocketHandling(socket : BluetoothSocket) {
+    private fun listenOnThisSocket(socket : BluetoothSocket) {
         Thread {
-            val socketHandler = SocketHandler(socket)
-            mainHandler.post {
-                Toast.makeText(appContext, "Started broadcasting audio through bluetooth", Toast.LENGTH_SHORT).show()
+            Looper.prepare()
+            val clientInput = BufferedReader(InputStreamReader(socket.inputStream))
+            Log.i("BluetoothServer", "Connection established")
+            while (true) {
+                val command = clientInput.readLine() ?: break
+                println("Received: $command")
+                socketHandler.handleClientCommand(command)
             }
-            socketHandler.playSongFromSpotify(appContext)
-            mainHandler.post {
-                Toast.makeText(appContext, "Stopped broadcasting audio through bluetooth", Toast.LENGTH_SHORT).show()
-            }
+            clientInput.close()
+            socket.close()
+            Looper.loop()
+            Looper.myLooper()?.quit()
         }.start()
     }
 }
