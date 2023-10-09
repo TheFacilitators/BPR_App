@@ -22,8 +22,7 @@ class HomeViewModel(private val appContext: Application) : AndroidViewModel(appC
 
     fun initializeBluetoothServer(activity: Activity) {
         if(!serverRunning) {
-            BluetoothServer(appContext, activity)
-            serverRunning = true
+            serverRunning = BluetoothServer(appContext, activity).startServer()
         }
         else{
             Toast.makeText(appContext, "Bluetooth server is already running", Toast.LENGTH_SHORT).show()

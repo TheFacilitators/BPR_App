@@ -22,32 +22,29 @@ class BluetoothServer(private val appContext: Application, private val activity 
         private var btAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         private var serverSocket: BluetoothServerSocket? = null
         private val socketHandler: SocketHandler = SocketHandler(appContext)
-    init {
-        startServer()
-    }
-    private fun startServer() {
+     fun startServer(): Boolean {
         // Ensure Bluetooth is enabled
         if (!btAdapter.isEnabled) {
-            return
+            Log.e("Bluetooth", "Bluetooth not enabled")
+            return false
         }
         try {
             //Checking for required permissions
             if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
-                return
             }
             if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.MODIFY_AUDIO_SETTINGS), 2)
-                return
             }
             // Create a BluetoothServerSocket with a unique UUID
             val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
             serverSocket = btAdapter.listenUsingRfcommWithServiceRecord("BPRPhone", uuid)
             startListeningForConnections()
             Toast.makeText(appContext, "The bluetooth server is up", Toast.LENGTH_SHORT).show()
+            return true
         } catch (e: IOException) {
             e.printStackTrace()
-            return
+            return false
         }
     }
     private fun startListeningForConnections() {
