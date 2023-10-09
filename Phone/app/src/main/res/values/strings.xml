@@ -4,8 +4,8 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_login">Login</string>
-    <string name="client_id">f02608b7c5c84adb873b8c93c7262f40</string>
-    <string name="client_secret">ceacfbe219f641a7af795de2b33dd6be</string>
+    <string name="client_id">5e231a9b16ef44788f00ae06e1a93db0</string>
+    <string name="client_secret">570f169fa60a4a91a7f5d493a251f41b</string>
     <string name="redirect_uri">http://localhost:8888/callback/</string>
     <string name="request_code">9485</string>
     <!-- Strings related to login -->
