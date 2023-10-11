@@ -46,7 +46,7 @@ class SpotifyActivity : ActionMenuActivity() {
     }
 
     override fun alwaysShowActionMenu(): Boolean {
-        return true
+        return false
     }
 
     override fun setCurrentMenuItem(item: MenuItem?, animate: Boolean) {
