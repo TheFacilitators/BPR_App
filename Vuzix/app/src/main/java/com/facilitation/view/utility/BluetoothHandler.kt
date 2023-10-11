@@ -17,7 +17,6 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.io.IOException
-import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.util.UUID
@@ -28,11 +27,6 @@ class BluetoothHandler(
 
     private val deviceNameToConnect = "Galaxy S21 5G"
     private val bluetoothString = "00001101-0000-1000-8000-00805F9B34FB"
-    private val bufferSize = 4096
-
-    private val bluetoothOutput: OutputStream? by lazy(LazyThreadSafetyMode.NONE) {
-        connectedSocket?.outputStream
-    }
 
     private var connectedSocket: BluetoothSocket? = null
 
@@ -51,6 +45,9 @@ class BluetoothHandler(
                 Log.d(TAG, "Sent command to server: $command")
             } catch (e: IOException) {
                 Log.e(TAG, "Error sending command to server: $command", e)
+            }
+            if(command.equals("exit")){
+                connectedSocket!!.close()
             }
         } else {
             Log.e(TAG, "Socket is not connected to the server")

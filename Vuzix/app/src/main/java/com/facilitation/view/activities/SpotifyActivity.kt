@@ -24,7 +24,6 @@ class SpotifyActivity : ActionMenuActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spotify)
 
-        // Initialize BluetoothAdapter
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if (bluetoothAdapter == null) {
             showToast("Bluetooth is not available on this device")
@@ -54,9 +53,13 @@ class SpotifyActivity : ActionMenuActivity() {
         super.setCurrentMenuItem(item, animate)
     }
 
+    override fun onActionMenuClosed() {
+        sendBluetoothCommand("exit")
+    }
+
+
     fun previousSong(item: MenuItem?) {
         showToast("Previous Song!")
-        // Send the "previous" command to the server via Bluetooth
         sendBluetoothCommand("previous")
     }
 
@@ -84,7 +87,6 @@ class SpotifyActivity : ActionMenuActivity() {
 
     fun nextSong(item: MenuItem?) {
         showToast("Next Song!")
-        // Send the "next" command to the server via Bluetooth
         sendBluetoothCommand("next")
     }
 
