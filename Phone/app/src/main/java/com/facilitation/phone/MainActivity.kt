@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity() {
         val tracksDTOJson = gson.toJson(tracksDTO)
         val sharedPreferences = getSharedPreferences("SPOTIFY", 0)
         val editor = sharedPreferences.edit()
-        editor.putString("tracksDTO", tracksDTOJson)
+        editor.putString("tracksDTOJson", tracksDTOJson)
         editor.apply()
     }
 }

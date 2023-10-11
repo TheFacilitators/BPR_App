@@ -73,7 +73,7 @@ class BluetoothServer(private val appContext: Application, private val activity 
                 Log.i("Command received", "Bluetooth server received $command command")
                 if(command == "exit" || command == "quit")
                     break
-                socketHandler.handleClientCommand(command)
+                socketHandler.handleClientCommand(command, socket)
             }
             clientInput.close()
             socket.close()
