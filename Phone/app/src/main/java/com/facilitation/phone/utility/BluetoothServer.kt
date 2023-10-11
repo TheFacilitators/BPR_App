@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import java.util.Locale
 import java.util.UUID
 
 class BluetoothServer(private val appContext: Application, private val activity : Activity) {
@@ -69,12 +70,15 @@ class BluetoothServer(private val appContext: Application, private val activity 
             val clientInput = BufferedReader(InputStreamReader(socket.inputStream))
             Log.i("BluetoothServer", "Connection established")
             while (true) {
-                val command = clientInput.readLine() ?: break
-                println("Received: $command")
+                val command = clientInput.readLine().lowercase(Locale.ROOT)
+                Log.i("Command received", "Bluetooth server received $command command")
+                if(command == "exit" || command == "quit")
+                    break
                 socketHandler.handleClientCommand(command)
             }
             clientInput.close()
             socket.close()
+            Log.i("BluetoothServer", "Connection closed")
             Looper.loop()
             Looper.myLooper()?.quit()
         }.start()

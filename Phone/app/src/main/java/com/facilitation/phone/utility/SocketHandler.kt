@@ -48,13 +48,13 @@ class SocketHandler(private val context: Context) {
             Thread {
                 Looper.prepare()
                 when (command) {
-                    "Play" -> {
+                    "play" -> {
                         spotifyRemote.playerApi.play("spotify:track:1qAuIPMALdFtGv2Ymjy5l0")
                     }
-                    "Pause" -> {
+                    "pause" -> {
                         spotifyRemote.playerApi.pause()
                     }
-                    "Resume" -> {
+                    "resume" -> {
                         spotifyRemote.playerApi.resume()
                     }
                     else -> {
