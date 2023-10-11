@@ -11,7 +11,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.facilitation.phone.databinding.ActivityMainBinding
 import com.facilitation.phone.model.SpotifyPlaylist
-import com.facilitation.phone.model.Track
 import com.facilitation.phone.model.TrackDTO
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.gson.Gson
@@ -25,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
-    private lateinit var trackList: List<Track>
+    private val gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,9 +104,7 @@ class MainActivity : AppCompatActivity() {
         deserializeIntoTracks(responseData)
         }.start()
     }
-
     private fun deserializeIntoTracks(response: String?) {
-        val gson = Gson()
         val playlist = gson.fromJson(response, SpotifyPlaylist::class.java)
 
         //Constructs tracksDTO list based on the playlist retrieved from Spotify
@@ -115,5 +112,13 @@ class MainActivity : AppCompatActivity() {
             val concatenatedArtists = item.track.artists.joinToString(", ") { it.name }
             TrackDTO(item.track.name, concatenatedArtists, item.track.uri)
         }
+        storeTracksDTO(tracksDTO)
+    }
+    private fun storeTracksDTO(tracksDTO: List<TrackDTO>) {
+        val tracksDTOJson = gson.toJson(tracksDTO)
+        val sharedPreferences = getSharedPreferences("SPOTIFY", 0)
+        val editor = sharedPreferences.edit()
+        editor.putString("tracksDTO", tracksDTOJson)
+        editor.apply()
     }
 }
