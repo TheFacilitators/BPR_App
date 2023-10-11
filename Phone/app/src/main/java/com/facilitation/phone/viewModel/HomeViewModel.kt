@@ -17,15 +17,12 @@ class HomeViewModel(private val appContext: Application) : AndroidViewModel(appC
     private val ACTION_GET = "com.facilitation.view.GET"
     private val connectivity: Connectivity = Connectivity.get(appContext)
     private val device: Device = connectivity.device
-    private lateinit var mp3File : File
     private var serverRunning = false
 
 
     fun initializeBluetoothServer(activity: Activity) {
         if(!serverRunning) {
-            findMusicPath()
-            BluetoothServer(appContext, mp3File, activity)
-            serverRunning = true
+            serverRunning = BluetoothServer(appContext, activity).startServer()
         }
         else{
             Toast.makeText(appContext, "Bluetooth server is already running", Toast.LENGTH_SHORT).show()
@@ -40,14 +37,5 @@ class HomeViewModel(private val appContext: Application) : AndroidViewModel(appC
         else {
             Toast.makeText(appContext, "Vuzix not found. Cannot send message.", Toast.LENGTH_SHORT).show()
         }
-    }
-    private fun findMusicPath() {
-        val mp3File = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Medina_-_Kun_For_Mig.mp3")
-        if (mp3File.exists() && mp3File.isFile) {
-            this.mp3File = mp3File
-        } else {
-            Toast.makeText(appContext, "MP3 file not found", Toast.LENGTH_SHORT).show()
-        }
-
     }
 }
