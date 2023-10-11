@@ -14,6 +14,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 class MainActivity : AppCompatActivity() {
 
@@ -45,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         authorizationSpotify()
+        retrievePlaylistTracks()
 
     }
 
@@ -82,5 +85,20 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun retrievePlaylistTracks() {
+        Thread {
+        val sharedPreferencesSpotify = getSharedPreferences("SPOTIFY", 0)
+        val token = sharedPreferencesSpotify.getString("token", null)
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/playlists/2zr0PfJnuEvTnuXSzUSnr7?si=18dcf113959a422c/tracks")
+            .header("Authorization", "Bearer $token")
+            .build()
+
+        val response = client.newCall(request).execute()
+        val responseData = response.body?.string()
+        }.start()
     }
 }
