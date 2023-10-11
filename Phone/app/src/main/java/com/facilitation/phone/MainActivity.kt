@@ -10,7 +10,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.facilitation.phone.databinding.ActivityMainBinding
+import com.facilitation.phone.model.SpotifyPlaylist
+import com.facilitation.phone.model.Track
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.gson.Gson
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
@@ -21,8 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
-    private val _requestCode = 9485
-    private var token:String? = ""
+    private lateinit var trackList: List<Track>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,6 +101,12 @@ class MainActivity : AppCompatActivity() {
 
         val response = client.newCall(request).execute()
         val responseData = response.body?.string()
+        deserializeIntoTracks(responseData)
         }.start()
+    }
+
+    private fun deserializeIntoTracks(response: String?) {
+        val gson = Gson()
+        val playlist = gson.fromJson(response, SpotifyPlaylist::class.java)
     }
 }
