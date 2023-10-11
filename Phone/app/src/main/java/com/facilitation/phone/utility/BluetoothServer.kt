@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.pm.PackageManager
-import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
