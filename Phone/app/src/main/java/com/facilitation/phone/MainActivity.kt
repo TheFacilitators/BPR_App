@@ -108,5 +108,6 @@ class MainActivity : AppCompatActivity() {
     private fun deserializeIntoTracks(response: String?) {
         val gson = Gson()
         val playlist = gson.fromJson(response, SpotifyPlaylist::class.java)
+        val tracks: List<Track> = playlist.tracks.items.map { it.track }
     }
 }
