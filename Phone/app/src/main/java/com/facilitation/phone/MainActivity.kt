@@ -12,6 +12,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.facilitation.phone.databinding.ActivityMainBinding
 import com.facilitation.phone.model.SpotifyPlaylist
 import com.facilitation.phone.model.Track
+import com.facilitation.phone.model.TrackDTO
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.gson.Gson
 import com.spotify.sdk.android.auth.AuthorizationClient
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity() {
         val token = sharedPreferencesSpotify.getString("token", null)
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://api.spotify.com/v1/playlists/2zr0PfJnuEvTnuXSzUSnr7?si=18dcf113959a422c/tracks")
+            .url("https://api.spotify.com/v1/playlists/04wwOyhtie5aEUbvMdAOii?si=e2b67652ad034ce4/tracks")
             .header("Authorization", "Bearer $token")
             .build()
 
@@ -108,6 +109,11 @@ class MainActivity : AppCompatActivity() {
     private fun deserializeIntoTracks(response: String?) {
         val gson = Gson()
         val playlist = gson.fromJson(response, SpotifyPlaylist::class.java)
-        val tracks: List<Track> = playlist.tracks.items.map { it.track }
+
+        //Constructs tracksDTO list based on the playlist retrieved from Spotify
+        val tracksDTO: List<TrackDTO> = playlist.tracks.items.map { item ->
+            val concatenatedArtists = item.track.artists.joinToString(", ") { it.name }
+            TrackDTO(item.track.name, concatenatedArtists, item.track.uri)
+        }
     }
 }
