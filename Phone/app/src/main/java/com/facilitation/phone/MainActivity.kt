@@ -77,7 +77,6 @@ class MainActivity : AppCompatActivity() {
                     editor.putString("token", response.accessToken)
                     Log.d("STARTING", "GOT AUTH TOKEN")
                     editor.apply()
-                    //waitForUserInfo()
                 }
                 AuthorizationResponse.Type.ERROR -> {
                     Log.e("Spotify ERROR", "Error: ${response.error}")
@@ -95,7 +94,7 @@ class MainActivity : AppCompatActivity() {
         val token = sharedPreferencesSpotify.getString("token", null)
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://api.spotify.com/v1/playlists/04wwOyhtie5aEUbvMdAOii?si=e2b67652ad034ce4/tracks")
+            .url(getString(R.string.playlist_uri))
             .header("Authorization", "Bearer $token")
             .build()
 
@@ -120,5 +119,6 @@ class MainActivity : AppCompatActivity() {
         val editor = sharedPreferences.edit()
         editor.putString("tracksDTOJson", tracksDTOJson)
         editor.apply()
+        Log.i("PlaylistRetrieval", "Playlist with ${tracksDTO.size} tracks successfully retrieved and saved in shared preferences")
     }
 }
