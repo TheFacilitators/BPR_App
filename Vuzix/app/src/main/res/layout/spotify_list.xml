@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:clickable="true"
     android:background="?android:attr/selectableItemBackground"
-    android:onClick="togglePlayPause">
+    android:onClick="playSongFromList">
 
     <TextView
         android:id="@+id/spotify_track_name"

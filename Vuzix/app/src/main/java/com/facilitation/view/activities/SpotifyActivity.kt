@@ -20,7 +20,6 @@ class SpotifyActivity : ActionMenuActivity() {
     private var NextSongMenuItem: MenuItem? = null
     private var PrevSongMenuItem: MenuItem? = null
     private var SongDetailsMenuItem: MenuItem? = null
-    private var isPlaying = false
     private var isPaused = false
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -66,12 +65,12 @@ class SpotifyActivity : ActionMenuActivity() {
         return 3
     }
 
-    override fun alwaysShowActionMenu(): Boolean {
-        return false
-    }
-
     override fun onActionMenuClosed() {
         sendBluetoothCommand("exit")
+    }
+
+    fun returnToList(item: MenuItem) {
+        this.closeActionMenu(true)
     }
 
     fun previousSong(item: MenuItem?) {
@@ -80,25 +79,17 @@ class SpotifyActivity : ActionMenuActivity() {
     }
 
     fun togglePlayPause(item: MenuItem?) {
-        if (isPlaying) {
-            if(isPaused)
-            {
-                item?.setIcon(R.drawable.ic_pause)
-                sendBluetoothCommand("resume")
-                showToast("resume")
-            }else{
-                item?.setIcon(R.drawable.ic_play)
-                sendBluetoothCommand("pause")
-                showToast("pause")
-            }
-            isPaused = !isPaused
-        }else{
-            //TODO: move "play" to song selection when ready
+        if(isPaused)
+        {
             item?.setIcon(R.drawable.ic_pause)
-            sendBluetoothCommand("play")
-            showToast("play")
-            isPlaying = !isPlaying
+            sendBluetoothCommand("resume")
+            showToast("resume")
+        }else{
+            item?.setIcon(R.drawable.ic_play)
+            sendBluetoothCommand("pause")
+            showToast("pause")
         }
+        isPaused = !isPaused
     }
 
     fun nextSong(item: MenuItem?) {
@@ -109,6 +100,16 @@ class SpotifyActivity : ActionMenuActivity() {
     fun showSongDetails(item: MenuItem?) {
         // Show song details here
         showToast("Total Eclipse of The Heart - Bonnie Tyler")
+    }
+
+    fun playSongFromList(view: View) {
+        val position = recyclerView.getChildLayoutPosition(view)
+        if (position != RecyclerView.NO_POSITION) {
+            val selectedTrack = trackList[position]
+            sendBluetoothCommand("play")
+            showToast("play ${selectedTrack.name}")
+            this.openActionMenu(true)
+        }
     }
 
     private fun initBluetooth() {
@@ -133,18 +134,5 @@ class SpotifyActivity : ActionMenuActivity() {
     private fun showToast(text: String) {
         val activity: Activity = this
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
-    }
-
-    fun togglePlayPause(view: View) {
-        val position = recyclerView.getChildLayoutPosition(view)
-        if (position != RecyclerView.NO_POSITION) {
-            val selectedTrack = trackList[position]
-            showToast(selectedTrack.name)
-            this.openActionMenu(true)
-        }
-    }
-
-    fun returnToList(item: MenuItem) {
-        this.closeActionMenu(true)
     }
 }
