@@ -2,7 +2,7 @@ package com.facilitation.view.activities
 
 import android.app.Activity
 import android.content.Intent
-import android.media.MediaPlayer
+import android.bluetooth.BluetoothAdapter
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -18,7 +18,6 @@ import com.facilitation.view.utility.BluetoothHandler
 import com.facilitation.view.utility.ITapInput
 import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.vuzix.hud.actionmenu.ActionMenuActivity
-import java.io.IOException
 
 class SpotifyActivity : ActionMenuActivity(), ITapInput {
     private lateinit var binding : ActivitySpotifyBinding
@@ -30,8 +29,9 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
     private lateinit var currentMenuItem : MenuItem
     private lateinit var receiver: TapReceiver
     private var isPlaying = false
-    private val mediaPlayer = MediaPlayer()
-    private var currentDataSource: String = ""
+    private var isPaused = false
+    private var bluetoothHandler: BluetoothHandler? = null
+    private var bluetoothAdapter: BluetoothAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +39,11 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
         setContentView(binding.root)
         receiver = TapReceiver(this)
         receiver.registerListener(this)
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        if (bluetoothAdapter == null) {
+            showToast("Bluetooth is not available on this device")
+        }
+        initBluetooth()
 //        checkIntentExtraCommand()
     }
 
@@ -111,36 +116,42 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onActionMenuClosed() {
+        sendBluetoothCommand("exit")
+    }
+
+
     fun previousSong(item: MenuItem?) {
-        if (dispatchKeyEvent(KeyEvent(getMenuItemIndex(PrevSongMenuItem, false), TapToCommandEnum.XXOOO.keyCode())))
+        if (dispatchKeyEvent(KeyEvent(getMenuItemIndex(PrevSongMenuItem, false), TapToCommandEnum.XXOOO.keyCode()))) {
             showToast("Previous Song!")
-    }
-
-    fun nextSong(item: MenuItem?) {
-        if (dispatchKeyEvent(KeyEvent(getMenuItemIndex(NextSongMenuItem, false), TapToCommandEnum.XXOOO.keyCode())))
-            showToast("Next Song!")
-    }
-
-    fun showSongDetails(item: MenuItem?) {
-        //showToast("Total Eclipse of The Heart - Bonnie Tyler")
-        initBluetooth()
-    }
-
-    private fun updateDataSource() {
-        try {
-            mediaPlayer.reset()
-            mediaPlayer.setDataSource(currentDataSource)
-            mediaPlayer.prepare()
-        } catch (e: IOException) {
-            e.printStackTrace()
+            sendBluetoothCommand("previous")
         }
     }
 
+    fun nextSong(item: MenuItem?) {
+        if (dispatchKeyEvent(KeyEvent(getMenuItemIndex(NextSongMenuItem, false), TapToCommandEnum.XXOOO.keyCode()))) {
+            showToast("Next Song!")
+            sendBluetoothCommand("next")
+        }
+    }
+
+    fun showSongDetails(item: MenuItem?) {
+        // Show song details here
+        showToast("Total Eclipse of The Heart - Bonnie Tyler")
+    }
+
     private fun initBluetooth() {
-        val bluetoothHandler = BluetoothHandler(this)
-        currentDataSource = bluetoothHandler.initiateConnection()
-        if (dispatchKeyEvent(KeyEvent(getMenuItemIndex(SongDetailsMenuItem, false), TapToCommandEnum.XXOOO.keyCode())))
-            showToast("Initiating Bluetooth connection...")
+        if (!dispatchKeyEvent(KeyEvent(getMenuItemIndex(SongDetailsMenuItem, false), TapToCommandEnum.XXOOO.keyCode())))
+            return
+        showToast("Initiating Bluetooth connection...")
+        if (bluetoothAdapter != null) {
+            bluetoothHandler = BluetoothHandler(this)
+            bluetoothHandler?.initiateConnection()
+        }
+    }
+
+    private fun sendBluetoothCommand(command: String) {
+        bluetoothHandler?.sendCommandToServer(command)
     }
 
     private fun showToast(text: String) {
@@ -148,24 +159,26 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
     }
 
-    fun playPauseMusic(item: MenuItem?) {
+    fun togglePlayPause(item: MenuItem?) {
         if (isPlaying) {
-            showToast("Pause")
-            mediaPlayer.pause()
-            currentMenuItem.setIcon(R.drawable.ic_play)
-        }
-        else
-        {
-            showToast("Play")
-            if(currentDataSource == ""){
-                showToast("No Song available")
+            if(isPaused)
+            {
+                item?.setIcon(R.drawable.ic_pause)
+                sendBluetoothCommand("resume")
+                showToast("Resume")
             } else {
-                updateDataSource()
-                mediaPlayer.start()
-                currentMenuItem.setIcon(R.drawable.ic_pause)
+                item?.setIcon(R.drawable.ic_play)
+                sendBluetoothCommand("pause")
+                showToast("Pause")
             }
+            isPaused = !isPaused
+        } else {
+            //TODO: move "play" to song selection when ready
+            item?.setIcon(R.drawable.ic_pause)
+            sendBluetoothCommand("play")
+            showToast("Play")
+            isPlaying = !isPlaying
         }
-        isPlaying = !isPlaying
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -208,7 +221,7 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
             }
             KeyEvent.KEYCODE_SPACE -> {
                 Log.d("Key Event INFO", "Toggling music\n------> ${TapToCommandEnum.XXXOO.keyCode()}")
-                playPauseMusic(currentMenuItem)
+                this.togglePlayPause(currentMenuItem)
                 return true
             }
         }
@@ -223,7 +236,7 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
         showToast("Selecting ${currentMenuItem.title}")
         when(currentMenuItem.itemId) {
             R.id.menu_spotify_item1 -> previousSong(currentMenuItem)
-            R.id.menu_spotify_item2 -> playPauseMusic(currentMenuItem)
+            R.id.menu_spotify_item2 -> this.togglePlayPause(currentMenuItem)
             R.id.menu_spotify_item3 -> nextSong(currentMenuItem)
             R.id.menu_spotify_item4 -> showSongDetails(currentMenuItem)
             else -> Log.d("ERROR", "Invalid menu item selected for execution")
@@ -244,7 +257,7 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
             showToast("Going left")
         }
         catch (e:Exception) {
-            Log.e("Spotify menu ERROR", "Error going left in Spotify menu:\n${e.stackTrace.toString()}")
+            Log.e("Spotify menu ERROR", "Error going left in Spotify menu:\n${e.stackTrace}")
             throw e
         }
     }

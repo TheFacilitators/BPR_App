@@ -1,41 +1,60 @@
 package com.facilitation.phone.utility
 
-import android.bluetooth.BluetoothSocket
-import java.io.File
-import java.io.FileInputStream
-import java.io.IOException
+import android.content.Context
+import android.os.Looper
+import android.util.Log
+import com.facilitation.phone.R
+import com.spotify.android.appremote.api.ConnectionParams
+import com.spotify.android.appremote.api.Connector
+import com.spotify.android.appremote.api.SpotifyAppRemote
 
-class SocketHandler(private val socket: BluetoothSocket) {
+class SocketHandler(private val context: Context) {
+    private lateinit var spotifyRemote: SpotifyAppRemote
 
-     fun sendMP3File(mp3File : File) {
-        try {
-            val outputStream = socket.outputStream
-            val fileInputStream = FileInputStream(mp3File)
-            val buffer = ByteArray(4096)
-            var bytesRead: Int
-
-            while (true) {
-                bytesRead = fileInputStream.read(buffer)
-                if (bytesRead == -1) break
-                outputStream.write(buffer, 0, bytesRead)
-                outputStream.flush()
+    init {
+        Thread {
+            Looper.prepare()
+            val sharedPreferencesSpotify = context.getSharedPreferences("SPOTIFY", 0)
+            val token = sharedPreferencesSpotify.getString("token", null)
+            if (token != null) {
+                val connectionParams =
+                    ConnectionParams.Builder(context.getString(R.string.client_id))
+                        .setRedirectUri(context.getString(R.string.redirect_uri))
+                        .showAuthView(false)
+                        .build()
+                SpotifyAppRemote.connect(context, connectionParams, object : Connector.ConnectionListener {
+                        override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
+                            spotifyRemote = spotifyAppRemote
+                            Log.i("SpotifyRemote", "SpotifyAppRemote connection established")
+                        }
+                        override fun onFailure(throwable: Throwable) {
+                            Log.e("SpotifyRemoteFailed", "SpotifyAppRemote connection failed: ${throwable.message}")
+                        }
+                    })
             }
-            fileInputStream.close()
-            outputStream.close()
-            closeSocket()
-            return
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
+            Looper.loop()
+            Looper.myLooper()?.quit()
+        }.start()
     }
-
-    private fun closeSocket() {
-        // Close the server socket when done
-        try {
-            socket.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
+        fun handleClientCommand(command: String) {
+            Thread {
+                Looper.prepare()
+                when (command) {
+                    "play" -> {
+                        spotifyRemote.playerApi.play("spotify:track:1qAuIPMALdFtGv2Ymjy5l0")
+                    }
+                    "pause" -> {
+                        spotifyRemote.playerApi.pause()
+                    }
+                    "resume" -> {
+                        spotifyRemote.playerApi.resume()
+                    }
+                    else -> {
+                        Log.e("UnknownCommand", "I got command $command and I don't know what to do with it")
+                    }
+                }
+                Looper.loop()
+                Looper.myLooper()?.quit()
+            }.start()
         }
-    }
 }
