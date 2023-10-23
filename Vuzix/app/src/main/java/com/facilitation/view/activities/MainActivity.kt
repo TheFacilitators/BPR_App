@@ -51,7 +51,6 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     }
 
     fun showSpotify(item: MenuItem?) {
-        receiver.unregisterListener()
         val intent = Intent(this, SpotifyActivity::class.java)
         startActivity(intent)
     }

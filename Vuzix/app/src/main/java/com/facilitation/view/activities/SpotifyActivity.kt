@@ -82,8 +82,6 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
     }
 
     override fun onResume() {
-        receiver.registerListener(this)
-
         super.onResume()
 
         // Register the receiver when activity enters foreground
@@ -91,10 +89,9 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
     }
 
     override fun onPause() {
-        super.onPause()
-
         // Unregister receiver when activity is in background
         receiver.unregisterListener()
+        super.onPause()
     }
 
     override fun onStop() {
