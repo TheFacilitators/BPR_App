@@ -5,9 +5,14 @@ import android.bluetooth.BluetoothAdapter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.facilitation.view.R
+import com.facilitation.view.model.Track
 import com.facilitation.view.utility.BluetoothHandler
+import com.facilitation.view.utility.SpotifyListAdapter
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 class SpotifyActivity : ActionMenuActivity() {
@@ -19,6 +24,19 @@ class SpotifyActivity : ActionMenuActivity() {
     private var isPaused = false
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
+    private lateinit var recyclerView: RecyclerView
+    val trackList = listOf(
+        Track("Song 1", "Artist 1", "Uri 1"),
+        Track("Song 2", "Artist 2", "Uri 2"),
+        Track("Song 3", "Artist 3", "Uri 3"),
+        Track("Song 4", "Artist 4", "Uri 4"),
+        Track("Song 5", "Artist 5", "Uri 5"),
+        Track("Song 6", "Artist 6", "Uri 6"),
+        Track("Song 7", "Artist 7", "Uri 7"),
+        Track("Song 8", "Artist 8", "Uri 8"),
+        Track("Song 9", "Artist 9", "Uri 9"),
+        Track("Song 10", "Artist 10", "Uri 10")
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +47,10 @@ class SpotifyActivity : ActionMenuActivity() {
             showToast("Bluetooth is not available on this device")
         }
         initBluetooth()
+        initSpotifyListView()
     }
+
+
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
@@ -42,21 +63,16 @@ class SpotifyActivity : ActionMenuActivity() {
     }
 
     override fun getDefaultAction(): Int {
-        return 2
+        return 3
     }
 
     override fun alwaysShowActionMenu(): Boolean {
         return false
     }
 
-    override fun setCurrentMenuItem(item: MenuItem?, animate: Boolean) {
-        super.setCurrentMenuItem(item, animate)
-    }
-
     override fun onActionMenuClosed() {
         sendBluetoothCommand("exit")
     }
-
 
     fun previousSong(item: MenuItem?) {
         showToast("Previous Song!")
@@ -102,6 +118,14 @@ class SpotifyActivity : ActionMenuActivity() {
         }
     }
 
+    private fun initSpotifyListView() {
+        recyclerView = findViewById(R.id.recyclerView)
+        val layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutManager
+
+        recyclerView.adapter = SpotifyListAdapter(trackList)
+    }
+
     private fun sendBluetoothCommand(command: String) {
         bluetoothHandler?.sendCommandToServer(command)
     }
@@ -109,5 +133,18 @@ class SpotifyActivity : ActionMenuActivity() {
     private fun showToast(text: String) {
         val activity: Activity = this
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
+    }
+
+    fun togglePlayPause(view: View) {
+        val position = recyclerView.getChildLayoutPosition(view)
+        if (position != RecyclerView.NO_POSITION) {
+            val selectedTrack = trackList[position]
+            showToast(selectedTrack.name)
+            this.openActionMenu(true)
+        }
+    }
+
+    fun returnToList(item: MenuItem) {
+        this.closeActionMenu(true)
     }
 }
