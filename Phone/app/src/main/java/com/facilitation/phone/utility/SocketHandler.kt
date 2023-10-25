@@ -9,6 +9,8 @@ import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import java.io.IOException
+import java.io.OutputStreamWriter
+import java.io.PrintWriter
 
 class SocketHandler(private val context: Context) {
     private lateinit var spotifyRemote: SpotifyAppRemote
@@ -67,14 +69,11 @@ class SocketHandler(private val context: Context) {
         val tracksDTOJson = sharedPreferencesSpotify.getString("tracksDTOJson", null)
 
         try {
-            val outputStream = socket.outputStream
+            val writer = PrintWriter(OutputStreamWriter(socket.outputStream))
+            writer.println(tracksDTOJson) // Send the string
+            writer.flush()
 
-            val byteArray = tracksDTOJson?.toByteArray()
-
-            outputStream.write(byteArray)
-            outputStream.flush()
-
-            outputStream.close()
+            writer.close()
         } catch (e: IOException) {
             e.printStackTrace()
         }

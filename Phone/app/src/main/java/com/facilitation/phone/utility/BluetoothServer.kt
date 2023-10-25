@@ -64,7 +64,9 @@ class BluetoothServer(private val appContext: Application, private val activity 
         }.start()
     }
     private fun listenOnThisSocket(socket : BluetoothSocket) {
+
         Thread {
+        try {
             Looper.prepare()
             val clientInput = BufferedReader(InputStreamReader(socket.inputStream))
             Log.i("VuzixSidekick", "Socket connection established")
@@ -79,6 +81,10 @@ class BluetoothServer(private val appContext: Application, private val activity 
             clientInput.close()
             socket.close()
             Log.i("VuzixSidekick", "Socket connection closed")
+        }
+        catch (e : IOException) {
+            Log.e("VuzixSidekick", "Socket crashed")
+        }
             Looper.loop()
             Looper.myLooper()?.quit()
         }.start()
