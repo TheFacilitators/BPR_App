@@ -19,17 +19,19 @@ import com.google.gson.reflect.TypeToken
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 class SpotifyActivity : ActionMenuActivity() {
+
+    private val gson = Gson()
+    private var trackDTOList: List<TrackDTO> = mutableListOf()
+
     private var PlayPauseMenuItem: MenuItem? = null
     private var NextSongMenuItem: MenuItem? = null
     private var PrevSongMenuItem: MenuItem? = null
     private var SongDetailsMenuItem: MenuItem? = null
-    private var isPaused = false
+    private var isPaused = true
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
+    private lateinit var spotifyListAdapter: SpotifyListAdapter
     private lateinit var recyclerView: RecyclerView
-    private val gson = Gson()
-    private var trackDTOLists: List<TrackDTO>? = mutableListOf(TrackDTO("No Playlist Available","",""))
-    private val mockPlaylist: String = "[{\"artist\":\"Five Finger Death Punch\",\"title\":\"A Little Bit Off\",\"uri\":\"spotify:track:6GqqGv8frU7kqzXkm2rewI\"},{\"artist\":\"Imagine Dragons\",\"title\":\"Natural\",\"uri\":\"spotify:track:2FY7b99s15jUprqC0M5NCT\"}]"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,11 +41,9 @@ class SpotifyActivity : ActionMenuActivity() {
         if (bluetoothAdapter == null) {
             showToast("Bluetooth is not available on this device")
         }
-        //initBluetooth()
+        initBluetooth()
         initSpotifyListView()
-        runOnUiThread {
-            requestPlaylist()
-        }
+        requestPlaylist()
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -100,10 +100,9 @@ class SpotifyActivity : ActionMenuActivity() {
     fun playSongFromList(view: View) {
         val position = recyclerView.getChildLayoutPosition(view)
         if (position != RecyclerView.NO_POSITION) {
-            val selectedTrack = trackDTOLists?.get(position)
+            val selectedTrack = trackDTOList.get(position)
             sendBluetoothCommand("play")
-            //sendBluetoothCommand("playlist")
-            showToast("play ${selectedTrack!!.title}")
+            showToast("play ${selectedTrack.title}")
             this.openActionMenu(true)
         }
     }
@@ -117,14 +116,13 @@ class SpotifyActivity : ActionMenuActivity() {
 
     private fun initSpotifyListView() {
         recyclerView = findViewById(R.id.recyclerView)
-        val layoutManager = LinearLayoutManager(this)
-        recyclerView.layoutManager = layoutManager
-
-        recyclerView.adapter = trackDTOLists?.let { SpotifyListAdapter(it) }
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        spotifyListAdapter = SpotifyListAdapter(trackDTOList)
+        recyclerView.adapter = spotifyListAdapter
     }
 
-    private fun sendBluetoothCommand(command: String) {
-        bluetoothHandler?.sendCommandToServer(command)
+    private fun sendBluetoothCommand(command: String): String {
+        return bluetoothHandler!!.sendCommandToServer(command)
     }
 
     private fun showToast(text: String) {
@@ -134,8 +132,9 @@ class SpotifyActivity : ActionMenuActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun requestPlaylist() {
-        //trackDTOLists = parseTrackList(sendBluetoothCommand("playlist"))
-        trackDTOLists = gson.fromJson(mockPlaylist,  object : TypeToken<List<TrackDTO>>() {}.type)
+        val tmpList: String = sendBluetoothCommand("playlist")
+        trackDTOList = gson.fromJson(tmpList,  object : TypeToken<List<TrackDTO>>() {}.type)
+        spotifyListAdapter.trackDisplayList = trackDTOList
         recyclerView.adapter?.notifyDataSetChanged()
     }
 }

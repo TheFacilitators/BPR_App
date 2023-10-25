@@ -38,18 +38,19 @@ class BluetoothHandler(
     }
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    fun sendCommandToServer(command: String): String? {
+    fun sendCommandToServer(command: String): String {
+        if (connectedSocket != null) {
             try {
                 val writer = PrintWriter(OutputStreamWriter(connectedSocket!!.outputStream))
                 writer.println(command) // Send the string
                 writer.flush()
                 Log.d(TAG, "Sent command to server: $command")
 
-                    val reader = BufferedReader(InputStreamReader(connectedSocket!!.inputStream))
-                    val response = reader.readLine() // Read the response
-                    Log.d(TAG, "Received response from server: $response")
+                val reader = BufferedReader(InputStreamReader(connectedSocket!!.inputStream))
+                val response = reader.readLine() // Read the response
+                Log.d(TAG, "Received response from server: $response")
 
-                    return response
+                return response
 
             } catch (e: IOException) {
                 Log.e(TAG, "Error sending command to server: $command", e)
@@ -57,11 +58,9 @@ class BluetoothHandler(
             if(command.equals("exit")){
                 connectedSocket!!.close()
             }
-        return ""
-    }
-
-    private fun readResponseFromServer(): String? {
-
+        } else {
+            Log.e(TAG, "Socket is not connected to the server")
+        }
         return ""
     }
 
