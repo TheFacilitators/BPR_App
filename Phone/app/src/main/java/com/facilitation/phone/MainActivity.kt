@@ -75,15 +75,15 @@ class MainActivity : AppCompatActivity() {
                     val editor = getSharedPreferences("SPOTIFY", 0).edit()
                     editor.putString("token", response.accessToken)
                     editor.apply()
-                    Log.d("STARTING", "GOT AUTH TOKEN")
+                    Log.d("VuzixSidekick", "GOT AUTH TOKEN")
                     //Retrieving the playlist only when the new token is acquired
                     retrievePlaylistTracks()
                 }
                 AuthorizationResponse.Type.ERROR -> {
-                    Log.e("Spotify ERROR", "Error: ${response.error}")
+                    Log.e("VuzixSidekick", "Error: ${response.error}")
                 }
                 else -> {
-                    Log.e("Unknown error", "Error: ${response.error}")
+                    Log.e("VuzixSidekick", "Error: ${response.error}")
                 }
             }
         }
@@ -121,6 +121,6 @@ class MainActivity : AppCompatActivity() {
         val editor = sharedPreferences.edit()
         editor.putString("tracksDTOJson", tracksDTOJson)
         editor.apply()
-        Log.i("PlaylistRetrieval", "Playlist with ${tracksDTO.size} tracks successfully retrieved and saved in shared preferences")
+        Log.i("VuzixSidekick", "Playlist with ${tracksDTO.size} tracks successfully retrieved and saved in shared preferences")
     }
 }

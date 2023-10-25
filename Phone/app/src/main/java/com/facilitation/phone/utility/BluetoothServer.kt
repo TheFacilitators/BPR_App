@@ -25,7 +25,7 @@ class BluetoothServer(private val appContext: Application, private val activity 
      fun startServer(): Boolean {
         // Ensure Bluetooth is enabled
         if (!btAdapter.isEnabled) {
-            Log.e("Bluetooth", "Bluetooth not enabled")
+            Log.e("VuzixSidekick", "Bluetooth not enabled")
             return false
         }
         try {
@@ -40,7 +40,7 @@ class BluetoothServer(private val appContext: Application, private val activity 
             val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
             serverSocket = btAdapter.listenUsingRfcommWithServiceRecord("BPRPhone", uuid)
             startListeningForConnections()
-            Log.i("BluetoothServer", "The bluetooth server is up")
+            Log.i("VuzixSidekick", "The bluetooth server is up")
             return true
         } catch (e: IOException) {
             e.printStackTrace()
@@ -67,18 +67,18 @@ class BluetoothServer(private val appContext: Application, private val activity 
         Thread {
             Looper.prepare()
             val clientInput = BufferedReader(InputStreamReader(socket.inputStream))
-            Log.i("BluetoothServer", "Connection established")
+            Log.i("VuzixSidekick", "Socket connection established")
             while (true) {
                 val command = clientInput.readLine().lowercase(Locale.ROOT)
-                Log.i("Command received", "Bluetooth server received $command command")
+                Log.i("VuzixSidekick", "Bluetooth server received \"$command\" command")
                 if(command == "exit" || command == "quit")
                     break
                 socketHandler.handleClientCommand(command, socket)
-                Log.i("Command executed", "\"$command\" was executed successfully")
+                Log.i("VuzixSidekick", "\"$command\" was executed successfully")
             }
             clientInput.close()
             socket.close()
-            Log.i("BluetoothServer", "Connection closed")
+            Log.i("VuzixSidekick", "Socket connection closed")
             Looper.loop()
             Looper.myLooper()?.quit()
         }.start()

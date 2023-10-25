@@ -26,7 +26,7 @@ class HomeViewModel(private val appContext: Application) : AndroidViewModel(appC
             serverRunning = BluetoothServer(appContext, activity).startServer()
         }
         else{
-            Log.i("BluetoothServer", "Bluetooth server is already running")
+            Log.i("VuzixSidekick", "Bluetooth server is already running")
         }
     }
     fun sayHelloToVuzix() {

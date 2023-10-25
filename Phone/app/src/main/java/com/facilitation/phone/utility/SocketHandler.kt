@@ -27,10 +27,10 @@ class SocketHandler(private val context: Context) {
                 SpotifyAppRemote.connect(context, connectionParams, object : Connector.ConnectionListener {
                         override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
                             spotifyRemote = spotifyAppRemote
-                            Log.i("SpotifyRemote", "SpotifyAppRemote connection established")
+                            Log.i("VuzixSidekick", "SpotifyAppRemote connection established")
                         }
                         override fun onFailure(throwable: Throwable) {
-                            Log.e("SpotifyRemoteFailed", "SpotifyAppRemote connection failed: ${throwable.message}")
+                            Log.e("VuzixSidekick", "SpotifyAppRemote connection failed: ${throwable.message}")
                         }
                     })
             }
@@ -55,7 +55,7 @@ class SocketHandler(private val context: Context) {
                         sendTracksDTO(socket)
                     }
                     else -> {
-                        Log.e("UnknownCommand", "I got command $command and I don't know what to do with it")
+                        Log.e("VuzixSidekick", "I got command \"$command\" and I don't know what to do with it")
                     }
                 }
                 Looper.loop()
