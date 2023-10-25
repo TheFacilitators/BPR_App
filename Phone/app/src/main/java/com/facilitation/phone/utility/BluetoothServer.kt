@@ -40,7 +40,7 @@ class BluetoothServer(private val appContext: Application, private val activity 
             val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
             serverSocket = btAdapter.listenUsingRfcommWithServiceRecord("BPRPhone", uuid)
             startListeningForConnections()
-            Toast.makeText(appContext, "The bluetooth server is up", Toast.LENGTH_SHORT).show()
+            Log.i("BluetoothServer", "The bluetooth server is up")
             return true
         } catch (e: IOException) {
             e.printStackTrace()
@@ -74,6 +74,7 @@ class BluetoothServer(private val appContext: Application, private val activity 
                 if(command == "exit" || command == "quit")
                     break
                 socketHandler.handleClientCommand(command, socket)
+                Log.i("Command executed", "\"$command\" was executed successfully")
             }
             clientInput.close()
             socket.close()

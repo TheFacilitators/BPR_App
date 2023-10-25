@@ -75,7 +75,6 @@ class SocketHandler(private val context: Context) {
             outputStream.flush()
 
             outputStream.close()
-            Log.i("PlaylistTransmission", "Playlist successfully sent to Vuzix")
         } catch (e: IOException) {
             e.printStackTrace()
         }

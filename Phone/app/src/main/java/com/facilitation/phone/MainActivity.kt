@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         authorizationSpotify()
-        retrievePlaylistTracks()
 
     }
 
@@ -75,8 +74,10 @@ class MainActivity : AppCompatActivity() {
                 AuthorizationResponse.Type.TOKEN -> {
                     val editor = getSharedPreferences("SPOTIFY", 0).edit()
                     editor.putString("token", response.accessToken)
-                    Log.d("STARTING", "GOT AUTH TOKEN")
                     editor.apply()
+                    Log.d("STARTING", "GOT AUTH TOKEN")
+                    //Retrieving the playlist only when the new token is acquired
+                    retrievePlaylistTracks()
                 }
                 AuthorizationResponse.Type.ERROR -> {
                     Log.e("Spotify ERROR", "Error: ${response.error}")
@@ -108,6 +109,7 @@ class MainActivity : AppCompatActivity() {
 
         //Constructs tracksDTO list based on the playlist retrieved from Spotify
         val tracksDTO: List<TrackDTO> = playlist.tracks.items.map { item ->
+            //In case a song has multiple artists, this will take care of it
             val concatenatedArtists = item.track.artists.joinToString(", ") { it.name }
             TrackDTO(item.track.name, concatenatedArtists, item.track.uri)
         }
