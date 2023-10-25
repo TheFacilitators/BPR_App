@@ -6,12 +6,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.facilitation.view.R
-import com.facilitation.view.model.Track
+import com.facilitation.view.model.TrackDTO
 
-class SpotifyListAdapter(private val trackList: List<Track>) : RecyclerView.Adapter<SpotifyListAdapter.TrackViewHolder>() {
+class SpotifyListAdapter(private val trackDTOList: List<TrackDTO>) : RecyclerView.Adapter<SpotifyListAdapter.TrackViewHolder>() {
 
     class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val textViewName: TextView = itemView.findViewById(R.id.spotify_track_name)
+        val textViewTitle: TextView = itemView.findViewById(R.id.spotify_track_title)
         val textViewArtist: TextView = itemView.findViewById(R.id.spotify_track_artist)
     }
 
@@ -21,12 +21,12 @@ class SpotifyListAdapter(private val trackList: List<Track>) : RecyclerView.Adap
     }
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
-        val track = trackList[position]
-        holder.textViewName.text = track.name
+        val track = trackDTOList[position]
+        holder.textViewTitle.text = track.title
         holder.textViewArtist.text = track.artist
     }
 
     override fun getItemCount(): Int {
-        return trackList.size
+        return trackDTOList.size
     }
 }

@@ -7,7 +7,7 @@
     android:onClick="playSongFromList">
 
     <TextView
-        android:id="@+id/spotify_track_name"
+        android:id="@+id/spotify_track_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"

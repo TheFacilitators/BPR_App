@@ -16,7 +16,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.io.BufferedReader
 import java.io.IOException
+import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.util.UUID
@@ -36,22 +38,31 @@ class BluetoothHandler(
     }
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    fun sendCommandToServer(command: String) {
-        if (connectedSocket != null) {
+    fun sendCommandToServer(command: String): String? {
             try {
                 val writer = PrintWriter(OutputStreamWriter(connectedSocket!!.outputStream))
                 writer.println(command) // Send the string
                 writer.flush()
                 Log.d(TAG, "Sent command to server: $command")
+
+                    val reader = BufferedReader(InputStreamReader(connectedSocket!!.inputStream))
+                    val response = reader.readLine() // Read the response
+                    Log.d(TAG, "Received response from server: $response")
+
+                    return response
+
             } catch (e: IOException) {
                 Log.e(TAG, "Error sending command to server: $command", e)
             }
             if(command.equals("exit")){
                 connectedSocket!!.close()
             }
-        } else {
-            Log.e(TAG, "Socket is not connected to the server")
-        }
+        return ""
+    }
+
+    private fun readResponseFromServer(): String? {
+
+        return ""
     }
 
     @SuppressLint("MissingPermission")
