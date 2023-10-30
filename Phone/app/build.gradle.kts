@@ -55,6 +55,7 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.9.1")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation(files("libs/spotify-app-remote-release-0.8.0.aar"))
+    implementation("org.assertj:assertj-core:3.21.0")
     implementation ("com.spotify.android:auth:1.2.5")
     implementation("androidx.annotation:annotation:1.7.0")
     testImplementation("junit:junit:4.13.2")
