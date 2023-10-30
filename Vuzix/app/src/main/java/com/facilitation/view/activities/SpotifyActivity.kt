@@ -1,5 +1,6 @@
 package com.facilitation.view.activities
 
+import BluetoothConnectionListener
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -18,16 +19,16 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
-class SpotifyActivity : ActionMenuActivity() {
+class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener {
 
     private val gson = Gson()
-    private var trackDTOList: List<TrackDTO> = mutableListOf()
+    private var trackDTOList: List<TrackDTO> = mutableListOf(TrackDTO("No Songs Available", "", ""))
 
     private var PlayPauseMenuItem: MenuItem? = null
     private var NextSongMenuItem: MenuItem? = null
     private var PrevSongMenuItem: MenuItem? = null
     private var SongDetailsMenuItem: MenuItem? = null
-    private var isPaused = true
+    private var isPaused = false
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private lateinit var spotifyListAdapter: SpotifyListAdapter
@@ -36,14 +37,8 @@ class SpotifyActivity : ActionMenuActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spotify)
-
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        if (bluetoothAdapter == null) {
-            showToast("Bluetooth is not available on this device")
-        }
         initBluetooth()
         initSpotifyListView()
-        requestPlaylist()
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -60,7 +55,8 @@ class SpotifyActivity : ActionMenuActivity() {
         return 3
     }
 
-    override fun onActionMenuClosed() {
+    override fun onStop() {
+        super.onStop()
         sendBluetoothCommand("exit")
     }
 
@@ -74,12 +70,11 @@ class SpotifyActivity : ActionMenuActivity() {
     }
 
     fun togglePlayPause(item: MenuItem?) {
-        if(isPaused)
-        {
+        if (isPaused) {
             item?.setIcon(R.drawable.ic_pause)
             sendBluetoothCommand("resume")
             showToast("resume")
-        }else{
+        } else {
             item?.setIcon(R.drawable.ic_play)
             sendBluetoothCommand("pause")
             showToast("pause")
@@ -101,15 +96,19 @@ class SpotifyActivity : ActionMenuActivity() {
         val position = recyclerView.getChildLayoutPosition(view)
         if (position != RecyclerView.NO_POSITION) {
             val selectedTrack = trackDTOList.get(position)
-            sendBluetoothCommand("play")
+            sendBluetoothCommand(selectedTrack.uri)
             showToast("play ${selectedTrack.title}")
             this.openActionMenu(true)
         }
     }
 
     private fun initBluetooth() {
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        if (bluetoothAdapter == null) {
+            showToast("Bluetooth is not available on this device")
+        }
         if (bluetoothAdapter != null) {
-            bluetoothHandler = BluetoothHandler(this)
+            bluetoothHandler = BluetoothHandler(this, this)
             bluetoothHandler?.initiateConnection()
         }
     }
@@ -131,10 +130,14 @@ class SpotifyActivity : ActionMenuActivity() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun requestPlaylist() {
+    fun requestPlaylist() {
         val tmpList: String = sendBluetoothCommand("playlist")
-        trackDTOList = gson.fromJson(tmpList,  object : TypeToken<List<TrackDTO>>() {}.type)
+        trackDTOList = gson.fromJson(tmpList, object : TypeToken<List<TrackDTO>>() {}.type)
         spotifyListAdapter.trackDisplayList = trackDTOList
         recyclerView.adapter?.notifyDataSetChanged()
+    }
+
+    override fun onBluetoothConnected() {
+        requestPlaylist()
     }
 }
