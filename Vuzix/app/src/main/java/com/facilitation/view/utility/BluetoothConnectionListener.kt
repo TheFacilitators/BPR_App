@@ -1,0 +1,3 @@
+interface BluetoothConnectionListener {
+    fun onBluetoothConnected()
+}
