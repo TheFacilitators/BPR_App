@@ -7,6 +7,7 @@ import com.vuzix.connectivity.sdk.Connectivity
 import com.vuzix.connectivity.sdk.Device
 import android.content.Intent
 import android.os.Environment
+import android.util.Log
 import android.widget.Toast
 import com.facilitation.phone.utility.BluetoothServer
 import java.io.File
@@ -25,7 +26,7 @@ class HomeViewModel(private val appContext: Application) : AndroidViewModel(appC
             serverRunning = BluetoothServer(appContext, activity).startServer()
         }
         else{
-            Toast.makeText(appContext, "Bluetooth server is already running", Toast.LENGTH_SHORT).show()
+            Log.i("VuzixSidekick", "Bluetooth server is already running")
         }
     }
     fun sayHelloToVuzix() {

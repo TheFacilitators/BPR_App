@@ -19,7 +19,7 @@
         android:roundIcon="@drawable/ic_bpr"
         android:supportsRtl="true"
         android:theme="@style/Theme.View"
-        tools:targetApi="31">
+        tools:targetApi="30">
         <activity
             android:name="com.facilitation.view.activities.SnakeActivity"
             android:exported="false"
@@ -29,7 +29,7 @@
             android:name="com.facilitation.view.activities.SpotifyActivity"
             android:exported="false"
             android:label="@string/title_activity_spotify"
-            android:theme="@style/Theme.View" />
+            android:theme="@style/AppTheme" />
 
         <receiver
             android:name="com.facilitation.view.AppWidget"
