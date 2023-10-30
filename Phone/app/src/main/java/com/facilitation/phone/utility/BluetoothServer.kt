@@ -71,7 +71,7 @@ class BluetoothServer(private val appContext: Application, private val activity 
             val clientInput = BufferedReader(InputStreamReader(socket.inputStream))
             Log.i("VuzixSidekick", "Socket connection established")
             while (true) {
-                val command = clientInput.readLine().lowercase(Locale.ROOT)
+                val command = clientInput.readLine()
                 Log.i("VuzixSidekick", "Bluetooth server received \"$command\" command")
                 if(command == "exit" || command == "quit")
                     break
@@ -83,7 +83,8 @@ class BluetoothServer(private val appContext: Application, private val activity 
             Log.i("VuzixSidekick", "Socket connection closed")
         }
         catch (e : IOException) {
-            Log.e("VuzixSidekick", "Socket crashed")
+            Log.e("VuzixSidekick", "Socket crashed.")
+            e.printStackTrace()
         }
             Looper.loop()
             Looper.myLooper()?.quit()

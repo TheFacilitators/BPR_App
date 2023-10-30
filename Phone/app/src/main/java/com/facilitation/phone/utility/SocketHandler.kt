@@ -43,10 +43,11 @@ class SocketHandler(private val context: Context) {
         fun handleClientCommand(command: String, socket: BluetoothSocket) {
             Thread {
                 Looper.prepare()
+                if(command.contains("song")) {
+                    val uri = command.replace("song", "", ignoreCase = true)
+                    spotifyRemote.playerApi.play(uri)
+                }
                 when (command) {
-                    "play" -> {
-                        spotifyRemote.playerApi.play("spotify:track:1qAuIPMALdFtGv2Ymjy5l0")
-                    }
                     "pause" -> {
                         spotifyRemote.playerApi.pause()
                     }
@@ -67,16 +68,18 @@ class SocketHandler(private val context: Context) {
     private fun sendTracksDTO(socket: BluetoothSocket) {
         val sharedPreferencesSpotify = context.getSharedPreferences("SPOTIFY", 0)
         val tracksDTOJson = sharedPreferencesSpotify.getString("tracksDTOJson", null)
+        val writer = PrintWriter(OutputStreamWriter(socket.outputStream))
 
         try {
-            val writer = PrintWriter(OutputStreamWriter(socket.outputStream))
-            writer.println(tracksDTOJson) // Send the string
+            writer.println(tracksDTOJson)
             writer.flush()
 
-            writer.close()
         } catch (e: IOException) {
             e.printStackTrace()
         }
+//        finally {
+//            writer.close()
+//        }
 
     }
 }
