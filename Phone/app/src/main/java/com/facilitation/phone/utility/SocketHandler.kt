@@ -43,23 +43,12 @@ class SocketHandler(private val context: Context) {
         fun handleClientCommand(command: String, socket: BluetoothSocket) {
             Thread {
                 Looper.prepare()
-                if(command.contains("song")) {
-                    val uri = command.replace("song", "", ignoreCase = true)
-                    spotifyRemote.playerApi.play(uri)
-                }
-                when (command) {
-                    "pause" -> {
-                        spotifyRemote.playerApi.pause()
-                    }
-                    "resume" -> {
-                        spotifyRemote.playerApi.resume()
-                    }
-                    "playlist" -> {
-                        sendTracksDTO(socket)
-                    }
-                    else -> {
-                        Log.e("VuzixSidekick", "I got command \"$command\" and I don't know what to do with it")
-                    }
+                when {
+                    "track" in command -> spotifyRemote.playerApi.play(command)
+                    "pause" in command -> spotifyRemote.playerApi.pause()
+                    "resume" in command -> spotifyRemote.playerApi.resume()
+                    "playlist" in command -> sendTracksDTO(socket)
+                    else -> Log.e("VuzixSidekick", "I got command \"$command\" and I don't know what to do with it")
                 }
                 Looper.loop()
                 Looper.myLooper()?.quit()
@@ -77,9 +66,5 @@ class SocketHandler(private val context: Context) {
         } catch (e: IOException) {
             e.printStackTrace()
         }
-//        finally {
-//            writer.close()
-//        }
-
     }
 }
