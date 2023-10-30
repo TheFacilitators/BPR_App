@@ -1,6 +1,7 @@
 package com.facilitation.view.activities
 
 import android.app.Activity
+import android.app.Application
 import android.content.Intent
 import android.bluetooth.BluetoothAdapter
 import android.os.Bundle
@@ -16,6 +17,7 @@ import com.facilitation.view.databinding.ActivitySpotifyBinding
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.BluetoothHandler
 import com.facilitation.view.utility.ITapInput
+import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
@@ -25,6 +27,7 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
     private lateinit var NextSongMenuItem: MenuItem
     private lateinit var PrevSongMenuItem: MenuItem
     private lateinit var SongDetailsMenuItem: MenuItem
+    private lateinit var BackMenuItem: MenuItem
     private lateinit var menu: Menu
     private lateinit var currentMenuItem : MenuItem
     private lateinit var receiver: TapReceiver
@@ -32,32 +35,25 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
     private var isPaused = false
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
+    private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        activityLifecycleCallbacks.onActivityCreated(this, savedInstanceState)
+//        activityLifecycleCallbacks.currentActivity = this
         super.onCreate(savedInstanceState)
         binding = ActivitySpotifyBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        receiver = TapReceiver(this)
-        receiver.registerListener(this)
+
+        receiver = TapReceiver(this, activityLifecycleCallbacks)
+
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if (bluetoothAdapter == null) {
             showToast("Bluetooth is not available on this device")
         }
         initBluetooth()
-//        checkIntentExtraCommand()
     }
-
-//    private fun checkIntentExtraCommand() {
-//        try {
-//            val extra: String = intent.extras?.getString("command").toString()
-//            if (extra.isNotBlank()) {
-//                onInputReceived(TapToCommandEnum.valueOf(extra))
-//            }
-//        }
-//        catch (e:Exception) {
-//            Log.d("Activity INFO", "Found no command in Spotify intent: $e")
-//        }
-//    }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
@@ -66,11 +62,17 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
         PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item2)
         NextSongMenuItem = menu.findItem(R.id.menu_spotify_item3)
         SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
+        BackMenuItem = menu[0]
 
         this.menu = menu
         setCurrentMenuItem(menu[defaultAction], false)
 
         return true
+    }
+
+    override fun onStart() {
+        activityLifecycleCallbacks.onActivityStarted(this)
+        super.onStart()
     }
 
     override fun getDefaultAction(): Int {
@@ -79,24 +81,6 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
 
     override fun alwaysShowActionMenu(): Boolean {
         return true
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        // Register the receiver when activity enters foreground
-        receiver.registerListener(this)
-    }
-
-    override fun onPause() {
-        // Unregister receiver when activity is in background
-        receiver.unregisterListener()
-        super.onPause()
-    }
-
-    override fun onStop() {
-        receiver.unregisterListener()
-        super.onStop()
     }
 
     override fun setCurrentMenuItem(item: MenuItem?, animate: Boolean) {
@@ -117,19 +101,14 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
         sendBluetoothCommand("exit")
     }
 
-
     fun previousSong(item: MenuItem?) {
-        if (dispatchKeyEvent(KeyEvent(getMenuItemIndex(PrevSongMenuItem, false), TapToCommandEnum.XXOOO.keyCode()))) {
-            showToast("Previous Song!")
-            sendBluetoothCommand("previous")
-        }
+        showToast("Previous Song!")
+        sendBluetoothCommand("previous")
     }
 
     fun nextSong(item: MenuItem?) {
-        if (dispatchKeyEvent(KeyEvent(getMenuItemIndex(NextSongMenuItem, false), TapToCommandEnum.XXOOO.keyCode()))) {
-            showToast("Next Song!")
-            sendBluetoothCommand("next")
-        }
+        showToast("Next Song!")
+        sendBluetoothCommand("next")
     }
 
     fun showSongDetails(item: MenuItem?) {
@@ -138,8 +117,6 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
     }
 
     private fun initBluetooth() {
-        if (!dispatchKeyEvent(KeyEvent(getMenuItemIndex(SongDetailsMenuItem, false), TapToCommandEnum.XXOOO.keyCode())))
-            return
         showToast("Initiating Bluetooth connection...")
         if (bluetoothAdapter != null) {
             bluetoothHandler = BluetoothHandler(this)
@@ -188,7 +165,7 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
             }
             KeyEvent.KEYCODE_HOME -> {
                 Log.d("Key Event INFO", "Going home\n------> ${TapToCommandEnum.XOXXO.keyCode()}")
-                goHome()
+//                goHome()
                 return true
             }
             KeyEvent.KEYCODE_ESCAPE -> {
@@ -230,12 +207,12 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
     }
 
     override fun select() {
-        showToast("Selecting ${currentMenuItem.title}")
         when(currentMenuItem.itemId) {
             R.id.menu_spotify_item1 -> previousSong(currentMenuItem)
             R.id.menu_spotify_item2 -> this.togglePlayPause(currentMenuItem)
             R.id.menu_spotify_item3 -> nextSong(currentMenuItem)
             R.id.menu_spotify_item4 -> showSongDetails(currentMenuItem)
+            BackMenuItem.itemId -> goBack()
             else -> Log.d("ERROR", "Invalid menu item selected for execution")
         }
     }
@@ -251,7 +228,6 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
     override fun goLeft() {
         try {
             setCurrentMenuItem(menu[getMenuItemIndex(currentMenuItem, false) - 1], false)
-            showToast("Going left")
         }
         catch (e:Exception) {
             Log.e("Spotify menu ERROR", "Error going left in Spotify menu:\n${e.stackTrace}")
@@ -262,28 +238,16 @@ class SpotifyActivity : ActionMenuActivity(), ITapInput {
     override fun goRight() {
         try {
             setCurrentMenuItem(menu[getMenuItemIndex(currentMenuItem, false) + 1], false)
-            showToast("Going right")
         }
         catch (e:Exception) {
             Log.e("Spotify menu ERROR", "Error going right in Spotify menu:\n${e.message}")
         }
     }
 
-    private fun goBack() {
+    override fun goBack() {
         try {
-            setCurrentMenuItem(menu[1], true)
-            showToast("Going back")
-            NavUtils.navigateUpFromSameTask(this)
-        }
-        catch (e:Exception) {
-            Log.e("Spotify menu ERROR", "Error going back in Spotify menu:\n ${e.message}")
-        }
-    }
-
-    private fun goHome() {
-        try {
-            showToast("Going back")
-            NavUtils.navigateUpTo(this.parent, Intent("spotify-back"))
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
         catch (e:Exception) {
             Log.e("Spotify menu ERROR", "Error going back in Spotify menu:\n ${e.message}")

@@ -9,4 +9,5 @@ interface ITapInput {
 	fun goDown()
 	fun goLeft()
 	fun goRight()
+	fun goBack()
 }

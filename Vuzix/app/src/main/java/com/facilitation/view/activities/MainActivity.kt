@@ -13,23 +13,26 @@ import com.facilitation.view.R
 import com.facilitation.view.databinding.ActivityMainBinding
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.ITapInput
+import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 class MainActivity : ActionMenuActivity(), ITapInput {
     var SpotifyMenuItem: MenuItem? = null
     var SnakeMenuItem: MenuItem? = null
+    lateinit var BackMenuItem: MenuItem
     private lateinit var binding: ActivityMainBinding
     private lateinit var menu: Menu
     private lateinit var currentMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
+    private val activityLifecycleCallbacks = MyActivityLifecycleCallbacks(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
-        receiver = TapReceiver(this)
-        receiver.registerListener(this)
+        receiver = TapReceiver(this, activityLifecycleCallbacks)
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -37,8 +40,9 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         menuInflater.inflate(R.menu.menu, menu)
         SpotifyMenuItem = menu.findItem(R.id.menu_item1)
         SnakeMenuItem = menu.findItem(R.id.menu_item2)
+        BackMenuItem = menu[0]
         this.menu = menu
-        currentMenuItem = menu[defaultAction]
+        setCurrentMenuItem(menu[defaultAction], false)
         return true
     }
 
@@ -52,6 +56,8 @@ class MainActivity : ActionMenuActivity(), ITapInput {
 
     fun showSpotify(item: MenuItem?) {
         val intent = Intent(this, SpotifyActivity::class.java)
+        //Passing the same instance of the activity lifecycle callback to the Spotify activity
+        intent.putExtra("callback", activityLifecycleCallbacks)
         startActivity(intent)
     }
 
@@ -69,8 +75,7 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         val activity: Activity = this
         activity.runOnUiThread {
             super.setCurrentMenuItem(item, animate)
-            if (item != null)
-                currentMenuItem = item
+            currentMenuItem = item ?: menu[defaultAction]
         }
     }
 
@@ -114,7 +119,6 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     }
 
     override fun select() {
-        showToast("Selected")
         when(currentMenuItem.itemId) {
             R.id.menu_item1 -> {
                 setCurrentMenuItem(currentMenuItem, true)
@@ -123,6 +127,10 @@ class MainActivity : ActionMenuActivity(), ITapInput {
             R.id.menu_item2 -> {
                 setCurrentMenuItem(currentMenuItem, true)
                 showSnake(currentMenuItem)
+            }
+            BackMenuItem.itemId -> {
+                setCurrentMenuItem(currentMenuItem, true)
+                goBack()
             }
         }
     }
@@ -138,7 +146,6 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     override fun goLeft() {
         try {
             setCurrentMenuItem(menu[getMenuItemIndex(currentMenuItem, false) - 1], false)
-            showToast("Going left")
         }
         catch (e:Exception) {
             Log.e("Main menu ERROR", "Error going left: ${e.message}")
@@ -148,10 +155,13 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     override fun goRight() {
         try {
             setCurrentMenuItem(menu[getMenuItemIndex(currentMenuItem, false) + 1], false)
-            showToast("Going right")
         }
         catch (e:Exception) {
             Log.e("Main menu ERROR", "Error going right: ${e.message}")
         }
+    }
+
+    override fun goBack() {
+        finishAffinity()
     }
 }
