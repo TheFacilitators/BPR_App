@@ -257,10 +257,11 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
 
     override fun select() {
         when(currentMenuItem.itemId) {
-            R.id.menu_spotify_item1 -> previousSong(currentMenuItem)
-            R.id.menu_spotify_item2 -> this.togglePlayPause(currentMenuItem)
-            R.id.menu_spotify_item3 -> nextSong(currentMenuItem)
-            R.id.menu_spotify_item4 -> showSongDetails(currentMenuItem)
+            R.id.menu_spotify_item1 -> returnToList(currentMenuItem)
+            R.id.menu_spotify_item2 -> previousSong(currentMenuItem)
+            R.id.menu_spotify_item3 -> this.togglePlayPause(currentMenuItem)
+            R.id.menu_spotify_item4 -> nextSong(currentMenuItem)
+            R.id.menu_spotify_item5 -> showSongDetails(currentMenuItem)
             BackMenuItem.itemId -> goBack()
             else -> Log.d("ERROR", "Invalid menu item selected for execution")
         }
