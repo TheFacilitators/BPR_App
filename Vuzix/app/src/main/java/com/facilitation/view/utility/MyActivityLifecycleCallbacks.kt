@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import java.io.Serializable
 
-class MyActivityLifecycleCallbacks(currentActivity: Activity) : ActivityLifecycleCallbacks, Serializable {
-    @Transient var currentActivity: Activity? = currentActivity
+class MyActivityLifecycleCallbacks : ActivityLifecycleCallbacks, Serializable {
+    @Transient var currentActivity: Activity? = null
 
     override fun onActivityCreated(p0: Activity, p1: Bundle?) {
         Log.i(p0::class.simpleName, "onCreate()")
@@ -15,10 +15,8 @@ class MyActivityLifecycleCallbacks(currentActivity: Activity) : ActivityLifecycl
     }
 
     override fun onActivityStarted(p0: Activity) {
-        if (this.currentActivity == p0) {
-            Log.i(p0::class.simpleName, "onStart()")
-            currentActivity = p0
-        }
+        Log.i(p0::class.simpleName, "onStart()")
+        currentActivity = p0
     }
 
     override fun onActivityResumed(p0: Activity) {

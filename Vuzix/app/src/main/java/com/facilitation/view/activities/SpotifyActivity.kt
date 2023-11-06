@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.view.get
 import com.facilitation.view.R
+import com.facilitation.view.ViewApplication
 import com.facilitation.view.model.TrackDTO
 import com.facilitation.view.databinding.ActivitySpotifyBinding
 import com.facilitation.view.receivers.TapReceiver
@@ -50,6 +51,8 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val app = context as ViewApplication
+        app.spotifyActivity = this
         activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
         activityLifecycleCallbacks.onActivityCreated(this, savedInstanceState)
@@ -57,7 +60,7 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
         binding = ActivitySpotifyBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        receiver = TapReceiver(this, activityLifecycleCallbacks)
+        receiver = intent.getSerializableExtra("receiver") as TapReceiver
         initBluetooth()
         initSpotifyListView()
     }
@@ -138,7 +141,7 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
 
     fun nextSong(item: MenuItem?) {
         playlistPosition++
-        playlistPosition = playlistPosition % trackDTOList.size
+        playlistPosition %= trackDTOList.size
         playSelectedSong()
     }
 
@@ -176,12 +179,12 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
         bluetoothHandler!!.sendCommand(command)
     }
 
-    private fun sendReturnableBluetoothCommand(command: String):String {
+    private fun sendReturnableBluetoothCommand(command: String): String {
         return bluetoothHandler!!.sendReturnableCommand(command)
     }
 
     private fun playSelectedSong() {
-        val selectedTrack = trackDTOList.get(playlistPosition)
+        val selectedTrack = trackDTOList[playlistPosition]
         sendBluetoothCommand(selectedTrack.uri)
         showToast("Now playing: ${selectedTrack.title}")
     }
@@ -212,11 +215,6 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
                 select()
                 return true
             }
-            KeyEvent.KEYCODE_HOME -> {
-                Log.d("Key Event INFO", "Going home\n------> ${TapToCommandEnum.XOXXO.keyCode()}")
-//                goHome()
-                return true
-            }
             KeyEvent.KEYCODE_ESCAPE -> {
                 Log.d("Key Event INFO", "Going back\n------> ${TapToCommandEnum.OXXXX.keyCode()}")
                 goBack()
@@ -240,11 +238,6 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
             KeyEvent.KEYCODE_DPAD_DOWN -> {
                 Log.d("Key Event INFO", "Going down\n------> ${TapToCommandEnum.OXXOO.keyCode()}")
                 goDown()
-                return true
-            }
-            KeyEvent.KEYCODE_SPACE -> {
-                Log.d("Key Event INFO", "Toggling music\n------> ${TapToCommandEnum.XXXOO.keyCode()}")
-                this.togglePlayPause(currentMenuItem)
                 return true
             }
         }

@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.core.view.get
 import com.facilitation.view.R
+import com.facilitation.view.ViewApplication
 import com.facilitation.view.databinding.ActivityMainBinding
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.ITapInput
@@ -18,21 +19,24 @@ import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 class MainActivity : ActionMenuActivity(), ITapInput {
-    var SpotifyMenuItem: MenuItem? = null
-    var SnakeMenuItem: MenuItem? = null
-    lateinit var BackMenuItem: MenuItem
+    private var SpotifyMenuItem: MenuItem? = null
+    private var SnakeMenuItem: MenuItem? = null
+    private lateinit var BackMenuItem: MenuItem
     private lateinit var binding: ActivityMainBinding
     private lateinit var menu: Menu
     private lateinit var currentMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
-    private val activityLifecycleCallbacks = MyActivityLifecycleCallbacks(this)
+    private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        val app = context as ViewApplication
+        app.mainActivity = this
+        activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
+        activityLifecycleCallbacks.currentActivity = this
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
-        receiver = TapReceiver(this, activityLifecycleCallbacks)
+        receiver = intent.getSerializableExtra("receiver") as TapReceiver
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -58,6 +62,7 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         val intent = Intent(this, SpotifyActivity::class.java)
         //Passing the same instance of the activity lifecycle callback to the Spotify activity
         intent.putExtra("callback", activityLifecycleCallbacks)
+        intent.putExtra("receiver", receiver)
         startActivity(intent)
     }
 
@@ -128,7 +133,7 @@ class MainActivity : ActionMenuActivity(), ITapInput {
                 setCurrentMenuItem(currentMenuItem, true)
                 showSnake(currentMenuItem)
             }
-            BackMenuItem.itemId -> {
+            BackMenuItem.itemId -> { //TODO: Should we still have this back button here if the global events in the ViewApplication will be taking care of it? - Aldís 06.11.23
                 setCurrentMenuItem(currentMenuItem, true)
                 goBack()
             }

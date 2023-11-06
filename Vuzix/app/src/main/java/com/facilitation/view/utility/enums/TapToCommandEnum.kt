@@ -6,7 +6,7 @@ enum class TapToCommandEnum {
     XXOOO { override fun keyCode() = KeyEvent.KEYCODE_ENTER },
     XOXXO { override fun keyCode() = KeyEvent.KEYCODE_HOME },
     OXXXX { override fun keyCode() = KeyEvent.KEYCODE_ESCAPE },
-    XOXOO { override fun keyCode() = KeyEvent.KEYCODE_BACK},
+    XOXOO { override fun keyCode() = KeyEvent.KEYCODE_BACK },
     XOOXO { override fun keyCode() = KeyEvent.KEYCODE_FORWARD },
     OXXOO { override fun keyCode() = KeyEvent.KEYCODE_DPAD_UP },
     OOOXX { override fun keyCode() = KeyEvent.KEYCODE_DPAD_DOWN },
