@@ -10,7 +10,6 @@ import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.ActivityEnum
 import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.vuzix.hud.resources.*
-import java.lang.NullPointerException
 import kotlin.system.exitProcess
 
 
@@ -49,7 +48,7 @@ class ViewApplication : DynamicThemeApplication(), IGlobalListener {
     * Creates an intent and starts the activity requested based on the ActivityEnum.
     * @param activityNumber The integer number() value from the ActivityEnum*/
     private fun showActivity(activityNumber: Int) {
-        val intent = Intent(this, ActivityEnum.values()[activityNumber].name()::class.java)
+        val intent = Intent(this, ActivityEnum.values()[activityNumber].activityName()::class.java)
         intent.putExtra("callback", activityLifecycleCallbacks)
         intent.putExtra("receiver", receiver)
         startActivity(intent)
@@ -59,7 +58,7 @@ class ViewApplication : DynamicThemeApplication(), IGlobalListener {
     * If the currentActivity property of the custom ActivityLifecycleCallbacks is null then it exits the application.
     * Otherwise, it will look for it in the ActivityEnum class by the name of the class and use the enum number property to call showActivity() with.*/
     override fun onGlobalBackPressed() {
-        val currentActivity = ActivityEnum.values().find { it.name() == activityLifecycleCallbacks.currentActivity!!.localClassName }
+        val currentActivity = ActivityEnum.values().find { it.activityName() == activityLifecycleCallbacks.currentActivity!!.localClassName }
         if (currentActivity!!.number() != 0) {
             showActivity(currentActivity.number())
             return
