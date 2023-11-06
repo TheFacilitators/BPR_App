@@ -20,9 +20,9 @@ import java.io.Serializable
 import java.lang.NullPointerException
 
 class TapReceiver(context: Context, private var activityLifecycleCallbacks: MyActivityLifecycleCallbacks) : TapListener, Serializable {
-  private var bluetoothManager: BluetoothManager = BluetoothManager(context.applicationContext, BluetoothAdapter.getDefaultAdapter())
-  private var tapBluetoothManager = TapBluetoothManager(bluetoothManager)
-  private var tapSDK = TapSdk(tapBluetoothManager)
+  @Transient private var bluetoothManager: BluetoothManager = BluetoothManager(context.applicationContext, BluetoothAdapter.getDefaultAdapter())
+  @Transient private var tapBluetoothManager = TapBluetoothManager(bluetoothManager)
+  @Transient private var tapSDK = TapSdk(tapBluetoothManager)
   private lateinit var tapID: String
   private var listener: ITapInput? = null
   private val globalListener: IGlobalListener

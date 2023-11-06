@@ -10,10 +10,11 @@ import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.ActivityEnum
 import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.vuzix.hud.resources.*
+import java.io.Serializable
 import kotlin.system.exitProcess
 
 
-class ViewApplication : DynamicThemeApplication(), IGlobalListener {
+class ViewApplication : DynamicThemeApplication(), IGlobalListener, Serializable {
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
     private lateinit var receiver: TapReceiver
     var spotifyActivity: SpotifyActivity? = null
@@ -49,8 +50,11 @@ class ViewApplication : DynamicThemeApplication(), IGlobalListener {
     * @param activityNumber The integer number() value from the ActivityEnum*/
     private fun showActivity(activityNumber: Int) {
         val intent = Intent(this, ActivityEnum.values()[activityNumber].activityName()::class.java)
+        //TODO: This doesn't work, need to create methods for each activity - Aldís 06.11.23
         intent.putExtra("callback", activityLifecycleCallbacks)
         intent.putExtra("receiver", receiver)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        //TODO: This doesn't work either, doesn't like you creating activities from here - Aldís 06.11.23
         startActivity(intent)
     }
 
