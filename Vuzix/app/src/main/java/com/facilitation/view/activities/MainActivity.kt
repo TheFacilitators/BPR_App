@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.core.view.get
 import com.facilitation.view.R
+import com.facilitation.view.activities.spotify.SpotifyListActivity
 import com.facilitation.view.databinding.ActivityMainBinding
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.ITapInput
@@ -55,7 +56,7 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     }
 
     fun showSpotify(item: MenuItem?) {
-        val intent = Intent(this, SpotifyActivity::class.java)
+        val intent = Intent(this, SpotifyListActivity::class.java)
         //Passing the same instance of the activity lifecycle callback to the Spotify activity
         intent.putExtra("callback", activityLifecycleCallbacks)
         startActivity(intent)

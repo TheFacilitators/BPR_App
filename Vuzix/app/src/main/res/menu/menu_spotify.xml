@@ -4,8 +4,7 @@
         android:id="@+id/menu_spotify_item1"
         android:title=""
         android:icon="@drawable/ic_list_view"
-        android:enabled="true"
-        android:onClick="returnToList"/>
+        android:enabled="true"/>
     <item
         android:id="@+id/menu_spotify_item2"
         android:title=""

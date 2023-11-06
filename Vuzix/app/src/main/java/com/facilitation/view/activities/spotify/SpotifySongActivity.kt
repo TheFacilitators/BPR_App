@@ -1,41 +1,39 @@
-package com.facilitation.view.activities
+package com.facilitation.view.activities.spotify
 
-import BluetoothConnectionListener
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
 import android.bluetooth.BluetoothAdapter
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.core.view.get
 import com.facilitation.view.R
-import com.facilitation.view.model.TrackDTO
-import com.facilitation.view.databinding.ActivitySpotifyBinding
+import com.facilitation.view.ViewApplication
+import com.facilitation.view.databinding.ActivitySpotifySongBinding
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.BluetoothHandler
-import com.facilitation.view.utility.SpotifyListAdapter
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.facilitation.view.utility.ITapInput
 import com.facilitation.view.utility.MyActivityLifecycleCallbacks
+import com.facilitation.view.utility.SpotifyListAdapter
 import com.facilitation.view.utility.enums.TapToCommandEnum
+import com.google.gson.Gson
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
-class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapInput {
+class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
-    private val gson = Gson()
+
     private var playlistPosition: Int = 0
-    private var trackDTOList: List<TrackDTO> = mutableListOf(TrackDTO("No Songs Available", "", ""))
+    private val gson = Gson()
+
     private lateinit var spotifyListAdapter: SpotifyListAdapter
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var binding : ActivitySpotifyBinding
+    private lateinit var binding : ActivitySpotifySongBinding
+    private lateinit var SongListMenuItem: MenuItem
     private lateinit var PlayPauseMenuItem: MenuItem
     private lateinit var NextSongMenuItem: MenuItem
     private lateinit var PrevSongMenuItem: MenuItem
@@ -54,21 +52,22 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
         activityLifecycleCallbacks.onActivityCreated(this, savedInstanceState)
         super.onCreate(savedInstanceState)
-        binding = ActivitySpotifyBinding.inflate(layoutInflater)
+        binding = ActivitySpotifySongBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         receiver = TapReceiver(this, activityLifecycleCallbacks)
+
         initBluetooth()
-        initSpotifyListView()
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
         menuInflater.inflate(R.menu.menu_spotify, menu)
-        PrevSongMenuItem = menu.findItem(R.id.menu_spotify_item1)
-        PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item2)
-        NextSongMenuItem = menu.findItem(R.id.menu_spotify_item3)
-        SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
+        SongListMenuItem = menu.findItem(R.id.menu_spotify_item1)
+        PrevSongMenuItem = menu.findItem(R.id.menu_spotify_item2)
+        PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item3)
+        NextSongMenuItem = menu.findItem(R.id.menu_spotify_item4)
+        SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item5)
         BackMenuItem = menu[0]
 
         this.menu = menu
@@ -106,21 +105,13 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
 
     override fun onStop() {
         super.onStop()
-        bluetoothHandler!!.exitServer()
-    }
-
-    override fun onActionMenuClosed() {
-        sendBluetoothCommand("exit")
-    }
-
-    fun returnToList(item: MenuItem) {
-        this.closeActionMenu(true)
+       // bluetoothHandler!!.exitServer()
     }
 
     fun previousSong(item: MenuItem?) {
-        playlistPosition--
-        playlistPosition = (playlistPosition + trackDTOList.size) % trackDTOList.size
-        playSelectedSong()
+//        playlistPosition--
+//        playlistPosition = (playlistPosition + trackDTOList.size) % trackDTOList.size
+//        playSelectedSong()
     }
 
     fun togglePlayPause(item: MenuItem?) {
@@ -137,9 +128,9 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
     }
 
     fun nextSong(item: MenuItem?) {
-        playlistPosition++
-        playlistPosition = playlistPosition % trackDTOList.size
-        playSelectedSong()
+//        playlistPosition++
+//        playlistPosition = playlistPosition % trackDTOList.size
+//        playSelectedSong()
     }
 
     fun showSongDetails(item: MenuItem?) {
@@ -147,29 +138,10 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
         showToast("Total Eclipse of The Heart - Bonnie Tyler")
     }
 
-    fun playSongFromList(view: View) {
-        playlistPosition = recyclerView.getChildLayoutPosition(view)
-        if (playlistPosition != RecyclerView.NO_POSITION) {
-            playSelectedSong()
-            this.openActionMenu(true)
-        }
-    }
-
     private fun initBluetooth() {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        if (bluetoothAdapter != null) {
-            bluetoothHandler = BluetoothHandler(this)
-            bluetoothHandler?.initiateConnection()
-        }else{
-            showToast("Bluetooth is not available on this device")
-        }
-    }
-
-    private fun initSpotifyListView() {
-        recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        spotifyListAdapter = SpotifyListAdapter(trackDTOList)
-        recyclerView.adapter = spotifyListAdapter
+        val app = application as ViewApplication
+        bluetoothHandler = app.bluetoothHandler
+        bluetoothAdapter = app.bluetoothAdapter
     }
 
     private fun sendBluetoothCommand(command: String) {
@@ -177,31 +149,13 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
     }
 
     private fun sendReturnableBluetoothCommand(command: String):String {
-        return bluetoothHandler!!.sendReturnableCommand(command)
-    }
-
-    private fun playSelectedSong() {
-        val selectedTrack = trackDTOList.get(playlistPosition)
-        sendBluetoothCommand(selectedTrack.uri)
-        showToast("Now playing: ${selectedTrack.title}")
+        //return bluetoothHandler!!.sendReturnableCommand(command)
+        return ""
     }
 
     private fun showToast(text: String) {
         val activity: Activity = this
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-
-    private fun requestPlaylist() {
-        val tmpList: String = sendReturnableBluetoothCommand("playlist")
-        trackDTOList = gson.fromJson(tmpList, object : TypeToken<List<TrackDTO>>() {}.type)
-        spotifyListAdapter.trackDisplayList = trackDTOList
-        recyclerView.adapter?.notifyDataSetChanged()
-    }
-
-    override fun onBluetoothConnected() {
-        requestPlaylist()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -252,25 +206,28 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
     }
 
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
-        dispatchKeyEvent(KeyEvent(currentMenuItem.itemId, commandEnum.keyCode()))
+        val inputMethodManager =
+            getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
+        inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
 
     override fun select() {
         when(currentMenuItem.itemId) {
-            R.id.menu_spotify_item1 -> returnToList(currentMenuItem)
             R.id.menu_spotify_item2 -> previousSong(currentMenuItem)
             R.id.menu_spotify_item3 -> this.togglePlayPause(currentMenuItem)
             R.id.menu_spotify_item4 -> nextSong(currentMenuItem)
             R.id.menu_spotify_item5 -> showSongDetails(currentMenuItem)
             BackMenuItem.itemId -> goBack()
             else -> Log.d("ERROR", "Invalid menu item selected for execution")
-        }
+            }
     }
 
     override fun goUp() {
         showToast("Going up")
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun goDown() {
         showToast("Going down")
     }
@@ -296,7 +253,7 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
 
     override fun goBack() {
         try {
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, SpotifyListActivity::class.java)
             startActivity(intent)
         }
         catch (e:Exception) {
