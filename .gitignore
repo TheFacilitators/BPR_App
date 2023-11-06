@@ -363,3 +363,5 @@ $RECYCLE.BIN/
 
 # Mac OS X clutter
 *.DS_Store
+
+.vs/
