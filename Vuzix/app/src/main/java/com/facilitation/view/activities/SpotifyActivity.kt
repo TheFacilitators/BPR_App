@@ -31,6 +31,7 @@ import com.vuzix.hud.actionmenu.ActionMenuActivity
 class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapInput {
 
     private val gson = Gson()
+    private var playlistPosition: Int = 0
     private var trackDTOList: List<TrackDTO> = mutableListOf(TrackDTO("No Songs Available", "", ""))
     private lateinit var spotifyListAdapter: SpotifyListAdapter
     private lateinit var recyclerView: RecyclerView
@@ -105,7 +106,7 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
 
     override fun onStop() {
         super.onStop()
-        sendBluetoothCommand("exit")
+        bluetoothHandler!!.exitServer()
     }
 
     override fun onActionMenuClosed() {
@@ -117,8 +118,9 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
     }
 
     fun previousSong(item: MenuItem?) {
-        showToast("Previous Song!")
-        sendBluetoothCommand("previous")
+        playlistPosition--
+        playlistPosition = (playlistPosition + trackDTOList.size) % trackDTOList.size
+        playSelectedSong()
     }
 
     fun togglePlayPause(item: MenuItem?) {
@@ -135,8 +137,9 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
     }
 
     fun nextSong(item: MenuItem?) {
-        showToast("Next Song!")
-        sendBluetoothCommand("next")
+        playlistPosition++
+        playlistPosition = playlistPosition % trackDTOList.size
+        playSelectedSong()
     }
 
     fun showSongDetails(item: MenuItem?) {
@@ -145,23 +148,20 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
     }
 
     fun playSongFromList(view: View) {
-        val position = recyclerView.getChildLayoutPosition(view)
-        if (position != RecyclerView.NO_POSITION) {
-            val selectedTrack = trackDTOList.get(position)
-            sendBluetoothCommand(selectedTrack.uri)
-            showToast("play ${selectedTrack.title}")
+        playlistPosition = recyclerView.getChildLayoutPosition(view)
+        if (playlistPosition != RecyclerView.NO_POSITION) {
+            playSelectedSong()
             this.openActionMenu(true)
         }
     }
 
     private fun initBluetooth() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        if (bluetoothAdapter == null) {
-            showToast("Bluetooth is not available on this device")
-        }
         if (bluetoothAdapter != null) {
-            bluetoothHandler = BluetoothHandler(this, this)
+            bluetoothHandler = BluetoothHandler(this)
             bluetoothHandler?.initiateConnection()
+        }else{
+            showToast("Bluetooth is not available on this device")
         }
     }
 
@@ -172,8 +172,18 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
         recyclerView.adapter = spotifyListAdapter
     }
 
-    private fun sendBluetoothCommand(command: String): String {
-        return bluetoothHandler!!.sendCommandToServer(command)
+    private fun sendBluetoothCommand(command: String) {
+        bluetoothHandler!!.sendCommand(command)
+    }
+
+    private fun sendReturnableBluetoothCommand(command: String):String {
+        return bluetoothHandler!!.sendReturnableCommand(command)
+    }
+
+    private fun playSelectedSong() {
+        val selectedTrack = trackDTOList.get(playlistPosition)
+        sendBluetoothCommand(selectedTrack.uri)
+        showToast("Now playing: ${selectedTrack.title}")
     }
 
     private fun showToast(text: String) {
@@ -182,9 +192,10 @@ class SpotifyActivity : ActionMenuActivity(), BluetoothConnectionListener, ITapI
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun requestPlaylist() {
-        val tmpList: String = sendBluetoothCommand("playlist")
-        trackDTOList = gson.fromJson(tmpList, object : com.google.gson.reflect.TypeToken<List<TrackDTO>>() {}.type)
+
+    private fun requestPlaylist() {
+        val tmpList: String = sendReturnableBluetoothCommand("playlist")
+        trackDTOList = gson.fromJson(tmpList, object : TypeToken<List<TrackDTO>>() {}.type)
         spotifyListAdapter.trackDisplayList = trackDTOList
         recyclerView.adapter?.notifyDataSetChanged()
     }

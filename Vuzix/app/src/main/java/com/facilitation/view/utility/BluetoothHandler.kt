@@ -25,43 +25,46 @@ import java.io.PrintWriter
 import java.util.UUID
 
 class BluetoothHandler(
-    private val context: Context,
-    private val connectionListener: BluetoothConnectionListener
+    private val context: Context
 ) {
-
     private val deviceNameToConnect = "Galaxy S21 5G"
     private val bluetoothString = "00001101-0000-1000-8000-00805F9B34FB"
-
-    private lateinit var connectedSocket: BluetoothSocket
-
+    private val connectionListener = context as BluetoothConnectionListener
     private val bluetoothAdapter: BluetoothAdapter? by lazy(LazyThreadSafetyMode.NONE) {
         val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothManager.adapter
     }
     private val mainHandler = Handler(Looper.getMainLooper())
+    private lateinit var connectedSocket: BluetoothSocket
 
-    fun sendCommandToServer(command: String): String {
+    fun sendCommand(command: String) {
         try {
-            val writer = PrintWriter(OutputStreamWriter(connectedSocket!!.outputStream))
-            writer.println(command) // Send the string
+            val writer = PrintWriter(OutputStreamWriter(connectedSocket.outputStream))
+            writer.println(command)
             writer.flush()
             Log.d(TAG, "Sent command to server: $command")
-
-            if(command == "playlist") {
-                val reader = BufferedReader(InputStreamReader(connectedSocket!!.inputStream))
-                val response = reader.readLine() // Read the response
-                Log.d(TAG, "Received response from server: $response")
-
-                return response
-            }
 
         } catch (e: IOException) {
             Log.e(TAG, "Error sending command to server: $command", e)
         }
-        if(command.equals("exit")){
-            connectedSocket.close()
+    }
+
+    fun sendReturnableCommand(command: String): String {
+        var response = ""
+        try{
+            sendCommand(command)
+            val reader = BufferedReader(InputStreamReader(connectedSocket.inputStream))
+            response = reader.readLine()
+            Log.d(TAG, "Received response from server: $response")
+        } catch (e: IOException) {
+            Log.e(TAG, "Error receiving from server: $command", e)
         }
-        return ""
+        return response
+    }
+
+    fun exitServer() {
+        sendCommand("exit")
+        connectedSocket.close()
     }
 
     @SuppressLint("MissingPermission")
@@ -99,7 +102,7 @@ class BluetoothHandler(
             mmSocket?.let { socket ->
                 socket.connect()
                 showToast("Connection Started")
-                connectedSocket = socket // Store the connected socket
+                connectedSocket = socket
                 mainHandler.post {
                     connectionListener.onBluetoothConnected()
                 }
@@ -114,6 +117,7 @@ class BluetoothHandler(
             }
         }
     }
+
     private fun showToast(toast: String) {
         mainHandler.post {
             Toast.makeText(context, toast, Toast.LENGTH_SHORT).show()
