@@ -54,7 +54,7 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
-
+    private lateinit var inputMethodManager : InputMethodManager
     override fun onCreate(savedInstanceState: Bundle?) {
         activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
@@ -63,6 +63,8 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
         binding = ActivitySpotifyListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
+        inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         receiver = TapReceiver(this, activityLifecycleCallbacks)
 
         initBluetooth()
@@ -142,8 +144,7 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
     }
 
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
-        val inputMethodManager =
-            getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val focus = this.currentFocus
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
@@ -167,16 +168,16 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
 
     override fun goDown() {
         showToast("Going down")
-//        val currentPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-//        val lastVisibleItem = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
-//        if (lastVisibleItem < trackDTOList.size - 1) {
-//            val newPosition = currentPosition + 1
-//            //(recyclerView.layoutManager as LinearLayoutManager).scrollToPosition(newPosition)
-//            recyclerView.post {
-//                val newView = recyclerView.layoutManager?.findViewByPosition(newPosition)
-//                newView?.requestFocus()
-//            }
-//        }
+        val currentPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+        val lastVisibleItem = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+        if (lastVisibleItem < trackDTOList.size - 1) {
+            val newPosition = currentPosition + 1
+            //(recyclerView.layoutManager as LinearLayoutManager).scrollToPosition(newPosition)
+            recyclerView.post {
+                val newView = recyclerView.layoutManager?.findViewByPosition(newPosition)
+                newView?.requestFocus()
+            }
+        }
         recyclerView.nextFocusUpId
     }
 
