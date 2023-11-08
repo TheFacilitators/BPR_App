@@ -124,6 +124,10 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     }
 
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
+        if (commandEnum == TapToCommandEnum.OXXXX) {
+            goBack()
+            return
+        }
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
@@ -155,7 +159,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
             startActivity(intent)
         }
         catch (e:Exception) {
-            Log.e("Spotify menu ERROR", "Error going back in Spotify menu:\n ${e.message}")
+            Log.e("Spotify menu ERROR", "Error going back in Spotify playlist:\n ${e.message}")
         }
     }
 }

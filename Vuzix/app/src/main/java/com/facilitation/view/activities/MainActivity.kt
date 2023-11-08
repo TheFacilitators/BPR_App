@@ -89,18 +89,19 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         //TODO: Filter here on action int in the KeyEvent constructor to differentiate between different view mappings - Aldís 11.10.23
         when (event.keyCode) {
             KeyEvent.KEYCODE_ENTER -> {
-                Log.d("Key Event INFO", "Selecting ${currentMenuItem.title}\n------> ${TapToCommandEnum.XXOOO.keyCode()}")
                 select()
                 return true
             }
             KeyEvent.KEYCODE_BACK -> {
-                Log.d("Key Event INFO", "Going left\n------> ${TapToCommandEnum.XOXOO.keyCode()}")
                 goLeft()
                 return true
             }
             KeyEvent.KEYCODE_FORWARD -> {
-                Log.d("Key Event INFO", "Going right\n------> ${TapToCommandEnum.XOOXO.keyCode()}")
                 goRight()
+                return true
+            }
+            KeyEvent.KEYCODE_ESCAPE -> {
+                goBack()
                 return true
             }
             KeyEvent.KEYCODE_DPAD_UP -> {
