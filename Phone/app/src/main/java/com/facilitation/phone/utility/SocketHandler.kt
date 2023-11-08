@@ -44,7 +44,7 @@ class SocketHandler(private val context: Context) {
             Thread {
                 Looper.prepare()
                 when {
-                    "track" in command -> spotifyRemote.playerApi.play(command)
+                    "track" in command -> playTrackInPlaylist(command)
                     "pause" in command -> spotifyRemote.playerApi.pause()
                     "resume" in command -> spotifyRemote.playerApi.resume()
                     "playlist" in command -> sendTracksDTO(socket)
@@ -66,5 +66,11 @@ class SocketHandler(private val context: Context) {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+    }
+    private fun playTrackInPlaylist(position: String) {
+        val playlist = context.getString(R.string.playlistID)
+        val finalCommand = "spotify:playlist:$playlist"
+        val songPosition = position.replace("track:", "")
+        spotifyRemote.playerApi.skipToIndex(finalCommand, songPosition.toInt())
     }
 }
