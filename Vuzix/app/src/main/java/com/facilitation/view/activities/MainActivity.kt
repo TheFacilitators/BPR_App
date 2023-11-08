@@ -137,11 +137,11 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     }
 
     override fun goUp() {
-        showToast("Going up")
+        Log.i("MainActivity INFO", "Going up is not valid in here")
     }
 
     override fun goDown() {
-        showToast("Going down")
+        Log.i("MainActivity INFO", "Going down is not valid in here")
     }
 
     override fun goLeft() {

@@ -58,28 +58,16 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
     override fun onCreate(savedInstanceState: Bundle?) {
         activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
-        activityLifecycleCallbacks.onActivityCreated(this, savedInstanceState)
         super.onCreate(savedInstanceState)
         binding = ActivitySpotifyListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         receiver = TapReceiver(this, activityLifecycleCallbacks)
 
-        initBluetooth()
+        getBluetooth()
         initSpotifyListView()
         requestPlaylist()
-    }
-
-    override fun onStart() {
-        activityLifecycleCallbacks.onActivityStarted(this)
-        super.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        //bluetoothHandler!!.exitServer()
     }
 
     fun playSongFromList(view: View) {
@@ -89,7 +77,7 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
         }
     }
 
-    private fun initBluetooth() {
+    private fun getBluetooth() {
         val app = application as ViewApplication
         bluetoothHandler = app.bluetoothHandler
         bluetoothAdapter = app.bluetoothAdapter
@@ -97,7 +85,7 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
 
     private fun initSpotifyListView() {
         recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = LinearLayoutManager(this) //TODO: Check this for focus - Aldís 08.11.23
         spotifyListAdapter = SpotifyListAdapter(trackDTOList)
         recyclerView.adapter = spotifyListAdapter
     }
@@ -108,7 +96,6 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
 
     private fun sendReturnableBluetoothCommand(command: String):String {
         return bluetoothHandler!!.sendReturnableCommand(command)
-        //return ""
     }
 
     private fun playSelectedSong() {
@@ -132,8 +119,8 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
     }
 
     private fun showSpotifySongActivity(selectedTrack: TrackDTO) {
+        //TODO: Pass Spotify state to SongActivity - Jody 08.11.23
         val intent = Intent(this, SpotifySongActivity::class.java)
-        //Passing the same instance of the activity lifecycle callback to the Spotify activity
         intent.putExtra("callback", activityLifecycleCallbacks)
         //intent.putExtra("song", selectedTrack)
         startActivity(intent)
@@ -144,56 +131,32 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
     }
 
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
-        val focus = this.currentFocus
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
 
     override fun select() {
-        playSongFromList(recyclerView.findFocus())
+        //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
     }
 
     override fun goUp() {
         //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
-//        showToast("Going up")
-//        val currentPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-//        if (currentPosition > 0) {
-//            val newPosition = currentPosition - 1
-//            recyclerView.scrollToPosition(newPosition)
-//            recyclerView.post {
-//                val newView = recyclerView.layoutManager?.findViewByPosition(newPosition)
-//                newView?.requestFocus()
-//            }
-//        }
     }
 
     override fun goDown() {
         //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
-//        showToast("Going down")
-//        val currentPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-//        val lastVisibleItem = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
-//        if (lastVisibleItem < trackDTOList.size - 1) {
-//            val newPosition = currentPosition + 1
-//            //(recyclerView.layoutManager as LinearLayoutManager).scrollToPosition(newPosition)
-//            recyclerView.post {
-//                val newView = recyclerView.layoutManager?.findViewByPosition(newPosition)
-//                newView?.requestFocus()
-//            }
-//        }
-//        recyclerView.nextFocusUpId
     }
 
     override fun goLeft() {
         //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
-
     }
 
     override fun goRight() {
         //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
-
     }
 
     override fun goBack() {
+        //TODO: Need to put a view item to go back and call this method - Aldís 08.11.23
         try {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
