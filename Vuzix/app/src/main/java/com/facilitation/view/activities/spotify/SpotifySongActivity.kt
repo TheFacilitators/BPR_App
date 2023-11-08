@@ -1,6 +1,5 @@
 package com.facilitation.view.activities.spotify
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
@@ -25,7 +24,6 @@ import com.google.gson.Gson
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 class SpotifySongActivity : ActionMenuActivity(), ITapInput {
-    private var playlistPosition: Int = 0
     private val gson = Gson()
     private lateinit var binding : ActivitySpotifySongBinding
     private lateinit var PlayPauseMenuItem: MenuItem
@@ -94,10 +92,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     }
 
     fun previousSong(item: MenuItem?) {
-        //TODO: Is functional, just needs the playlist from the List Activity - Jody 08.11.23
-//        playlistPosition--
-//        playlistPosition = (playlistPosition + trackDTOList.size) % trackDTOList.size
-//        playSelectedSong()
+        sendBluetoothCommand("previous")
     }
 
     fun togglePlayPause(item: MenuItem?) {
@@ -112,10 +107,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     }
 
     fun nextSong(item: MenuItem?) {
-        //TODO: Is functional, just needs the playlist from the List Activity - Jody 08.11.23
-//        playlistPosition++
-//        playlistPosition = playlistPosition % trackDTOList.size
-//        playSelectedSong()
+        sendBluetoothCommand("next")
     }
 
     fun showSongDetails(item: MenuItem?) {
