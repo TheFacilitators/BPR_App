@@ -154,39 +154,43 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
     }
 
     override fun goUp() {
-        showToast("Going up")
-        val currentPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-        if (currentPosition > 0) {
-            val newPosition = currentPosition - 1
-            recyclerView.scrollToPosition(newPosition)
-            recyclerView.post {
-                val newView = recyclerView.layoutManager?.findViewByPosition(newPosition)
-                newView?.requestFocus()
-            }
-        }
+        //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
+//        showToast("Going up")
+//        val currentPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+//        if (currentPosition > 0) {
+//            val newPosition = currentPosition - 1
+//            recyclerView.scrollToPosition(newPosition)
+//            recyclerView.post {
+//                val newView = recyclerView.layoutManager?.findViewByPosition(newPosition)
+//                newView?.requestFocus()
+//            }
+//        }
     }
 
     override fun goDown() {
-        showToast("Going down")
-        val currentPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-        val lastVisibleItem = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
-        if (lastVisibleItem < trackDTOList.size - 1) {
-            val newPosition = currentPosition + 1
-            //(recyclerView.layoutManager as LinearLayoutManager).scrollToPosition(newPosition)
-            recyclerView.post {
-                val newView = recyclerView.layoutManager?.findViewByPosition(newPosition)
-                newView?.requestFocus()
-            }
-        }
-        recyclerView.nextFocusUpId
+        //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
+//        showToast("Going down")
+//        val currentPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+//        val lastVisibleItem = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+//        if (lastVisibleItem < trackDTOList.size - 1) {
+//            val newPosition = currentPosition + 1
+//            //(recyclerView.layoutManager as LinearLayoutManager).scrollToPosition(newPosition)
+//            recyclerView.post {
+//                val newView = recyclerView.layoutManager?.findViewByPosition(newPosition)
+//                newView?.requestFocus()
+//            }
+//        }
+//        recyclerView.nextFocusUpId
     }
 
     override fun goLeft() {
-        goUp()
+        //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
+
     }
 
     override fun goRight() {
-        goDown()
+        //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
+
     }
 
     override fun goBack() {

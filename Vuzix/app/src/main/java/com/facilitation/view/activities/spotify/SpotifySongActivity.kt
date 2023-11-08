@@ -160,52 +160,52 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
     }
 
-//    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-//        //TODO: Filter here on action int in the KeyEvent constructor to differentiate between different view mappings - Aldís 11.10.23
-//        when (event.keyCode) {
-//            KeyEvent.KEYCODE_ENTER -> {
-//                Log.d("Key Event INFO", "Selecting ${currentMenuItem.title}\n------> ${TapToCommandEnum.XXOOO.keyCode()}")
-//                select()
-//                return true
-//            }
-//            KeyEvent.KEYCODE_HOME -> {
-//                Log.d("Key Event INFO", "Going home\n------> ${TapToCommandEnum.XOXXO.keyCode()}")
-////                goHome()
-//                return true
-//            }
-//            KeyEvent.KEYCODE_ESCAPE -> {
-//                Log.d("Key Event INFO", "Going back\n------> ${TapToCommandEnum.OXXXX.keyCode()}")
-//                goBack()
-//                return true
-//            }
-//            KeyEvent.KEYCODE_BACK -> {
-//                Log.d("Key Event INFO", "Going left\n------> ${TapToCommandEnum.XOXOO.keyCode()}")
-//                goLeft()
-//                return true
-//            }
-//            KeyEvent.KEYCODE_FORWARD -> {
-//                Log.d("Key Event INFO", "Going right\n------> ${TapToCommandEnum.XOOXO.keyCode()}")
-//                goRight()
-//                return true
-//            }
-//            KeyEvent.KEYCODE_DPAD_UP -> {
-//                Log.d("Key Event INFO", "Going up\n------> ${TapToCommandEnum.OOOXX.keyCode()}")
-//                goUp()
-//                return true
-//            }
-//            KeyEvent.KEYCODE_DPAD_DOWN -> {
-//                Log.d("Key Event INFO", "Going down\n------> ${TapToCommandEnum.OXXOO.keyCode()}")
-//                goDown()
-//                return true
-//            }
-//            KeyEvent.KEYCODE_SPACE -> {
-//                Log.d("Key Event INFO", "Toggling music\n------> ${TapToCommandEnum.XXXOO.keyCode()}")
-//                this.togglePlayPause(currentMenuItem)
-//                return true
-//            }
-//        }
-//        return super.dispatchKeyEvent(event)
-//    }
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        //TODO: Filter here on action int in the KeyEvent constructor to differentiate between different view mappings - Aldís 11.10.23
+        when (event.keyCode) {
+            KeyEvent.KEYCODE_ENTER -> {
+                Log.d("Key Event INFO", "Selecting ${currentMenuItem.title}\n------> ${TapToCommandEnum.XXOOO.keyCode()}")
+                select()
+                return true
+            }
+            KeyEvent.KEYCODE_HOME -> {
+                Log.d("Key Event INFO", "Going home\n------> ${TapToCommandEnum.XOXXO.keyCode()}")
+//                goHome()
+                return true
+            }
+            KeyEvent.KEYCODE_ESCAPE -> {
+                Log.d("Key Event INFO", "Going back\n------> ${TapToCommandEnum.OXXXX.keyCode()}")
+                goBack()
+                return true
+            }
+            KeyEvent.KEYCODE_BACK -> {
+                Log.d("Key Event INFO", "Going left\n------> ${TapToCommandEnum.XOXOO.keyCode()}")
+                goLeft()
+                return true
+            }
+            KeyEvent.KEYCODE_FORWARD -> {
+                Log.d("Key Event INFO", "Going right\n------> ${TapToCommandEnum.XOOXO.keyCode()}")
+                goRight()
+                return true
+            }
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                Log.d("Key Event INFO", "Going up\n------> ${TapToCommandEnum.OOOXX.keyCode()}")
+                goUp()
+                return true
+            }
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                Log.d("Key Event INFO", "Going down\n------> ${TapToCommandEnum.OXXOO.keyCode()}")
+                goDown()
+                return true
+            }
+            KeyEvent.KEYCODE_SPACE -> {
+                Log.d("Key Event INFO", "Toggling music\n------> ${TapToCommandEnum.XXXOO.keyCode()}")
+                this.togglePlayPause(currentMenuItem)
+                return true
+            }
+        }
+        return super.dispatchKeyEvent(event)
+    }
 
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
         val focus = this.currentFocus

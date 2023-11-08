@@ -15,10 +15,8 @@ class MyActivityLifecycleCallbacks(currentActivity: Activity) : ActivityLifecycl
     }
 
     override fun onActivityStarted(p0: Activity) {
-        if (this.currentActivity == p0) {
-            Log.i(p0::class.simpleName, "onStart()")
-            currentActivity = p0
-        }
+        Log.i(p0::class.simpleName, "onStart()")
+        currentActivity = p0
     }
 
     override fun onActivityResumed(p0: Activity) {
@@ -28,10 +26,14 @@ class MyActivityLifecycleCallbacks(currentActivity: Activity) : ActivityLifecycl
 
     override fun onActivityPaused(p0: Activity) {
         Log.i(p0::class.simpleName, "onPause()")
+        if (currentActivity == p0)
+            currentActivity = null
     }
 
     override fun onActivityStopped(p0: Activity) {
         Log.i(p0::class.simpleName, "onStop()")
+        if (currentActivity == p0)
+            currentActivity = null
     }
 
     override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {
