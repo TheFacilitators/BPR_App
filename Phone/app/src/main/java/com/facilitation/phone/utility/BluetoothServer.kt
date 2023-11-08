@@ -83,7 +83,7 @@ class BluetoothServer(private val appContext: Application, private val activity 
             Log.i("VuzixSidekick", "Socket connection closed")
         }
         catch (e : IOException) {
-            Log.e("VuzixSidekick", "Socket crashed.")
+            Log.e("VuzixSidekick", "Socket crashed. \nThe reason:\n${e.stackTrace}")
             e.printStackTrace()
         }
             Looper.loop()
