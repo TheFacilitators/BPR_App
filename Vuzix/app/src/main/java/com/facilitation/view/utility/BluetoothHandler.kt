@@ -89,9 +89,6 @@ class BluetoothHandler(
             mmSocket?.let { socket ->
                 socket.connect()
                 connectedSocket = socket
-//                mainHandler.post {
-//                    connectionListener.onBluetoothConnected()
-//                }
             }
         }
 

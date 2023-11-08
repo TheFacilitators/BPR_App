@@ -1,6 +1,5 @@
 package com.facilitation.view.activities.spotify
 
-import BluetoothConnectionListener
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -30,9 +29,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 
-class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, ITapInput {
-
-
+class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private var playlistPosition: Int = 0
     private val gson = Gson()
     private var trackDTOList: List<TrackDTO> =  listOf(
@@ -124,10 +121,6 @@ class SpotifyListActivity : AppCompatActivity(), BluetoothConnectionListener, IT
         intent.putExtra("callback", activityLifecycleCallbacks)
         //intent.putExtra("song", selectedTrack)
         startActivity(intent)
-    }
-
-    override fun onBluetoothConnected() {
-        requestPlaylist()
     }
 
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
