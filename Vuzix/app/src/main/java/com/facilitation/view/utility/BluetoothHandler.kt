@@ -1,22 +1,15 @@
 package com.facilitation.view.utility
 
-import BluetoothConnectionListener
-import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.ContentValues.TAG
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -29,7 +22,6 @@ class BluetoothHandler(
 ) {
     private val deviceNameToConnect = "Galaxy S21 5G"
     private val bluetoothString = "00001101-0000-1000-8000-00805F9B34FB"
-    private val connectionListener = context as BluetoothConnectionListener
     private val bluetoothAdapter: BluetoothAdapter? by lazy(LazyThreadSafetyMode.NONE) {
         val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothManager.adapter
@@ -73,11 +65,6 @@ class BluetoothHandler(
             Log.e(TAG, "Bluetooth is not available or not enabled")
         }
 
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
-        }
-
         val serverDevice = bluetoothAdapter!!.bondedDevices.find { it.name == deviceNameToConnect }
 
         if (serverDevice != null) {
@@ -101,11 +88,7 @@ class BluetoothHandler(
 
             mmSocket?.let { socket ->
                 socket.connect()
-                showToast("Connection Started")
                 connectedSocket = socket
-                mainHandler.post {
-                    connectionListener.onBluetoothConnected()
-                }
             }
         }
 
@@ -115,12 +98,6 @@ class BluetoothHandler(
             } catch (e: IOException) {
                 Log.e(TAG, "Could not close the client socket", e)
             }
-        }
-    }
-
-    private fun showToast(toast: String) {
-        mainHandler.post {
-            Toast.makeText(context, toast, Toast.LENGTH_SHORT).show()
         }
     }
 }

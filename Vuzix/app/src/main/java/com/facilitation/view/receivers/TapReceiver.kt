@@ -44,15 +44,12 @@ class TapReceiver(context: Context, private var activityLifecycleCallbacks: MyAc
   }
 
   override fun onBluetoothTurnedOn() {
-    Log.d("Tap INFO", "Bluetooth on")
   }
 
   override fun onBluetoothTurnedOff() {
-    Log.d("Tap INFO", "Bluetooth off")
   }
 
   override fun onTapStartConnecting(tapIdentifier: String) {
-    Log.d("Tap INFO", "Connecting to Tap...")
   }
 
   override fun onTapConnected(tapIdentifier: String) {
@@ -70,7 +67,6 @@ class TapReceiver(context: Context, private var activityLifecycleCallbacks: MyAc
   }
 
   override fun onTapChanged(tapIdentifier: String) {
-
   }
 
   override fun onTapInputReceived(tapIdentifier: String, data: Int, repeatData: Int) {
@@ -92,7 +88,6 @@ class TapReceiver(context: Context, private var activityLifecycleCallbacks: MyAc
   }
 
   override fun onRawSensorInputReceived(tapIdentifier: String, rsData: RawSensorData) {
-    Log.d("Tap INFO", "Tap is in raw sensor mode")
   }
 
   override fun onTapChangedState(tapIdentifier: String, state: Int) {
