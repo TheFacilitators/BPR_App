@@ -47,6 +47,8 @@ class SocketHandler(private val context: Context) {
                     "track" in command -> playTrackInPlaylist(command)
                     "pause" in command -> spotifyRemote.playerApi.pause()
                     "resume" in command -> spotifyRemote.playerApi.resume()
+                    "previous" in command -> spotifyRemote.playerApi.skipPrevious()
+                    "next" in command -> spotifyRemote.playerApi.skipNext()
                     "playlist" in command -> sendTracksDTO(socket)
                     else -> Log.e("VuzixSidekick", "I got command \"$command\" and I don't know what to do with it")
                 }
