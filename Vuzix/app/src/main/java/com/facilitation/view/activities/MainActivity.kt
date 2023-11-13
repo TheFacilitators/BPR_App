@@ -1,12 +1,14 @@
 package com.facilitation.view.activities
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.view.get
 import com.facilitation.view.R
@@ -27,6 +29,7 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     private lateinit var currentMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
     private val activityLifecycleCallbacks = MyActivityLifecycleCallbacks(this)
+    private lateinit var inputMethodManager : InputMethodManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
@@ -34,6 +37,7 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
         receiver = TapReceiver(this, activityLifecycleCallbacks)
+        inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -85,40 +89,11 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        //TODO: Filter here on action int in the KeyEvent constructor to differentiate between different view mappings - Aldís 11.10.23
-        when (event.keyCode) {
-            KeyEvent.KEYCODE_ENTER -> {
-                select()
-                return true
-            }
-            KeyEvent.KEYCODE_BACK -> {
-                goLeft()
-                return true
-            }
-            KeyEvent.KEYCODE_FORWARD -> {
-                goRight()
-                return true
-            }
-            KeyEvent.KEYCODE_ESCAPE -> {
-                goBack()
-                return true
-            }
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                goUp()
-                return true
-            }
-            KeyEvent.KEYCODE_DPAD_DOWN -> {
-                goDown()
-                return true
-            }
-        }
-        return super.dispatchKeyEvent(event)
+    override fun onInputReceived(commandEnum: TapToCommandEnum) {
+        inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem?.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
+        inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem?.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
 
-    override fun onInputReceived(commandEnum: TapToCommandEnum) {
-        dispatchKeyEvent(KeyEvent(currentMenuItem.itemId, commandEnum.keyCode()))
-    }
 
     override fun select() {
         when(currentMenuItem.itemId) {

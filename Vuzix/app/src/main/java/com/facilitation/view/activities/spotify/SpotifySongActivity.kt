@@ -130,48 +130,9 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        //TODO: Filter here on action int in the KeyEvent constructor to differentiate between different view mappings - Aldís 11.10.23
-        when (event.keyCode) {
-            KeyEvent.KEYCODE_ENTER -> {
-                select()
-                return true
-            }
-            KeyEvent.KEYCODE_HOME -> {
-//                goHome()
-                return true
-            }
-            KeyEvent.KEYCODE_ESCAPE -> {
-                goBack()
-                return true
-            }
-            KeyEvent.KEYCODE_BACK -> {
-                goLeft()
-                return true
-            }
-            KeyEvent.KEYCODE_FORWARD -> {
-                goRight()
-                return true
-            }
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                goUp()
-                return true
-            }
-            KeyEvent.KEYCODE_DPAD_DOWN -> {
-                goDown()
-                return true
-            }
-            KeyEvent.KEYCODE_SPACE -> {
-                this.togglePlayPause(currentMenuItem)
-                return true
-            }
-        }
-        return super.dispatchKeyEvent(event)
-    }
-
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
-        inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
-        inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
+        inputMethodManager.dispatchKeyEventFromInputMethod(SongDetailsMenuItem.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
+        inputMethodManager.dispatchKeyEventFromInputMethod(SongDetailsMenuItem.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
 
     override fun select() {
@@ -210,6 +171,9 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         catch (e:Exception) {
             Log.e("Spotify menu ERROR", "Error going right in Spotify menu:\n${e.message}")
         }
+    }
+    override fun interceptAllTouches(): Boolean {
+        return false
     }
 
     override fun goBack() {

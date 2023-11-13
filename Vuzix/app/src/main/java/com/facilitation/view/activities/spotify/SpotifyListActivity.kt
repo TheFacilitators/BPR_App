@@ -124,10 +124,6 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     }
 
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
-        if (commandEnum == TapToCommandEnum.OXXXX) {
-            goBack()
-            return
-        }
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
