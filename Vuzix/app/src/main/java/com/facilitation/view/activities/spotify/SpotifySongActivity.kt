@@ -3,15 +3,12 @@ package com.facilitation.view.activities.spotify
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.core.view.get
 import com.facilitation.view.R
 import com.facilitation.view.ViewApplication
 import com.facilitation.view.databinding.ActivitySpotifySongBinding
@@ -30,9 +27,6 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var NextSongMenuItem: MenuItem
     private lateinit var PrevSongMenuItem: MenuItem
     private lateinit var SongDetailsMenuItem: MenuItem //Not currently used but left for future functionality - Aldís 08.11.23
-    private lateinit var BackMenuItem: MenuItem
-    private lateinit var menu: Menu
-    private lateinit var currentMenuItem : MenuItem
     private lateinit var receiver: TapReceiver
     private var isPaused = false
     private var bluetoothHandler: BluetoothHandler? = null //Not currently used but left for future functionality - Aldís 08.11.23
@@ -60,10 +54,6 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item2)
         NextSongMenuItem = menu.findItem(R.id.menu_spotify_item3)
         SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
-        BackMenuItem = menu[0]
-
-        this.menu = menu
-        setCurrentMenuItem(menu[defaultAction], false)
 
         return true
     }
@@ -74,21 +64,6 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     override fun alwaysShowActionMenu(): Boolean {
         return true
-    }
-
-    override fun setCurrentMenuItem(item: MenuItem?, animate: Boolean) {
-        val activity: Activity = this
-        activity.runOnUiThread {
-            super.setCurrentMenuItem(item, animate)
-            if (item != null)
-                currentMenuItem = item
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Will be refactored with the focus - Aldís 08.11.23
-        select()
-        return super.onOptionsItemSelected(item)
     }
 
     fun previousSong(item: MenuItem?) {
@@ -136,53 +111,26 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     }
 
     override fun select() {
-        when(currentMenuItem.itemId) {
-            R.id.menu_spotify_item1 -> previousSong(currentMenuItem)
-            R.id.menu_spotify_item2 -> togglePlayPause(currentMenuItem)
-            R.id.menu_spotify_item3 -> nextSong(currentMenuItem)
-            R.id.menu_spotify_item4 -> showSongDetails(currentMenuItem)
-            BackMenuItem.itemId -> goBack()
-            else -> Log.d("ERROR", "Invalid menu item selected for execution")
-            }
+        TODO("Not yet implemented")
     }
 
     override fun goUp() {
-        Log.i("SpotifySongActivity INFO", "Going up is not valid in here")
+        TODO("Not yet implemented")
     }
 
     override fun goDown() {
-        Log.i("SpotifySongActivity INFO", "Going down is not valid in here")
+        TODO("Not yet implemented")
     }
 
     override fun goLeft() {
-        try {
-            setCurrentMenuItem(menu[getMenuItemIndex(currentMenuItem, false) - 1], false)
-        }
-        catch (e:Exception) {
-            Log.e("Spotify menu ERROR", "Error going left in Spotify menu:\n${e.stackTrace}")
-            throw e
-        }
+        TODO("Not yet implemented")
     }
 
     override fun goRight() {
-        try {
-            setCurrentMenuItem(menu[getMenuItemIndex(currentMenuItem, false) + 1], false)
-        }
-        catch (e:Exception) {
-            Log.e("Spotify menu ERROR", "Error going right in Spotify menu:\n${e.message}")
-        }
-    }
-    override fun interceptAllTouches(): Boolean {
-        return false
+        TODO("Not yet implemented")
     }
 
     override fun goBack() {
-        try {
-            val intent = Intent(this, SpotifyListActivity::class.java)
-            startActivity(intent)
-        }
-        catch (e:Exception) {
-            Log.e("Spotify menu ERROR", "Error going back in Spotify menu:\n ${e.message}")
-        }
+        TODO("Not yet implemented")
     }
 }
