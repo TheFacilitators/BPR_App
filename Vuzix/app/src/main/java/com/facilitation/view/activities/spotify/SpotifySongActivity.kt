@@ -162,7 +162,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
                 return true
             }
             KeyEvent.KEYCODE_SPACE -> {
-                this.togglePlayPause(currentMenuItem)
+                this.togglePlayPause(PlayPauseMenuItem)
                 return true
             }
         }
