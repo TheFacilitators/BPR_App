@@ -57,11 +57,12 @@ class MainActivity : ActionMenuActivity(), ITapInput {
 
     fun showSnake(item: MenuItem?) {
         val intent = Intent(this, SnakeActivity::class.java)
+        intent.putExtra("callback", activityLifecycleCallbacks)
         startActivity(intent)
     }
 
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
-        inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem?.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
-        inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem?.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
+        inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
+        inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
 }

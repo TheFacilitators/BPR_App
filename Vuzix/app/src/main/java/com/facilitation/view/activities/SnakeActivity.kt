@@ -34,9 +34,9 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        super.onCreate(savedInstanceState)
         binding = ActivitySnakeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         snakeGame = Snake(binding.snakeView)
@@ -74,7 +74,7 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
         handler.postDelayed(gameLoopRunnable as Runnable, delayMillis)
     }
 
-    fun restartGame() {
+    private fun restartGame() {
         if (gameLoopRunnable != null) {
             handler.removeCallbacks(gameLoopRunnable!!)
         }
