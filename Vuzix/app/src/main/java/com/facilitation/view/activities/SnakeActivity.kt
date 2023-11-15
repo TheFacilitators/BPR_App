@@ -21,7 +21,6 @@ import com.facilitation.view.utility.enums.TapToCommandEnum
 
 class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
 
-
     private lateinit var snakeGame: Snake
     private lateinit var binding: ActivitySnakeBinding
     private val handler = Handler(Looper.getMainLooper())
@@ -30,8 +29,6 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
     private lateinit var inputMethodManager : InputMethodManager
     private lateinit var receiver: TapReceiver
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
@@ -74,14 +71,6 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
         handler.postDelayed(gameLoopRunnable as Runnable, delayMillis)
     }
 
-    private fun restartGame() {
-        if (gameLoopRunnable != null) {
-            handler.removeCallbacks(gameLoopRunnable!!)
-        }
-        snakeGame.resetGame()
-        startGameLoop()
-    }
-
     private fun showGameOverDialog() {
         if (gameOverDialog != null && gameOverDialog!!.isShowing) {
             return
@@ -98,12 +87,16 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
 
     override fun onGameOver(score: Int) {
         showGameOverDialog()
+        handler.removeCallbacks(gameLoopRunnable!!)
+        gameLoopRunnable = null
     }
 
     fun restartGame(view: View) {
         gameOverDialog?.dismiss()
-        restartGame()
+        snakeGame.resetGame()
+        startGameLoop()
     }
+
     fun exitGame(view: View) {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
