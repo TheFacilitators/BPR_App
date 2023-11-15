@@ -67,10 +67,18 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         requestPlaylist()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onResume() {
+        spotifyListAdapter.notifyDataSetChanged()
+        super.onResume()
+    }
+
     fun playSongFromList(view: View) {
         playlistPosition = recyclerView.getChildLayoutPosition(view)
         if (playlistPosition != RecyclerView.NO_POSITION) {
-            playSelectedSong()
+            sendBluetoothCommand("track:$playlistPosition")
+            showToast("Playing ${trackDTOList[playlistPosition].title}")
+            showSpotifySongActivity()
         }
     }
 
@@ -95,13 +103,6 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         return bluetoothHandler!!.sendReturnableCommand(command)
     }
 
-    private fun playSelectedSong() {
-        val selectedTrack = trackDTOList.get(playlistPosition)
-        sendBluetoothCommand(selectedTrack.uri)
-        showToast("Now playing: ${selectedTrack.title}")
-        showSpotifySongActivity(selectedTrack)
-    }
-
     private fun showToast(text: String) {
         val activity: Activity = this
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
@@ -115,15 +116,18 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         recyclerView.adapter?.notifyDataSetChanged()
     }
 
-    private fun showSpotifySongActivity(selectedTrack: TrackDTO) {
+    private fun showSpotifySongActivity() {
         //TODO: Pass Spotify state to SongActivity - Jody 08.11.23
         val intent = Intent(this, SpotifySongActivity::class.java)
         intent.putExtra("callback", activityLifecycleCallbacks)
-        //intent.putExtra("song", selectedTrack)
         startActivity(intent)
     }
 
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
+        if (commandEnum == TapToCommandEnum.OXXXX) {
+            goBack()
+            return
+        }
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
@@ -155,7 +159,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
             startActivity(intent)
         }
         catch (e:Exception) {
-            Log.e("Spotify menu ERROR", "Error going back in Spotify menu:\n ${e.message}")
+            Log.e("Spotify menu ERROR", "Error going back in Spotify playlist:\n ${e.message}")
         }
     }
 }
