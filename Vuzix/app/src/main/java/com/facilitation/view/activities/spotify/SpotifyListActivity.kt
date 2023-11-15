@@ -78,7 +78,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         if (playlistPosition != RecyclerView.NO_POSITION) {
             sendBluetoothCommand("track:$playlistPosition")
             showToast("Playing ${trackDTOList[playlistPosition].title}")
-            showSpotifySongActivity()
+            showSpotifySongActivity(trackDTOList[playlistPosition])
         }
     }
 
@@ -116,9 +116,10 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         recyclerView.adapter?.notifyDataSetChanged()
     }
 
-    private fun showSpotifySongActivity() {
+    private fun showSpotifySongActivity(selectedTrack: TrackDTO) {
         val intent = Intent(this, SpotifySongActivity::class.java)
         intent.putExtra("callback", activityLifecycleCallbacks)
+        intent.putExtra("track", selectedTrack)
         startActivity(intent)
     }
 
