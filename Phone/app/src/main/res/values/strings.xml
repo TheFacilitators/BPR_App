@@ -8,7 +8,6 @@
     <string name="client_secret">570f169fa60a4a91a7f5d493a251f41b</string>
     <string name="redirect_uri">http://localhost:8888/callback/</string>
     <string name="playlist_uri">https://api.spotify.com/v1/playlists/04wwOyhtie5aEUbvMdAOii?si=e2b67652ad034ce4/tracks</string>
-    <string name="userID">reimantas.tiuninas</string>
     <string name="playlistID">04wwOyhtie5aEUbvMdAOii</string>
     <string name="request_code">9485</string>
     <!-- Strings related to login -->

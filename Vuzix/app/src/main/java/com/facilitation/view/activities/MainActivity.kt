@@ -1,14 +1,11 @@
 package com.facilitation.view.activities
-
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
-import androidx.core.view.get
+import android.view.inputmethod.InputMethodManager
 import com.facilitation.view.R
 import com.facilitation.view.activities.spotify.SpotifyListActivity
 import com.facilitation.view.databinding.ActivityMainBinding
@@ -21,12 +18,10 @@ import com.vuzix.hud.actionmenu.ActionMenuActivity
 class MainActivity : ActionMenuActivity(), ITapInput {
     var SpotifyMenuItem: MenuItem? = null
     var SnakeMenuItem: MenuItem? = null
-    lateinit var BackMenuItem: MenuItem
     private lateinit var binding: ActivityMainBinding
-    private lateinit var menu: Menu
-    private lateinit var currentMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
     private val activityLifecycleCallbacks = MyActivityLifecycleCallbacks(this)
+    private lateinit var inputMethodManager : InputMethodManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
@@ -34,6 +29,7 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
         receiver = TapReceiver(this, activityLifecycleCallbacks)
+        inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -41,9 +37,6 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         menuInflater.inflate(R.menu.menu, menu)
         SpotifyMenuItem = menu.findItem(R.id.menu_item1)
         SnakeMenuItem = menu.findItem(R.id.menu_item2)
-        BackMenuItem = menu[0]
-        this.menu = menu
-        setCurrentMenuItem(menu[defaultAction], false)
         return true
     }
 
@@ -67,103 +60,32 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         startActivity(intent)
     }
 
-    private fun showToast(text: String) {
-        val activity: Activity = this
-        activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
-    }
-
-    override fun setCurrentMenuItem(item: MenuItem?, animate: Boolean) {
-        val activity: Activity = this
-        activity.runOnUiThread {
-            super.setCurrentMenuItem(item, animate)
-            currentMenuItem = item ?: menu[defaultAction]
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        select()
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        //TODO: Filter here on action int in the KeyEvent constructor to differentiate between different view mappings - Aldís 11.10.23
-        when (event.keyCode) {
-            KeyEvent.KEYCODE_ENTER -> {
-                select()
-                return true
-            }
-            KeyEvent.KEYCODE_BACK -> {
-                goLeft()
-                return true
-            }
-            KeyEvent.KEYCODE_FORWARD -> {
-                goRight()
-                return true
-            }
-            KeyEvent.KEYCODE_ESCAPE -> {
-                goBack()
-                return true
-            }
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                goUp()
-                return true
-            }
-            KeyEvent.KEYCODE_DPAD_DOWN -> {
-                goDown()
-                return true
-            }
-        }
-        return super.dispatchKeyEvent(event)
-    }
-
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
-        dispatchKeyEvent(KeyEvent(currentMenuItem.itemId, commandEnum.keyCode()))
+        inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem?.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
+        inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem?.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
 
     override fun select() {
-        when(currentMenuItem.itemId) {
-            R.id.menu_item1 -> {
-                setCurrentMenuItem(currentMenuItem, true)
-                showSpotify(currentMenuItem)
-            }
-            R.id.menu_item2 -> {
-                setCurrentMenuItem(currentMenuItem, true)
-                showSnake(currentMenuItem)
-            }
-            BackMenuItem.itemId -> {
-                setCurrentMenuItem(currentMenuItem, true)
-                goBack()
-            }
-        }
+        TODO("Not yet implemented")
     }
 
     override fun goUp() {
-        Log.i("MainActivity INFO", "Going up is not valid in here")
+        TODO("Not yet implemented")
     }
 
     override fun goDown() {
-        Log.i("MainActivity INFO", "Going down is not valid in here")
+        TODO("Not yet implemented")
     }
 
     override fun goLeft() {
-        try {
-            setCurrentMenuItem(menu[getMenuItemIndex(currentMenuItem, false) - 1], false)
-        }
-        catch (e:Exception) {
-            Log.e("Main menu ERROR", "Error going left: ${e.message}")
-        }
+        TODO("Not yet implemented")
     }
 
     override fun goRight() {
-        try {
-            setCurrentMenuItem(menu[getMenuItemIndex(currentMenuItem, false) + 1], false)
-        }
-        catch (e:Exception) {
-            Log.e("Main menu ERROR", "Error going right: ${e.message}")
-        }
+        TODO("Not yet implemented")
     }
 
     override fun goBack() {
-        finishAffinity()
+        TODO("Not yet implemented")
     }
 }
