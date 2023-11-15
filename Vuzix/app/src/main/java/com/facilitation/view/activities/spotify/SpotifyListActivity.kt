@@ -90,7 +90,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
 
     private fun initSpotifyListView() {
         recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this) //TODO: Check this for focus - Aldís 08.11.23
+        recyclerView.layoutManager = LinearLayoutManager(this)
         spotifyListAdapter = SpotifyListAdapter(trackDTOList)
         recyclerView.adapter = spotifyListAdapter
     }
@@ -117,7 +117,6 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     }
 
     private fun showSpotifySongActivity() {
-        //TODO: Pass Spotify state to SongActivity - Jody 08.11.23
         val intent = Intent(this, SpotifySongActivity::class.java)
         intent.putExtra("callback", activityLifecycleCallbacks)
         startActivity(intent)
@@ -126,36 +125,5 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
-    }
-
-    override fun select() {
-        //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
-    }
-
-    override fun goUp() {
-        //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
-    }
-
-    override fun goDown() {
-        //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
-    }
-
-    override fun goLeft() {
-        //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
-    }
-
-    override fun goRight() {
-        //TODO: Refactor interface when input is solely handled by the framework - Aldís 08.11.23
-    }
-
-    override fun goBack() {
-        //TODO: Need to put a view item to go back and call this method - Aldís 08.11.23
-        try {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
-        catch (e:Exception) {
-            Log.e("Spotify menu ERROR", "Error going back in Spotify playlist:\n ${e.message}")
-        }
     }
 }
