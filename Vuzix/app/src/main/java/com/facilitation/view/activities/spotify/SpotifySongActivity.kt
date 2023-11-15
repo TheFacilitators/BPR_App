@@ -34,8 +34,6 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private var isPaused = false
     private var isFavorite = false
     private lateinit var currentTrackDTO: TrackDTO
-    private lateinit var trackTitleTextView: TextView
-    private lateinit var trackArtistTextView: TextView
     private var bluetoothHandler: BluetoothHandler? = null //Not currently used but left for future functionality - Aldís 08.11.23
     private var bluetoothAdapter: BluetoothAdapter? = null //Not currently used but left for future functionality - Aldís 08.11.23
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
@@ -54,10 +52,6 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         getBluetooth()
 
         currentTrackDTO = intent.getSerializableExtra("track") as TrackDTO
-        trackTitleTextView = binding.spotifyTrackTitle
-        trackArtistTextView = binding.spotifyTrackArtist
-        trackTitleTextView.text = currentTrackDTO.title
-        trackArtistTextView.text = currentTrackDTO.artist
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -100,17 +94,16 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     }
 
     fun showSongDetails(item: MenuItem?) {
-        // Show song details here
-        showToast("Total Eclipse of The Heart - Bonnie Tyler")
+        showToast("${currentTrackDTO.title} - ${currentTrackDTO.artist}")
     }
 
     fun toggleFavorite(item: MenuItem?) {
         if (isFavorite) {
             item?.setIcon(R.drawable.ic_add_favorite)
-            sendBluetoothCommand("removeFavorite")
+            sendBluetoothCommand("removeFavorite:spotify:track:${currentTrackDTO.uri}")
         } else {
             item?.setIcon(R.drawable.ic_remove_favorite)
-            sendBluetoothCommand("addFavorite")
+            sendBluetoothCommand("addFavorite:spotify:track:${currentTrackDTO.uri}")
         }
         isFavorite = !isFavorite
     }
