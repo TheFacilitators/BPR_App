@@ -8,10 +8,12 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import android.widget.Toast
 import com.facilitation.view.R
 import com.facilitation.view.ViewApplication
 import com.facilitation.view.databinding.ActivitySpotifySongBinding
+import com.facilitation.view.model.TrackDTO
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.BluetoothHandler
 import com.facilitation.view.utility.ITapInput
@@ -29,6 +31,9 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var SongDetailsMenuItem: MenuItem //Not currently used but left for future functionality - Aldís 08.11.23
     private lateinit var receiver: TapReceiver
     private var isPaused = false
+    private lateinit var currentTrackDTO: TrackDTO
+    private lateinit var trackTitleTextView: TextView
+    private lateinit var trackArtistTextView: TextView
     private var bluetoothHandler: BluetoothHandler? = null //Not currently used but left for future functionality - Aldís 08.11.23
     private var bluetoothAdapter: BluetoothAdapter? = null //Not currently used but left for future functionality - Aldís 08.11.23
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
@@ -45,6 +50,12 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         receiver = TapReceiver(this, activityLifecycleCallbacks)
 
         getBluetooth()
+
+        currentTrackDTO = intent.getSerializableExtra("track") as TrackDTO
+        trackTitleTextView = binding.spotifyTrackTitle
+        trackArtistTextView = binding.spotifyTrackArtist
+        trackTitleTextView.text = currentTrackDTO.title
+        trackArtistTextView.text = currentTrackDTO.artist
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
