@@ -106,8 +106,8 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     }
 
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
-        inputMethodManager.dispatchKeyEventFromInputMethod(SongDetailsMenuItem.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
-        inputMethodManager.dispatchKeyEventFromInputMethod(SongDetailsMenuItem.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
+        inputMethodManager.dispatchKeyEventFromInputMethod(PlayPauseMenuItem.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
+        inputMethodManager.dispatchKeyEventFromInputMethod(PlayPauseMenuItem.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
 
     override fun select() {
