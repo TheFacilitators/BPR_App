@@ -59,13 +59,15 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
         val delayMillis = 1000L / frameRate
         gameLoopRunnable = object : Runnable {
             override fun run() {
-                snakeGame.update()
-                val canvas = binding.snakeView.holder.lockCanvas()
-                if (canvas != null) {
-                    snakeGame.draw(canvas)
-                    binding.snakeView.holder.unlockCanvasAndPost(canvas)
-                }
-                handler.postDelayed(this, delayMillis)
+                if(snakeGame.gameActive){
+                    snakeGame.update()
+                    val canvas = binding.snakeView.holder.lockCanvas()
+                    if (canvas != null) {
+                        snakeGame.draw(canvas)
+                        binding.snakeView.holder.unlockCanvasAndPost(canvas)
+                    }
+                    handler.postDelayed(this, delayMillis)
+                    }
             }
         }
         handler.postDelayed(gameLoopRunnable as Runnable, delayMillis)
@@ -100,6 +102,7 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
     fun exitGame(view: View) {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        gameOverDialog?.dismiss()
         finishAffinity()
     }
 
