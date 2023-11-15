@@ -27,8 +27,10 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var NextSongMenuItem: MenuItem
     private lateinit var PrevSongMenuItem: MenuItem
     private lateinit var SongDetailsMenuItem: MenuItem //Not currently used but left for future functionality - Aldís 08.11.23
+    private lateinit var FavoriteSongMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
     private var isPaused = false
+    private var isFavorite = false
     private var bluetoothHandler: BluetoothHandler? = null //Not currently used but left for future functionality - Aldís 08.11.23
     private var bluetoothAdapter: BluetoothAdapter? = null //Not currently used but left for future functionality - Aldís 08.11.23
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
@@ -54,6 +56,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item2)
         NextSongMenuItem = menu.findItem(R.id.menu_spotify_item3)
         SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
+        FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_item5)
 
         return true
     }
@@ -88,6 +91,17 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     fun showSongDetails(item: MenuItem?) {
         // Show song details here
         showToast("Total Eclipse of The Heart - Bonnie Tyler")
+    }
+
+    fun toggleFavorite(item: MenuItem?) {
+        if (isFavorite) {
+            item?.setIcon(R.drawable.ic_add_favorite)
+            sendBluetoothCommand("removeFavorite")
+        } else {
+            item?.setIcon(R.drawable.ic_remove_favorite)
+            sendBluetoothCommand("addFavorite")
+        }
+        isFavorite = !isFavorite
     }
 
     private fun getBluetooth() {
