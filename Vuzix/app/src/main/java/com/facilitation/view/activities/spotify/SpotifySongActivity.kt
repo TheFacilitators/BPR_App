@@ -58,6 +58,11 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         return true
     }
 
+    override fun onResume(){
+        super.onResume()
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+    }
+
     override fun getDefaultAction(): Int {
         return 2
     }
