@@ -64,28 +64,4 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem?.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem?.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
-
-    override fun select() {
-        TODO("Not yet implemented")
-    }
-
-    override fun goUp() {
-        TODO("Not yet implemented")
-    }
-
-    override fun goDown() {
-        TODO("Not yet implemented")
-    }
-
-    override fun goLeft() {
-        TODO("Not yet implemented")
-    }
-
-    override fun goRight() {
-        TODO("Not yet implemented")
-    }
-
-    override fun goBack() {
-        TODO("Not yet implemented")
-    }
 }
