@@ -6,17 +6,19 @@ import com.vuzix.hud.resources.DynamicThemeApplication
 
 
 class ViewApplication : DynamicThemeApplication() {
-    var bluetoothHandler: BluetoothHandler? = null
-    var bluetoothAdapter: BluetoothAdapter? = null
+    lateinit var bluetoothHandler: BluetoothHandler
+    lateinit var bluetoothAdapter: BluetoothAdapter
 
     override fun onCreate() {
         super.onCreate()
 
+        connectToBluetooth()
+    }
+
+    fun connectToBluetooth() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        if (bluetoothAdapter != null) {
-            bluetoothHandler = BluetoothHandler(this)
-            bluetoothHandler?.initiateConnection()
-        }
+        bluetoothHandler = BluetoothHandler(this)
+        bluetoothHandler.initiateConnection()
     }
 
     override fun getNormalThemeResId(): Int {

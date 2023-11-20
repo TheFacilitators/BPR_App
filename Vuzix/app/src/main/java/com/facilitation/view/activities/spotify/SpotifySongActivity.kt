@@ -2,6 +2,7 @@ package com.facilitation.view.activities.spotify
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.content.ContentValues
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -82,6 +83,11 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         super.onResume()
         updateFavorite()
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        try {
+            getBluetooth()
+        } catch (e: Exception) {
+            Log.e(ContentValues.TAG, e.message.toString())
+        }
     }
 
     override fun getDefaultAction(): Int {
