@@ -52,6 +52,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         getBluetooth()
 
         currentTrackDTO = intent.getSerializableExtra("track") as TrackDTO
+        //TODO: Check and set if the song is a favorite - Aldís 20.11.23
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
