@@ -28,14 +28,14 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var PlayPauseMenuItem: MenuItem
     private lateinit var NextSongMenuItem: MenuItem
     private lateinit var PrevSongMenuItem: MenuItem
-    private lateinit var SongDetailsMenuItem: MenuItem //Not currently used but left for future functionality - Aldís 08.11.23
+    private lateinit var SongDetailsMenuItem: MenuItem
     private lateinit var FavoriteSongMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
     private var isPaused = false
     private var isFavorite = false
     private lateinit var currentTrackDTO: TrackDTO
-    private var bluetoothHandler: BluetoothHandler? = null //Not currently used but left for future functionality - Aldís 08.11.23
-    private var bluetoothAdapter: BluetoothAdapter? = null //Not currently used but left for future functionality - Aldís 08.11.23
+    private var bluetoothHandler: BluetoothHandler? = null
+    private var bluetoothAdapter: BluetoothAdapter? = null
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
     private lateinit var inputMethodManager : InputMethodManager
 
