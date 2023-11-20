@@ -32,7 +32,6 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var FavoriteSongMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
     private var isPaused = false
-    private var isFavorite = false
     private lateinit var currentTrackDTO: TrackDTO
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -52,7 +51,6 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         getBluetooth()
 
         currentTrackDTO = intent.getSerializableExtra("track") as TrackDTO
-        //TODO: Check and set if the song is a favorite - Aldís 20.11.23
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -104,14 +102,14 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     }
 
     fun toggleFavorite(item: MenuItem?) {
-        if (isFavorite) {
+        if (currentTrackDTO.favorite) {
             item?.setIcon(R.drawable.ic_add_favorite)
             sendBluetoothCommand("removeFavorite:${currentTrackDTO.uri}")
         } else {
             item?.setIcon(R.drawable.ic_remove_favorite)
             sendBluetoothCommand("addFavorite:${currentTrackDTO.uri}")
         }
-        isFavorite = !isFavorite
+        currentTrackDTO.favorite = !currentTrackDTO.favorite
     }
 
     private fun getBluetooth() {
