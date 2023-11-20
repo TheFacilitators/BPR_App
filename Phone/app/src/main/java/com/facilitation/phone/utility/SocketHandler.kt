@@ -16,6 +16,7 @@ import com.spotify.protocol.types.LibraryState
 import java.io.IOException
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
+import java.util.concurrent.CompletableFuture
 
 class SocketHandler(private val context: Context) {
     private lateinit var spotifyRemote: SpotifyAppRemote
@@ -66,13 +67,13 @@ class SocketHandler(private val context: Context) {
         }
     private fun sendTracksDTO(socket: BluetoothSocket) {
         val sharedPreferencesSpotify = context.getSharedPreferences("SPOTIFY", 0)
-        var tracksDTOJson = sharedPreferencesSpotify.getString("tracksDTOJson", null)
-        tracksDTOJson = updateTrackLibraryStatus(tracksDTOJson)
+        val tracksDTOJson = sharedPreferencesSpotify.getString("tracksDTOJson", null)
+        val tracksDTOJsonUpdated = updateTrackLibraryStatus(tracksDTOJson)
 
         val writer = PrintWriter(OutputStreamWriter(socket.outputStream))
 
         try {
-            writer.println(tracksDTOJson)
+            writer.println(tracksDTOJsonUpdated)
             writer.flush()
 
         } catch (e: IOException) {
@@ -82,13 +83,20 @@ class SocketHandler(private val context: Context) {
 
     private fun updateTrackLibraryStatus(tracksDTOJson: String?): String? {
         val tracksDTO: List<TrackDTO> = gson.fromJson(tracksDTOJson, object : TypeToken<List<TrackDTO>>() {}.type)
+        val completableFutures = mutableListOf<CompletableFuture<LibraryState>>()
 
-        for (track in tracksDTO) {
-            val callResult: CallResult<LibraryState> = spotifyRemote.userApi.getLibraryState(track.uri)
+        tracksDTO.forEach { track ->
+            val completableFuture = CompletableFuture<LibraryState>()
+
+            val callResult: CallResult<LibraryState> =
+                spotifyRemote.userApi.getLibraryState(track.uri)
             callResult.setResultCallback { libraryState ->
-                track.favorite = libraryState.isAdded
+                track.isFavorite = libraryState.isAdded
+                completableFuture.complete(libraryState)
             }
+            completableFutures.add(completableFuture)
         }
+        CompletableFuture.allOf(*completableFutures.toTypedArray()).join()
         return gson.toJson(tracksDTO)
     }
 
