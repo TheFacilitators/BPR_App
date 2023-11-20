@@ -7,5 +7,5 @@ class TrackDTO(
     @SerializedName("title") val title: String,
     @SerializedName("artist") val artist: String,
     @SerializedName("uri") val uri: String,
-    @SerializedName("favorite") var favorite: Boolean
+    @SerializedName("favorite") var isFavorite: Boolean
 ): Serializable
