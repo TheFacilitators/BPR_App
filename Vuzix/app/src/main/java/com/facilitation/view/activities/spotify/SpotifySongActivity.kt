@@ -106,10 +106,10 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     fun toggleFavorite(item: MenuItem?) {
         if (isFavorite) {
             item?.setIcon(R.drawable.ic_add_favorite)
-            sendBluetoothCommand("removeFavorite:spotify:track:${currentTrackDTO.uri}")
+            sendBluetoothCommand("removeFavorite:${currentTrackDTO.uri}")
         } else {
             item?.setIcon(R.drawable.ic_remove_favorite)
-            sendBluetoothCommand("addFavorite:spotify:track:${currentTrackDTO.uri}")
+            sendBluetoothCommand("addFavorite:${currentTrackDTO.uri}")
         }
         isFavorite = !isFavorite
     }
