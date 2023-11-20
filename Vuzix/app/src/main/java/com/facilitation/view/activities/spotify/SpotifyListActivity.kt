@@ -31,16 +31,16 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private var playlistPosition: Int = 0
     private val gson = Gson()
     private var trackDTOList: List<TrackDTO> =  listOf(
-        TrackDTO("Song 1", "Artist 1", "Uri 1"),
-        TrackDTO("Song 2", "Artist 2", "Uri 2"),
-        TrackDTO("Song 3", "Artist 3", "Uri 3"),
-        TrackDTO("Song 4", "Artist 4", "Uri 4"),
-        TrackDTO("Song 5", "Artist 5", "Uri 5"),
-        TrackDTO("Song 6", "Artist 6", "Uri 6"),
-        TrackDTO("Song 7", "Artist 7", "Uri 7"),
-        TrackDTO("Song 8", "Artist 8", "Uri 8"),
-        TrackDTO("Song 9", "Artist 9", "Uri 9"),
-        TrackDTO("Song 10", "Artist 10", "Uri 10")
+        TrackDTO("Song 1", "Artist 1", "Uri 1", true),
+        TrackDTO("Song 2", "Artist 2", "Uri 2", false),
+        TrackDTO("Song 3", "Artist 3", "Uri 3", false),
+        TrackDTO("Song 4", "Artist 4", "Uri 4", false),
+        TrackDTO("Song 5", "Artist 5", "Uri 5", false),
+        TrackDTO("Song 6", "Artist 6", "Uri 6", false),
+        TrackDTO("Song 7", "Artist 7", "Uri 7", false),
+        TrackDTO("Song 8", "Artist 8", "Uri 8", false),
+        TrackDTO("Song 9", "Artist 9", "Uri 9", false),
+        TrackDTO("Song 10", "Artist 10", "Uri 10", false)
     )
     private lateinit var spotifyListAdapter: SpotifyListAdapter
     private lateinit var recyclerView: RecyclerView
@@ -69,6 +69,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     override fun onResume() {
         recyclerView.scrollToPosition(playlistPosition)
         super.onResume()
+        requestPlaylist()
     }
 
     fun playSongFromList(view: View) {
@@ -76,7 +77,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         if (playlistPosition != RecyclerView.NO_POSITION) {
             sendBluetoothCommand("track:$playlistPosition")
             showToast("Playing ${trackDTOList[playlistPosition].title}")
-            showSpotifySongActivity()
+            showSpotifySongActivity(trackDTOList[playlistPosition])
         }
     }
 
@@ -114,9 +115,10 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         recyclerView.adapter?.notifyDataSetChanged()
     }
 
-    private fun showSpotifySongActivity() {
+    private fun showSpotifySongActivity(selectedTrack: TrackDTO) {
         val intent = Intent(this, SpotifySongActivity::class.java)
         intent.putExtra("callback", activityLifecycleCallbacks)
+        intent.putExtra("track", selectedTrack)
         startActivity(intent)
     }
 

@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         val tracksDTO: List<TrackDTO> = playlist.tracks.items.map { item ->
             //In case a song has multiple artists, this will take care of it
             val concatenatedArtists = item.track.artists.joinToString(", ") { it.name }
-            TrackDTO(item.track.name, concatenatedArtists, item.track.uri)
+            TrackDTO(item.track.name, concatenatedArtists, item.track.uri, false)
         }
         storeTracksDTO(tracksDTO)
     }

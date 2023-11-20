@@ -4,6 +4,7 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -12,6 +13,7 @@ import android.widget.Toast
 import com.facilitation.view.R
 import com.facilitation.view.ViewApplication
 import com.facilitation.view.databinding.ActivitySpotifySongBinding
+import com.facilitation.view.model.TrackDTO
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.BluetoothHandler
 import com.facilitation.view.utility.ITapInput
@@ -26,11 +28,13 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var PlayPauseMenuItem: MenuItem
     private lateinit var NextSongMenuItem: MenuItem
     private lateinit var PrevSongMenuItem: MenuItem
-    private lateinit var SongDetailsMenuItem: MenuItem //Not currently used but left for future functionality - Aldís 08.11.23
+    private lateinit var SongDetailsMenuItem: MenuItem
+    private lateinit var FavoriteSongMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
     private var isPaused = false
-    private var bluetoothHandler: BluetoothHandler? = null //Not currently used but left for future functionality - Aldís 08.11.23
-    private var bluetoothAdapter: BluetoothAdapter? = null //Not currently used but left for future functionality - Aldís 08.11.23
+    private lateinit var currentTrackDTO: TrackDTO
+    private var bluetoothHandler: BluetoothHandler? = null
+    private var bluetoothAdapter: BluetoothAdapter? = null
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
     private lateinit var inputMethodManager : InputMethodManager
 
@@ -45,6 +49,8 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         receiver = TapReceiver(this, activityLifecycleCallbacks)
 
         getBluetooth()
+
+        currentTrackDTO = intent.getSerializableExtra("track") as TrackDTO
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -54,12 +60,27 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item2)
         NextSongMenuItem = menu.findItem(R.id.menu_spotify_item3)
         SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
+        FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_item5)
 
+        updateFavorite()
         return true
     }
 
-    override fun onResume(){
+    private fun updateFavorite() {
+        try {
+            if (currentTrackDTO.isFavorite) {
+                FavoriteSongMenuItem.setIcon(R.drawable.ic_remove_favorite)
+            } else {
+                FavoriteSongMenuItem.setIcon(R.drawable.ic_add_favorite)
+            }
+        } catch (e: UninitializedPropertyAccessException) {
+            Log.e("ERROR", e.toString())
+        }
+    }
+
+    override fun onResume() {
         super.onResume()
+        updateFavorite()
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
     }
 
@@ -91,8 +112,18 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     }
 
     fun showSongDetails(item: MenuItem?) {
-        // Show song details here
-        showToast("Total Eclipse of The Heart - Bonnie Tyler")
+        showToast("${currentTrackDTO.title} - ${currentTrackDTO.artist}")
+    }
+
+    fun toggleFavorite(item: MenuItem?) {
+        if (currentTrackDTO.isFavorite) {
+            item?.setIcon(R.drawable.ic_add_favorite)
+            sendBluetoothCommand("removeFavorite:${currentTrackDTO.uri}")
+        } else {
+            item?.setIcon(R.drawable.ic_remove_favorite)
+            sendBluetoothCommand("addFavorite:${currentTrackDTO.uri}")
+        }
+        currentTrackDTO.isFavorite = !currentTrackDTO.isFavorite
     }
 
     private fun getBluetooth() {

@@ -24,4 +24,10 @@
         android:icon="@drawable/ic_song_details"
         android:enabled="true"
         android:onClick="showSongDetails"/>
+    <item
+        android:id="@+id/menu_spotify_item5"
+        android:title=""
+        android:icon="@drawable/ic_add_favorite"
+        android:enabled="true"
+        android:onClick="toggleFavorite"/>
 </menu>

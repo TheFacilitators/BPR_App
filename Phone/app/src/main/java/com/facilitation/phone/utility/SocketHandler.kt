@@ -4,16 +4,23 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.os.Looper
 import android.util.Log
+import com.google.gson.Gson
 import com.facilitation.phone.R
+import com.facilitation.phone.model.TrackDTO
+import com.google.gson.reflect.TypeToken
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
+import com.spotify.protocol.client.CallResult
+import com.spotify.protocol.types.LibraryState
 import java.io.IOException
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
+import java.util.concurrent.CompletableFuture
 
 class SocketHandler(private val context: Context) {
     private lateinit var spotifyRemote: SpotifyAppRemote
+    private val gson = Gson()
 
     init {
         Thread {
@@ -44,12 +51,14 @@ class SocketHandler(private val context: Context) {
             Thread {
                 Looper.prepare()
                 when {
-                    "track" in command -> playTrackInPlaylist(command)
+                    "addFavorite" in command -> spotifyRemote.userApi.addToLibrary(command.replace("addFavorite:", ""))
+                    "removeFavorite" in command -> spotifyRemote.userApi.removeFromLibrary(command.replace("removeFavorite:", ""))
                     "pause" in command -> spotifyRemote.playerApi.pause()
                     "resume" in command -> spotifyRemote.playerApi.resume()
                     "previous" in command -> spotifyRemote.playerApi.skipPrevious()
                     "next" in command -> spotifyRemote.playerApi.skipNext()
                     "playlist" in command -> sendTracksDTO(socket)
+                    "track" in command -> playTrackInPlaylist(command)
                     else -> Log.e("VuzixSidekick", "I got command \"$command\" and I don't know what to do with it")
                 }
                 Looper.loop()
@@ -59,16 +68,39 @@ class SocketHandler(private val context: Context) {
     private fun sendTracksDTO(socket: BluetoothSocket) {
         val sharedPreferencesSpotify = context.getSharedPreferences("SPOTIFY", 0)
         val tracksDTOJson = sharedPreferencesSpotify.getString("tracksDTOJson", null)
+        val tracksDTOJsonUpdated = updateTrackLibraryStatus(tracksDTOJson)
+
         val writer = PrintWriter(OutputStreamWriter(socket.outputStream))
 
         try {
-            writer.println(tracksDTOJson)
+            writer.println(tracksDTOJsonUpdated)
             writer.flush()
 
         } catch (e: IOException) {
             e.printStackTrace()
         }
     }
+
+    private fun updateTrackLibraryStatus(tracksDTOJson: String?): String? {
+        val tracksDTO: List<TrackDTO> = gson.fromJson(tracksDTOJson, object : TypeToken<List<TrackDTO>>() {}.type)
+        val completableFutures = mutableListOf<CompletableFuture<LibraryState>>()
+
+        tracksDTO.forEach { track ->
+            val completableFuture = CompletableFuture<LibraryState>()
+
+            val callResult: CallResult<LibraryState> =
+                spotifyRemote.userApi.getLibraryState(track.uri)
+            callResult.setResultCallback { libraryState ->
+                track.isFavorite = libraryState.isAdded
+                completableFuture.complete(libraryState)
+            }
+            completableFutures.add(completableFuture)
+        }
+        CompletableFuture.allOf(*completableFutures.toTypedArray()).join()
+        return gson.toJson(tracksDTO)
+    }
+
+
     private fun playTrackInPlaylist(position: String) {
         val playlist = context.getString(R.string.playlistID)
         val finalCommand = "spotify:playlist:$playlist"
