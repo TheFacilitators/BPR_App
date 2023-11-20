@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facilitation.view.R
 import com.facilitation.view.ViewApplication
-import com.facilitation.view.activities.MainActivity
 import com.facilitation.view.databinding.ActivitySpotifyListBinding
 import com.facilitation.view.model.TrackDTO
 import com.facilitation.view.receivers.TapReceiver
@@ -69,7 +67,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
-        spotifyListAdapter.notifyDataSetChanged()
+        recyclerView.scrollToPosition(playlistPosition)
         super.onResume()
     }
 

@@ -1,27 +1,38 @@
 package com.facilitation.view.activities
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.facilitation.view.R
 import com.facilitation.view.databinding.ActivitySnakeBinding
+import com.facilitation.view.receivers.TapReceiver
+import com.facilitation.view.utility.ITapInput
+import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.Snake
+import com.facilitation.view.utility.enums.TapToCommandEnum
 
-class SnakeActivity : AppCompatActivity(), Snake.GameOverListener {
+class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
 
     private lateinit var snakeGame: Snake
     private lateinit var binding: ActivitySnakeBinding
     private val handler = Handler(Looper.getMainLooper())
     private var gameLoopRunnable: Runnable? = null
     private var gameOverDialog: AlertDialog? = null
-
+    private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
+    private lateinit var inputMethodManager : InputMethodManager
+    private lateinit var receiver: TapReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
         super.onCreate(savedInstanceState)
         binding = ActivitySnakeBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -29,6 +40,10 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener {
         snakeGame.setGameOverListener(this)
         binding.snakeView.isFocusable = true
         binding.snakeView.requestFocus()
+
+        inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        receiver = TapReceiver(this, activityLifecycleCallbacks)
+
         binding.snakeView.setOnKeyListener { _, keyCode, event ->
             snakeGame.handleInput(event, keyCode)
             return@setOnKeyListener true
@@ -44,24 +59,18 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener {
         val delayMillis = 1000L / frameRate
         gameLoopRunnable = object : Runnable {
             override fun run() {
-                snakeGame.update()
-                val canvas = binding.snakeView.holder.lockCanvas()
-                if (canvas != null) {
-                    snakeGame.draw(canvas)
-                    binding.snakeView.holder.unlockCanvasAndPost(canvas)
-                }
-                handler.postDelayed(this, delayMillis)
+                if(snakeGame.gameActive){
+                    snakeGame.update()
+                    val canvas = binding.snakeView.holder.lockCanvas()
+                    if (canvas != null) {
+                        snakeGame.draw(canvas)
+                        binding.snakeView.holder.unlockCanvasAndPost(canvas)
+                    }
+                    handler.postDelayed(this, delayMillis)
+                    }
             }
         }
         handler.postDelayed(gameLoopRunnable as Runnable, delayMillis)
-    }
-
-    fun restartGame() {
-        if (gameLoopRunnable != null) {
-            handler.removeCallbacks(gameLoopRunnable!!)
-        }
-        snakeGame.resetGame()
-        startGameLoop()
     }
 
     private fun showGameOverDialog() {
@@ -80,15 +89,29 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener {
 
     override fun onGameOver(score: Int) {
         showGameOverDialog()
+        handler.removeCallbacks(gameLoopRunnable!!)
+        gameLoopRunnable = null
     }
 
     fun restartGame(view: View) {
         gameOverDialog?.dismiss()
-        restartGame()
+        snakeGame.resetGame()
+        startGameLoop()
     }
+
     fun exitGame(view: View) {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        gameOverDialog?.dismiss()
         finishAffinity()
+    }
+
+    override fun onInputReceived(commandEnum: TapToCommandEnum) {
+        inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(
+            KeyEvent.ACTION_DOWN, commandEnum.keyCode())
+        )
+        inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(
+            KeyEvent.ACTION_UP, commandEnum.keyCode())
+        )
     }
 }
