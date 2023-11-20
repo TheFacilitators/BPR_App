@@ -4,11 +4,11 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
-import android.widget.TextView
 import android.widget.Toast
 import com.facilitation.view.R
 import com.facilitation.view.ViewApplication
@@ -62,11 +62,25 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
         FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_item5)
 
+        updateFavorite()
         return true
     }
 
-    override fun onResume(){
+    private fun updateFavorite() {
+        try {
+            if (currentTrackDTO.isFavorite) {
+                FavoriteSongMenuItem.setIcon(R.drawable.ic_remove_favorite)
+            } else {
+                FavoriteSongMenuItem.setIcon(R.drawable.ic_add_favorite)
+            }
+        } catch (e: UninitializedPropertyAccessException) {
+            Log.e("ERROR", e.toString())
+        }
+    }
+
+    override fun onResume() {
         super.onResume()
+        updateFavorite()
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
     }
 
@@ -102,14 +116,14 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     }
 
     fun toggleFavorite(item: MenuItem?) {
-        if (currentTrackDTO.favorite) {
+        if (currentTrackDTO.isFavorite) {
             item?.setIcon(R.drawable.ic_add_favorite)
             sendBluetoothCommand("removeFavorite:${currentTrackDTO.uri}")
         } else {
             item?.setIcon(R.drawable.ic_remove_favorite)
             sendBluetoothCommand("addFavorite:${currentTrackDTO.uri}")
         }
-        currentTrackDTO.favorite = !currentTrackDTO.favorite
+        currentTrackDTO.isFavorite = !currentTrackDTO.isFavorite
     }
 
     private fun getBluetooth() {
