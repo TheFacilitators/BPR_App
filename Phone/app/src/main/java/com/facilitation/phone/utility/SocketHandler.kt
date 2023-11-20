@@ -4,16 +4,22 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.os.Looper
 import android.util.Log
+import com.google.gson.Gson
 import com.facilitation.phone.R
+import com.facilitation.phone.model.TrackDTO
+import com.google.gson.reflect.TypeToken
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
+import com.spotify.protocol.client.CallResult
+import com.spotify.protocol.types.LibraryState
 import java.io.IOException
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 
 class SocketHandler(private val context: Context) {
     private lateinit var spotifyRemote: SpotifyAppRemote
+    private val gson = Gson()
 
     init {
         Thread {
@@ -60,7 +66,9 @@ class SocketHandler(private val context: Context) {
         }
     private fun sendTracksDTO(socket: BluetoothSocket) {
         val sharedPreferencesSpotify = context.getSharedPreferences("SPOTIFY", 0)
-        val tracksDTOJson = sharedPreferencesSpotify.getString("tracksDTOJson", null)
+        var tracksDTOJson = sharedPreferencesSpotify.getString("tracksDTOJson", null)
+        tracksDTOJson = updateTrackLibraryStatus(tracksDTOJson)
+
         val writer = PrintWriter(OutputStreamWriter(socket.outputStream))
 
         try {
@@ -71,6 +79,20 @@ class SocketHandler(private val context: Context) {
             e.printStackTrace()
         }
     }
+
+    private fun updateTrackLibraryStatus(tracksDTOJson: String?): String? {
+        val tracksDTO: List<TrackDTO> = gson.fromJson(tracksDTOJson, object : TypeToken<List<TrackDTO>>() {}.type)
+
+        for (track in tracksDTO) {
+            val callResult: CallResult<LibraryState> = spotifyRemote.userApi.getLibraryState(track.uri)
+            callResult.setResultCallback { libraryState ->
+                track.favorite = libraryState.isAdded
+            }
+        }
+        return gson.toJson(tracksDTO)
+    }
+
+
     private fun playTrackInPlaylist(position: String) {
         val playlist = context.getString(R.string.playlistID)
         val finalCommand = "spotify:playlist:$playlist"
