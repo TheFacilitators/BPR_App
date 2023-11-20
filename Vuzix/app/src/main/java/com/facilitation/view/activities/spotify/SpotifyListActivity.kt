@@ -74,7 +74,6 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         }
         recyclerView.scrollToPosition(playlistPosition)
         super.onResume()
-        requestPlaylist()
     }
 
     fun playSongFromList(view: View) {

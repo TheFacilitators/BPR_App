@@ -62,7 +62,7 @@ class BluetoothHandler(
 
     @SuppressLint("MissingPermission")
     fun initiateConnection() {
-        if (bluetoothAdapter == null || !bluetoothAdapter!!.isEnabled ) {
+        if (bluetoothAdapter == null || !bluetoothAdapter?.isEnabled!!) {
             Log.e(TAG, "Bluetooth is not available or not enabled")
             throw Exception("Bluetooth is not available or not enabled")
         }
