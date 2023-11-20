@@ -44,14 +44,14 @@ class SocketHandler(private val context: Context) {
             Thread {
                 Looper.prepare()
                 when {
-                    "track" in command -> playTrackInPlaylist(command)
+                    "addFavorite" in command -> spotifyRemote.userApi.addToLibrary(command.replace("addFavorite:", ""))
+                    "removeFavorite" in command -> spotifyRemote.userApi.removeFromLibrary(command.replace("removeFavorite:", ""))
                     "pause" in command -> spotifyRemote.playerApi.pause()
                     "resume" in command -> spotifyRemote.playerApi.resume()
                     "previous" in command -> spotifyRemote.playerApi.skipPrevious()
                     "next" in command -> spotifyRemote.playerApi.skipNext()
-                    "addFavorite" in command -> spotifyRemote.userApi.addToLibrary(command.replace("addFavorite:", ""))
-                    "removeFavorite" in command -> spotifyRemote.userApi.removeFromLibrary(command.replace("removeFavorite:", ""))
                     "playlist" in command -> sendTracksDTO(socket)
+                    "track" in command -> playTrackInPlaylist(command)
                     else -> Log.e("VuzixSidekick", "I got command \"$command\" and I don't know what to do with it")
                 }
                 Looper.loop()
