@@ -10,6 +10,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -61,8 +62,9 @@ class BluetoothHandler(
 
     @SuppressLint("MissingPermission")
     fun initiateConnection() {
-        if (bluetoothAdapter == null || !bluetoothAdapter!!.isEnabled) {
+        if (bluetoothAdapter == null || !bluetoothAdapter?.isEnabled!!) {
             Log.e(TAG, "Bluetooth is not available or not enabled")
+            throw Exception("Bluetooth is not available or not enabled")
         }
 
         val serverDevice = bluetoothAdapter!!.bondedDevices.find { it.name == deviceNameToConnect }
@@ -79,25 +81,23 @@ class BluetoothHandler(
     @SuppressLint("MissingPermission")
     inner class ConnectThread(device: BluetoothDevice, private val bluetoothAdapter: BluetoothAdapter) : Thread() {
 
-        private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
+        private val btSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
             device.createRfcommSocketToServiceRecord(UUID.fromString(bluetoothString))
         }
 
         override fun run() {
             bluetoothAdapter.cancelDiscovery()
 
-            mmSocket?.let { socket ->
+            btSocket?.let { socket ->
                 socket.connect()
                 connectedSocket = socket
+                showToast("Bluetooth Connected")
             }
         }
-
-        fun cancel() {
-            try {
-                mmSocket?.close()
-            } catch (e: IOException) {
-                Log.e(TAG, "Could not close the client socket", e)
-            }
+    }
+    private fun showToast(toast: String) {
+        mainHandler.post {
+            Toast.makeText(context, toast, Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.facilitation.view
 
 import android.bluetooth.BluetoothAdapter
+import android.content.ContentValues.TAG
+import android.util.Log
 import com.facilitation.view.utility.BluetoothHandler
 import com.vuzix.hud.resources.DynamicThemeApplication
 
@@ -11,7 +13,14 @@ class ViewApplication : DynamicThemeApplication() {
 
     override fun onCreate() {
         super.onCreate()
+        try {
+            connectToBluetooth()
+        } catch (e: Exception) {
+            Log.e(TAG, e.message.toString())
+        }
+    }
 
+    fun connectToBluetooth() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if (bluetoothAdapter != null) {
             bluetoothHandler = BluetoothHandler(this)

@@ -3,9 +3,11 @@ package com.facilitation.view.activities.spotify
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -46,8 +48,8 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private lateinit var recyclerView: RecyclerView
     private lateinit var binding : ActivitySpotifyListBinding
     private lateinit var receiver: TapReceiver
-    private var bluetoothHandler: BluetoothHandler? = null
-    private var bluetoothAdapter: BluetoothAdapter? = null
+    private lateinit var bluetoothHandler: BluetoothHandler
+    private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
     private lateinit var inputMethodManager : InputMethodManager
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,16 +62,18 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         receiver = TapReceiver(this, activityLifecycleCallbacks)
 
-        getBluetooth()
         initSpotifyListView()
-        requestPlaylist()
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
+        try{
+            getBluetooth()
+            requestPlaylist()
+        } catch (e: Exception) {
+            showToast("Error reading from Bluetooth.\nTry to re-connect.")
+        }
         recyclerView.scrollToPosition(playlistPosition)
         super.onResume()
-        requestPlaylist()
     }
 
     fun playSongFromList(view: View) {
@@ -83,8 +87,8 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
 
     private fun getBluetooth() {
         val app = application as ViewApplication
-        bluetoothHandler = app.bluetoothHandler
-        bluetoothAdapter = app.bluetoothAdapter
+        bluetoothHandler = app.bluetoothHandler!!
+        bluetoothAdapter = app.bluetoothAdapter!!
     }
 
     private fun initSpotifyListView() {
@@ -95,11 +99,20 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     }
 
     private fun sendBluetoothCommand(command: String) {
-        bluetoothHandler!!.sendCommand(command)
+        try {
+            bluetoothHandler.sendCommand(command)
+        } catch(e: Exception) {
+            Log.e(ContentValues.TAG, e.message.toString())
+        }
     }
 
     private fun sendReturnableBluetoothCommand(command: String):String {
-        return bluetoothHandler!!.sendReturnableCommand(command)
+        try {
+            return bluetoothHandler.sendReturnableCommand(command)
+        } catch(e: Exception) {
+            Log.e(ContentValues.TAG, e.message.toString())
+        }
+        return ""
     }
 
     private fun showToast(text: String) {
