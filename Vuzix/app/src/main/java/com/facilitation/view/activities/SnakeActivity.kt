@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.facilitation.view.R
 import com.facilitation.view.databinding.ActivitySnakeBinding
 import com.facilitation.view.receivers.TapReceiver
-import com.facilitation.view.utility.ITapInput
+import com.facilitation.view.utility.interfaces.ITapInput
 import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.Snake
 import com.facilitation.view.utility.enums.TapToCommandEnum

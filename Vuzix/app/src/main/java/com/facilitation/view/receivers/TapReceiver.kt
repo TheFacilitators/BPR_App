@@ -3,7 +3,7 @@ package com.facilitation.view.receivers
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.util.Log
-import com.facilitation.view.utility.ITapInput
+import com.facilitation.view.utility.interfaces.ITapInput
 import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.tapwithus.sdk.TapListener

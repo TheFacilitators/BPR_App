@@ -17,13 +17,14 @@ import com.facilitation.view.databinding.ActivitySpotifySongBinding
 import com.facilitation.view.model.TrackDTO
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.BluetoothHandler
-import com.facilitation.view.utility.ITapInput
+import com.facilitation.view.utility.interfaces.ITapInput
 import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.TapToCommandEnum
+import com.facilitation.view.utility.interfaces.ISharedPreferences
 import com.google.gson.Gson
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
-class SpotifySongActivity : ActionMenuActivity(), ITapInput {
+class SpotifySongActivity : ActionMenuActivity(), ITapInput, ISharedPreferences {
     private val gson = Gson()
     private lateinit var binding : ActivitySpotifySongBinding
     private lateinit var PlayPauseMenuItem: MenuItem
@@ -50,8 +51,28 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         receiver = TapReceiver(this, activityLifecycleCallbacks)
 
         getBluetooth()
+    }
 
-        currentTrackDTO = intent.getSerializableExtra("track") as TrackDTO
+    private fun setCurrentTrackFromSharedPreferences() {
+        val sharedTrack = getSharedPreferencesTrackDTO()
+
+        if (sharedTrack == null) {
+            Log.e("ERROR", "Music controls opened with no selected song in shared preferences")
+            toggleMusicControlsEnabled(false)
+            return
+        }
+
+        toggleMusicControlsEnabled(true)
+        currentTrackDTO = sharedTrack
+        updateFavorite()
+    }
+
+    private fun toggleMusicControlsEnabled(isEnabled: Boolean) {
+        PlayPauseMenuItem.isEnabled = isEnabled
+        NextSongMenuItem.isEnabled = isEnabled
+        PrevSongMenuItem.isEnabled = isEnabled
+        FavoriteSongMenuItem.isVisible = isEnabled
+        SongDetailsMenuItem.isVisible = isEnabled
     }
 
     override fun onCreateActionMenu(menu: Menu): Boolean {
@@ -63,7 +84,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
         FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_item5)
 
-        updateFavorite()
+        setCurrentTrackFromSharedPreferences()
         return true
     }
 
@@ -74,14 +95,14 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
             } else {
                 FavoriteSongMenuItem.setIcon(R.drawable.ic_add_favorite)
             }
-        } catch (e: UninitializedPropertyAccessException) {
+        } catch (e: Exception) {
             Log.e("ERROR", e.toString())
         }
     }
 
     override fun onResume() {
         super.onResume()
-        updateFavorite()
+        setCurrentTrackFromSharedPreferences()
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
         try {
             getBluetooth()
@@ -100,6 +121,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     fun previousSong(item: MenuItem?) {
         sendBluetoothCommand("previous")
+        setCurrentTrackFromSharedPreferences()
     }
 
     fun togglePlayPause(item: MenuItem?) {
@@ -115,6 +137,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     fun nextSong(item: MenuItem?) {
         sendBluetoothCommand("next")
+        setCurrentTrackFromSharedPreferences()
     }
 
     fun showSongDetails(item: MenuItem?) {
@@ -150,5 +173,25 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
         inputMethodManager.dispatchKeyEventFromInputMethod(PlayPauseMenuItem.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(PlayPauseMenuItem.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
+    }
+
+    override fun updateSharedPreferences(track: TrackDTO) {
+        val editor = getSharedPreferences("LastSong", 0).edit()
+        editor.clear()
+        editor.putString("trackDTO", gson.toJson(track))
+        editor.putString("trackTitle", gson.toJson(track.title))
+        editor.putString("trackArtist", gson.toJson(track.artist))
+        editor.putString("trackUri", gson.toJson(track.uri))
+        editor.putBoolean("trackFavorite", track.isFavorite)
+        editor.apply()
+    }
+
+    override fun getSharedPreferencesTrackDTO(): TrackDTO? {
+        return try {
+            gson.fromJson(getSharedPreferences("LastSong", 0).getString("trackDTOJson", null), TrackDTO::class.java)
+        } catch (e: NullPointerException) {
+            Log.e("ERROR", "No track saved in shared preferences")
+            null
+        }
     }
 }

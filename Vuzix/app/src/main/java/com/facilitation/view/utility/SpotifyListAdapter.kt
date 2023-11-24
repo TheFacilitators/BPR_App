@@ -3,7 +3,9 @@ package com.facilitation.view.utility
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.facilitation.view.R
 import com.facilitation.view.model.TrackDTO
@@ -13,6 +15,7 @@ class SpotifyListAdapter(var trackDisplayList: List<TrackDTO>) : RecyclerView.Ad
     class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textViewTitle: TextView = itemView.findViewById(R.id.spotify_track_title)
         val textViewArtist: TextView = itemView.findViewById(R.id.spotify_track_artist)
+        val buttonViewControls: Button = itemView.findViewById(R.id.spotify_track_controls_button)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
@@ -24,6 +27,7 @@ class SpotifyListAdapter(var trackDisplayList: List<TrackDTO>) : RecyclerView.Ad
         val track = trackDisplayList[position]
         holder.textViewTitle.text = track.title
         holder.textViewArtist.text = track.artist
+        holder.buttonViewControls.isVisible = false
     }
 
     override fun getItemCount(): Int {
