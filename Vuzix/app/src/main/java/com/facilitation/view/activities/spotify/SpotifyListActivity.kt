@@ -7,6 +7,8 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -142,10 +144,16 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun requestPlaylist() {
-        val tmpList: String = sendReturnableBluetoothCommand("playlist")
-        trackDTOList = gson.fromJson(tmpList, object : TypeToken<List<TrackDTO>>() {}.type)
-        spotifyListAdapter.trackDisplayList = trackDTOList
-        recyclerView.adapter?.notifyDataSetChanged()
+        val handler = Handler(Looper.getMainLooper())
+        Thread {
+            val tmpList: String = sendReturnableBluetoothCommand("playlist")
+            trackDTOList = gson.fromJson(tmpList, object : TypeToken<List<TrackDTO>>() {}.type)
+            // Post the UI update to the main thread using a Handler
+            handler.post {
+                spotifyListAdapter.trackDisplayList = trackDTOList
+                recyclerView.adapter?.notifyDataSetChanged()
+            }
+        }.start()
     }
 
     fun showSpotifySongActivity(view: View?) {
