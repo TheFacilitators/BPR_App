@@ -17,15 +17,15 @@ import com.facilitation.view.databinding.ActivitySpotifySongBinding
 import com.facilitation.view.model.TrackDTO
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.BluetoothHandler
+import com.facilitation.view.utility.CacheHelper
 import com.facilitation.view.utility.interfaces.ITapInput
 import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.TapToCommandEnum
-import com.facilitation.view.utility.interfaces.ISharedPreferences
+import com.facilitation.view.utility.interfaces.ICache
 import com.google.gson.Gson
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
-class SpotifySongActivity : ActionMenuActivity(), ITapInput, ISharedPreferences {
-    private val gson = Gson()
+class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var binding : ActivitySpotifySongBinding
     private lateinit var PlayPauseMenuItem: MenuItem
     private lateinit var NextSongMenuItem: MenuItem
@@ -37,12 +37,12 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput, ISharedPreferences 
     private lateinit var currentTrackDTO: TrackDTO
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
+    private val cacheHelper: CacheHelper = CacheHelper()
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
     private lateinit var inputMethodManager : InputMethodManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
-        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        initCallback()
         super.onCreate(savedInstanceState)
         binding = ActivitySpotifySongBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -53,11 +53,66 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput, ISharedPreferences 
         getBluetooth()
     }
 
-    private fun setCurrentTrackFromSharedPreferences() {
-        val sharedTrack = getSharedPreferencesTrackDTO()
+    override fun onCreateActionMenu(menu: Menu): Boolean {
+        super.onCreateActionMenu(menu)
+        menuInflater.inflate(R.menu.menu_spotify, menu)
+        PrevSongMenuItem = menu.findItem(R.id.menu_spotify_item1)
+        PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item2)
+        NextSongMenuItem = menu.findItem(R.id.menu_spotify_item3)
+        SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
+        FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_item5)
+
+        setLocalTrackFromCache()
+        return true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setLocalTrackFromCache()
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        try {
+            getBluetooth()
+        } catch (e: Exception) {
+            Log.e(ContentValues.TAG, e.message.toString())
+        }
+    }
+
+    override fun getDefaultAction(): Int {
+        return 2
+    }
+
+    override fun alwaysShowActionMenu(): Boolean {
+        return true
+    }
+
+    private fun initCallback() {
+        var callback = cacheHelper.getCachedActivityLifecycleCallback(this)
+        if (callback == null) {
+            callback = MyActivityLifecycleCallbacks(this)
+            cacheHelper.setCachedActivityLifecycleCallback(this, callback)
+        }
+
+        activityLifecycleCallbacks = callback
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+    }
+
+    private fun updateFavorite() {
+        try {
+            if (currentTrackDTO.isFavorite) {
+                FavoriteSongMenuItem.setIcon(R.drawable.ic_remove_favorite)
+            } else {
+                FavoriteSongMenuItem.setIcon(R.drawable.ic_add_favorite)
+            }
+        } catch (e: Exception) {
+            Log.e("ERROR", e.toString())
+        }
+    }
+
+    private fun setLocalTrackFromCache() {
+        val sharedTrack = cacheHelper.getCachedTrackDTO(this)
 
         if (sharedTrack == null) {
-            Log.e("ERROR", "Music controls opened with no selected song in shared preferences")
+            Log.e("ERROR", "Song activity opened with no cached song in shared preferences")
             toggleMusicControlsEnabled(false)
             return
         }
@@ -75,53 +130,9 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput, ISharedPreferences 
         SongDetailsMenuItem.isVisible = isEnabled
     }
 
-    override fun onCreateActionMenu(menu: Menu): Boolean {
-        super.onCreateActionMenu(menu)
-        menuInflater.inflate(R.menu.menu_spotify, menu)
-        PrevSongMenuItem = menu.findItem(R.id.menu_spotify_item1)
-        PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item2)
-        NextSongMenuItem = menu.findItem(R.id.menu_spotify_item3)
-        SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
-        FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_item5)
-
-        setCurrentTrackFromSharedPreferences()
-        return true
-    }
-
-    private fun updateFavorite() {
-        try {
-            if (currentTrackDTO.isFavorite) {
-                FavoriteSongMenuItem.setIcon(R.drawable.ic_remove_favorite)
-            } else {
-                FavoriteSongMenuItem.setIcon(R.drawable.ic_add_favorite)
-            }
-        } catch (e: Exception) {
-            Log.e("ERROR", e.toString())
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setCurrentTrackFromSharedPreferences()
-        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
-        try {
-            getBluetooth()
-        } catch (e: Exception) {
-            Log.e(ContentValues.TAG, e.message.toString())
-        }
-    }
-
-    override fun getDefaultAction(): Int {
-        return 2
-    }
-
-    override fun alwaysShowActionMenu(): Boolean {
-        return true
-    }
-
     fun previousSong(item: MenuItem?) {
         sendBluetoothCommand("previous")
-        setCurrentTrackFromSharedPreferences()
+        cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
     }
 
     fun togglePlayPause(item: MenuItem?) {
@@ -137,7 +148,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput, ISharedPreferences 
 
     fun nextSong(item: MenuItem?) {
         sendBluetoothCommand("next")
-        setCurrentTrackFromSharedPreferences()
+        cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
     }
 
     fun showSongDetails(item: MenuItem?) {
@@ -148,9 +159,11 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput, ISharedPreferences 
         if (currentTrackDTO.isFavorite) {
             item?.setIcon(R.drawable.ic_add_favorite)
             sendBluetoothCommand("removeFavorite:${currentTrackDTO.uri}")
+            showToast("Song removed from favorites")
         } else {
             item?.setIcon(R.drawable.ic_remove_favorite)
             sendBluetoothCommand("addFavorite:${currentTrackDTO.uri}")
+            showToast("Song added to favorites")
         }
         currentTrackDTO.isFavorite = !currentTrackDTO.isFavorite
     }
@@ -175,23 +188,5 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput, ISharedPreferences 
         inputMethodManager.dispatchKeyEventFromInputMethod(PlayPauseMenuItem.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
 
-    override fun updateSharedPreferences(track: TrackDTO) {
-        val editor = getSharedPreferences("LastSong", 0).edit()
-        editor.clear()
-        editor.putString("trackDTO", gson.toJson(track))
-        editor.putString("trackTitle", gson.toJson(track.title))
-        editor.putString("trackArtist", gson.toJson(track.artist))
-        editor.putString("trackUri", gson.toJson(track.uri))
-        editor.putBoolean("trackFavorite", track.isFavorite)
-        editor.apply()
-    }
 
-    override fun getSharedPreferencesTrackDTO(): TrackDTO? {
-        return try {
-            gson.fromJson(getSharedPreferences("LastSong", 0).getString("trackDTOJson", null), TrackDTO::class.java)
-        } catch (e: NullPointerException) {
-            Log.e("ERROR", "No track saved in shared preferences")
-            null
-        }
-    }
 }

@@ -15,25 +15,26 @@ import com.facilitation.view.activities.spotify.SpotifyListActivity
 import com.facilitation.view.databinding.ActivityMainBinding
 import com.facilitation.view.model.TrackDTO
 import com.facilitation.view.receivers.TapReceiver
+import com.facilitation.view.utility.CacheHelper
 import com.facilitation.view.utility.interfaces.ITapInput
 import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.TapToCommandEnum
-import com.facilitation.view.utility.interfaces.ISharedPreferences
+import com.facilitation.view.utility.interfaces.ICache
 import com.google.gson.Gson
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
-class MainActivity : ActionMenuActivity(), ITapInput, ISharedPreferences {
-    private val gson = Gson()
+class MainActivity : ActionMenuActivity(), ITapInput {
+    private val cacheHelper: CacheHelper = CacheHelper()
     private lateinit var SpotifyMenuItem: MenuItem
     private lateinit var SnakeMenuItem: MenuItem
     private lateinit var binding: ActivityMainBinding
     private lateinit var receiver: TapReceiver
-    private val activityLifecycleCallbacks = MyActivityLifecycleCallbacks(this)
+    private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
     private lateinit var inputMethodManager : InputMethodManager
     private lateinit var app : ViewApplication
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        initCallback()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
@@ -58,16 +59,24 @@ class MainActivity : ActionMenuActivity(), ITapInput, ISharedPreferences {
         return true
     }
 
+    private fun initCallback() {
+        var callback = cacheHelper.getCachedActivityLifecycleCallback(this)
+        if (callback == null) {
+            callback = MyActivityLifecycleCallbacks(this)
+            cacheHelper.setCachedActivityLifecycleCallback(this, callback)
+        }
+
+        activityLifecycleCallbacks = callback
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+    }
+
     fun showSpotify(item: MenuItem?) {
         val intent = Intent(this, SpotifyListActivity::class.java)
-        //Passing the same instance of the activity lifecycle callback to the Spotify activity
-        intent.putExtra("callback", activityLifecycleCallbacks)
         startActivity(intent)
     }
 
     fun showSnake(item: MenuItem?) {
         val intent = Intent(this, SnakeActivity::class.java)
-        intent.putExtra("callback", activityLifecycleCallbacks)
         startActivity(intent)
     }
 
@@ -82,26 +91,6 @@ class MainActivity : ActionMenuActivity(), ITapInput, ISharedPreferences {
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
         inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(SpotifyMenuItem.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
-    }
-
-    override fun updateSharedPreferences(track: TrackDTO) {
-        val editor = getSharedPreferences("LastSong", 0).edit()
-        editor.clear()
-        editor.putString("trackDTO", gson.toJson(track))
-        editor.putString("trackTitle", gson.toJson(track.title))
-        editor.putString("trackArtist", gson.toJson(track.artist))
-        editor.putString("trackUri", gson.toJson(track.uri))
-        editor.putBoolean("trackFavorite", track.isFavorite)
-        editor.apply()
-    }
-
-    override fun getSharedPreferencesTrackDTO(): TrackDTO? {
-        return try {
-            gson.fromJson(getSharedPreferences("LastSong", 0).getString("trackDTOJson", null), TrackDTO::class.java)
-        } catch (e: NullPointerException) {
-            Log.e("INFO", "No track saved in shared preferences")
-            null
-        }
     }
 
     private fun showToast(text: String) {

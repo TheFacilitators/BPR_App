@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.facilitation.view.R
 import com.facilitation.view.databinding.ActivitySnakeBinding
 import com.facilitation.view.receivers.TapReceiver
+import com.facilitation.view.utility.CacheHelper
 import com.facilitation.view.utility.interfaces.ITapInput
 import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.Snake
@@ -29,10 +30,10 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
     private lateinit var inputMethodManager : InputMethodManager
     private lateinit var receiver: TapReceiver
+    private val cacheHelper: CacheHelper = CacheHelper()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
-        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        initCallback()
         super.onCreate(savedInstanceState)
         binding = ActivitySnakeBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -49,6 +50,17 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
             return@setOnKeyListener true
         }
         startGameLoop()
+    }
+
+    private fun initCallback() {
+        var callback = cacheHelper.getCachedActivityLifecycleCallback(this)
+        if (callback == null) {
+            callback = MyActivityLifecycleCallbacks(this)
+            cacheHelper.setCachedActivityLifecycleCallback(this, callback)
+        }
+
+        activityLifecycleCallbacks = callback
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
     }
 
     private fun startGameLoop() {

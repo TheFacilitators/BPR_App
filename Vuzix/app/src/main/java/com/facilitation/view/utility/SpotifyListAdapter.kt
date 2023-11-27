@@ -27,7 +27,7 @@ class SpotifyListAdapter(var trackDisplayList: List<TrackDTO>) : RecyclerView.Ad
         val track = trackDisplayList[position]
         holder.textViewTitle.text = track.title
         holder.textViewArtist.text = track.artist
-        holder.buttonViewControls.isVisible = false
+        holder.buttonViewControls.isVisible = track.isPlaying
     }
 
     override fun getItemCount(): Int {

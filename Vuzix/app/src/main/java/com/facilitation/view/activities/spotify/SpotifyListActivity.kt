@@ -22,29 +22,30 @@ import com.facilitation.view.databinding.ActivitySpotifyListBinding
 import com.facilitation.view.model.TrackDTO
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.BluetoothHandler
+import com.facilitation.view.utility.CacheHelper
 import com.facilitation.view.utility.interfaces.ITapInput
 import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.SpotifyListAdapter
 import com.facilitation.view.utility.enums.TapToCommandEnum
-import com.facilitation.view.utility.interfaces.ISharedPreferences
+import com.facilitation.view.utility.interfaces.ICache
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 
-class SpotifyListActivity : AppCompatActivity(), ITapInput, ISharedPreferences {
+class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private var playlistPosition: Int = 0
     private val gson = Gson()
     private var trackDTOList: List<TrackDTO> =  listOf(
-        TrackDTO("Song 1", "Artist 1", "Uri 1", true),
-        TrackDTO("Song 2", "Artist 2", "Uri 2", false),
-        TrackDTO("Song 3", "Artist 3", "Uri 3", false),
-        TrackDTO("Song 4", "Artist 4", "Uri 4", false),
-        TrackDTO("Song 5", "Artist 5", "Uri 5", false),
-        TrackDTO("Song 6", "Artist 6", "Uri 6", false),
-        TrackDTO("Song 7", "Artist 7", "Uri 7", false),
-        TrackDTO("Song 8", "Artist 8", "Uri 8", false),
-        TrackDTO("Song 9", "Artist 9", "Uri 9", false),
-        TrackDTO("Song 10", "Artist 10", "Uri 10", false)
+        TrackDTO("Song 1", "Artist 1", "Uri 1", true, true),
+        TrackDTO("Song 2", "Artist 2", "Uri 2", false, false),
+        TrackDTO("Song 3", "Artist 3", "Uri 3", false, false),
+        TrackDTO("Song 4", "Artist 4", "Uri 4", false, false),
+        TrackDTO("Song 5", "Artist 5", "Uri 5", false, false),
+        TrackDTO("Song 6", "Artist 6", "Uri 6", false, false),
+        TrackDTO("Song 7", "Artist 7", "Uri 7", false, false),
+        TrackDTO("Song 8", "Artist 8", "Uri 8", false, false),
+        TrackDTO("Song 9", "Artist 9", "Uri 9", false, false),
+        TrackDTO("Song 10", "Artist 10", "Uri 10", false, false)
     )
     private lateinit var spotifyListAdapter: SpotifyListAdapter
     private lateinit var recyclerView: RecyclerView
@@ -52,13 +53,12 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput, ISharedPreferences {
     private lateinit var receiver: TapReceiver
     private lateinit var bluetoothHandler: BluetoothHandler
     private lateinit var bluetoothAdapter: BluetoothAdapter
+    private val cacheHelper: CacheHelper = CacheHelper()
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
     private lateinit var inputMethodManager : InputMethodManager
-    private lateinit var musicControlsButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
-        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        initCallback()
         super.onCreate(savedInstanceState)
         binding = ActivitySpotifyListBinding.inflate(layoutInflater)
 
@@ -71,30 +71,37 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput, ISharedPreferences {
     }
 
     override fun onResume() {
-        try{
+        try {
             getBluetooth()
             requestPlaylist()
-            val track = getSharedPreferencesTrackDTO()
-            if (track != null)
-                (spotifyListAdapter.trackDisplayList.find { it.uri == track.uri })
-            //TODO: How to access the TrackViewHolder and set the button to visible? - Aldís 22.11.23
         } catch (e: Exception) {
             showToast("Error reading from Bluetooth.\nTry to re-connect.")
         }
-        recyclerView.scrollToPosition(playlistPosition)
+
         super.onResume()
+    }
+
+    private fun initCallback() {
+        var callback = cacheHelper.getCachedActivityLifecycleCallback(this)
+        if (callback == null) {
+            callback = MyActivityLifecycleCallbacks(this)
+            cacheHelper.setCachedActivityLifecycleCallback(this, callback)
+        }
+
+        activityLifecycleCallbacks = callback
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
     }
 
     fun playSongFromList(view: View) {
         playlistPosition = recyclerView.getChildLayoutPosition(view)
         if (playlistPosition != RecyclerView.NO_POSITION) {
             val selectedTrack = trackDTOList[playlistPosition]
-            if (selectedTrack != getSharedPreferencesTrackDTO()) {
-                updateSharedPreferences(selectedTrack)
+            if (selectedTrack != cacheHelper.getCachedTrackDTO(this)) {
+                cacheHelper.setCachedTrackDTO(this, selectedTrack)
                 sendBluetoothCommand("track:$playlistPosition")
                 showToast("Playing ${selectedTrack.title}")
             }
-            showSpotifySongActivity()
+            showSpotifySongActivity(view)
         }
     }
 
@@ -141,34 +148,12 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput, ISharedPreferences {
         recyclerView.adapter?.notifyDataSetChanged()
     }
 
-    private fun showSpotifySongActivity() {
-        val intent = Intent(this, SpotifySongActivity::class.java)
-        intent.putExtra("callback", activityLifecycleCallbacks)
-        startActivity(intent)
+    fun showSpotifySongActivity(view: View?) {
+        startActivity(Intent(this, SpotifySongActivity::class.java))
     }
 
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
-    }
-
-    override fun updateSharedPreferences(track: TrackDTO) {
-        val editor = getSharedPreferences("LastSong", 0).edit()
-        editor.clear()
-        editor.putString("trackDTO", gson.toJson(track))
-        editor.putString("trackTitle", gson.toJson(track.title))
-        editor.putString("trackArtist", gson.toJson(track.artist))
-        editor.putString("trackUri", gson.toJson(track.uri))
-        editor.putBoolean("trackFavorite", track.isFavorite)
-        editor.apply()
-    }
-
-    override fun getSharedPreferencesTrackDTO(): TrackDTO? {
-        return try {
-            gson.fromJson(getSharedPreferences("LastSong", 0).getString("trackDTOJson", null), TrackDTO::class.java)
-        } catch (e: NullPointerException) {
-            Log.e("ERROR", "No track saved in shared preferences")
-            null
-        }
     }
 }

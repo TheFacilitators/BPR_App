@@ -33,6 +33,6 @@
         android:backgroundTint="?android:attr/selectableItemBackground"
         android:drawableEnd="@drawable/ic_music_note"
         android:layout_gravity="end"
-        android:onClick="backToSongControls"/>
+        android:onClick="showSpotifySongActivity"/>
 
 </LinearLayout>
