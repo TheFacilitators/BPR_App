@@ -74,7 +74,6 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         } catch (e: Exception) {
             showToast("Error reading from Bluetooth.\nTry to re-connect.")
         }
-        recyclerView.scrollToPosition(playlistPosition)
         super.onResume()
     }
 
