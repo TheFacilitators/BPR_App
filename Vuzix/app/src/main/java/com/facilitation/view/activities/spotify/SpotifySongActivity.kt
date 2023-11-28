@@ -33,7 +33,6 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var SongDetailsMenuItem: MenuItem
     private lateinit var FavoriteSongMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
-    private var isPaused = false
     private lateinit var currentTrackDTO: TrackDTO
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -68,7 +67,6 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     override fun onResume() {
         super.onResume()
-        setLocalTrackFromCache()
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
         try {
             getBluetooth()
@@ -136,14 +134,15 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     }
 
     fun togglePlayPause(item: MenuItem?) {
-        if (isPaused) {
-            item?.setIcon(R.drawable.ic_pause)
-            sendBluetoothCommand("resume")
-        } else {
+        if (currentTrackDTO.isPlaying) {
             item?.setIcon(R.drawable.ic_play)
             sendBluetoothCommand("pause")
+        } else {
+            item?.setIcon(R.drawable.ic_pause)
+            sendBluetoothCommand("resume")
         }
-        isPaused = !isPaused
+        currentTrackDTO.isPlaying = !currentTrackDTO.isPlaying
+        cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
     }
 
     fun nextSong(item: MenuItem?) {

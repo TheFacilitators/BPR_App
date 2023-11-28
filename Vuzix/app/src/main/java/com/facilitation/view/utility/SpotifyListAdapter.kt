@@ -15,7 +15,6 @@ class SpotifyListAdapter(var trackDisplayList: List<TrackDTO>) : RecyclerView.Ad
     class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textViewTitle: TextView = itemView.findViewById(R.id.spotify_track_title)
         val textViewArtist: TextView = itemView.findViewById(R.id.spotify_track_artist)
-        val buttonViewControls: Button = itemView.findViewById(R.id.spotify_track_controls_button)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
@@ -27,7 +26,6 @@ class SpotifyListAdapter(var trackDisplayList: List<TrackDTO>) : RecyclerView.Ad
         val track = trackDisplayList[position]
         holder.textViewTitle.text = track.title
         holder.textViewArtist.text = track.artist
-        holder.buttonViewControls.isVisible = track.isPlaying
     }
 
     override fun getItemCount(): Int {

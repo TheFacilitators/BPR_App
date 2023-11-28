@@ -38,7 +38,8 @@ class CacheHelper: ICache {
 
     override fun getCachedTrackDTO(context: Context): TrackDTO? {
         return try {
-            val track = gson.fromJson(context.getSharedPreferences("LastSong", 0).getString("trackDTOJson", null), TrackDTO::class.java)
+            val track = gson.fromJson(context.getSharedPreferences("LastSong", 0).getString("trackDTO", null), TrackDTO::class.java)
+            // Getting the isPlaying boolean separately because it is marked as transient and therefore isn't serialized
             track.isPlaying = context.getSharedPreferences("LastSong", 0).getBoolean("trackPlaying", false)
             track
         } catch (e: NullPointerException) {

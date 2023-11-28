@@ -38,16 +38,16 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private var playlistPosition: Int = 0
     private val gson = Gson()
     private var trackDTOList: List<TrackDTO> =  listOf(
-        TrackDTO("Song 1", "Artist 1", "Uri 1", true, true),
-        TrackDTO("Song 2", "Artist 2", "Uri 2", false, false),
-        TrackDTO("Song 3", "Artist 3", "Uri 3", false, false),
-        TrackDTO("Song 4", "Artist 4", "Uri 4", false, false),
-        TrackDTO("Song 5", "Artist 5", "Uri 5", false, false),
-        TrackDTO("Song 6", "Artist 6", "Uri 6", false, false),
-        TrackDTO("Song 7", "Artist 7", "Uri 7", false, false),
-        TrackDTO("Song 8", "Artist 8", "Uri 8", false, false),
-        TrackDTO("Song 9", "Artist 9", "Uri 9", false, false),
-        TrackDTO("Song 10", "Artist 10", "Uri 10", false, false)
+        TrackDTO("Song 1", "Artist 1", "Uri 1", true, isPlaying = false),
+        TrackDTO("Song 2", "Artist 2", "Uri 2", false, isPlaying = false),
+        TrackDTO("Song 3", "Artist 3", "Uri 3", false, isPlaying = false),
+        TrackDTO("Song 4", "Artist 4", "Uri 4", false, isPlaying = false),
+        TrackDTO("Song 5", "Artist 5", "Uri 5", false, isPlaying = false),
+        TrackDTO("Song 6", "Artist 6", "Uri 6", false, isPlaying = false),
+        TrackDTO("Song 7", "Artist 7", "Uri 7", false, isPlaying = false),
+        TrackDTO("Song 8", "Artist 8", "Uri 8", false, isPlaying = false),
+        TrackDTO("Song 9", "Artist 9", "Uri 9", false, isPlaying = false),
+        TrackDTO("Song 10", "Artist 10", "Uri 10", false, isPlaying = false)
     )
     private lateinit var spotifyListAdapter: SpotifyListAdapter
     private lateinit var recyclerView: RecyclerView
@@ -98,12 +98,17 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         playlistPosition = recyclerView.getChildLayoutPosition(view)
         if (playlistPosition != RecyclerView.NO_POSITION) {
             val selectedTrack = trackDTOList[playlistPosition]
+
+            showToast("Playing ${selectedTrack.title}")
+            Log.d("INFO", "Song selected: ${selectedTrack.title} - ${selectedTrack.artist}\n")
+
             if (selectedTrack != cacheHelper.getCachedTrackDTO(this)) {
-                cacheHelper.setCachedTrackDTO(this, selectedTrack)
                 sendBluetoothCommand("track:$playlistPosition")
-                showToast("Playing ${selectedTrack.title}")
             }
-            showSpotifySongActivity(view)
+
+            selectedTrack.isPlaying = true
+            cacheHelper.setCachedTrackDTO(this, selectedTrack)
+            showSpotifySongActivity()
         }
     }
 
@@ -147,7 +152,9 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         val handler = Handler(Looper.getMainLooper())
         Thread {
             val tmpList: String = sendReturnableBluetoothCommand("playlist")
-            trackDTOList = gson.fromJson(tmpList, object : TypeToken<List<TrackDTO>>() {}.type)
+            if (!tmpList.isNullOrEmpty()) {
+                trackDTOList = gson.fromJson(tmpList, object : TypeToken<List<TrackDTO>>() {}.type)
+            }
             // Post the UI update to the main thread using a Handler
             handler.post {
                 spotifyListAdapter.trackDisplayList = trackDTOList
@@ -156,7 +163,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         }.start()
     }
 
-    fun showSpotifySongActivity(view: View?) {
+    private fun showSpotifySongActivity() {
         startActivity(Intent(this, SpotifySongActivity::class.java))
     }
 
