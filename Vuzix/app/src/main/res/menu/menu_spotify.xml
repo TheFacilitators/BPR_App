@@ -21,11 +21,17 @@
     <item
         android:id="@+id/menu_spotify_item4"
         android:title=""
+        android:icon="@drawable/ic_shuffle_off"
+        android:enabled="true"
+        android:onClick="toggleShuffle"/>
+    <item
+        android:id="@+id/menu_spotify_item5"
+        android:title=""
         android:icon="@drawable/ic_song_details"
         android:enabled="true"
         android:onClick="showSongDetails"/>
     <item
-        android:id="@+id/menu_spotify_item5"
+        android:id="@+id/menu_spotify_item6"
         android:title=""
         android:icon="@drawable/ic_add_favorite"
         android:enabled="true"
