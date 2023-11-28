@@ -26,6 +26,7 @@ import com.google.gson.Gson
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 class SpotifySongActivity : ActionMenuActivity(), ITapInput {
+    private val gson = Gson()
     private lateinit var binding : ActivitySpotifySongBinding
     private lateinit var PlayPauseMenuItem: MenuItem
     private lateinit var NextSongMenuItem: MenuItem
@@ -70,6 +71,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
         try {
             getBluetooth()
+            updateCurrentTrack()
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, e.message.toString())
         }
@@ -94,6 +96,18 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
     }
 
+    private fun updateCurrentTrack() {
+        val response = sendReturnableBluetoothCommand("currentTrack")
+        try {
+            val track = gson.fromJson(response, TrackDTO::class.java)
+            track.isPlaying = true
+            currentTrackDTO = track
+            cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
+        } catch (e: Exception) {
+            Log.e("ERROR", e.stackTraceToString())
+        }
+    }
+
     private fun updateFavorite() {
         try {
             if (currentTrackDTO.isFavorite) {
@@ -101,8 +115,9 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
             } else {
                 FavoriteSongMenuItem.setIcon(R.drawable.ic_add_favorite)
             }
+            cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
         } catch (e: Exception) {
-            Log.e("ERROR", e.toString())
+            Log.e("ERROR", e.stackTraceToString())
         }
     }
 
@@ -130,7 +145,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     fun previousSong(item: MenuItem?) {
         sendBluetoothCommand("previous")
-        cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
+        updateCurrentTrack()
     }
 
     fun togglePlayPause(item: MenuItem?) {
@@ -147,7 +162,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     fun nextSong(item: MenuItem?) {
         sendBluetoothCommand("next")
-        cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
+        updateCurrentTrack()
     }
 
     fun showSongDetails(item: MenuItem?) {
@@ -165,6 +180,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
             showToast("Song added to favorites")
         }
         currentTrackDTO.isFavorite = !currentTrackDTO.isFavorite
+        cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
     }
 
     private fun getBluetooth() {
@@ -177,6 +193,15 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         bluetoothHandler!!.sendCommand(command)
     }
 
+    private fun sendReturnableBluetoothCommand(command: String):String {
+        try {
+            return bluetoothHandler!!.sendReturnableCommand(command)
+        } catch(e: Exception) {
+            Log.e(ContentValues.TAG, e.stackTraceToString())
+        }
+        return ""
+    }
+
     private fun showToast(text: String) {
         val activity: Activity = this
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
@@ -186,6 +211,4 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         inputMethodManager.dispatchKeyEventFromInputMethod(PlayPauseMenuItem.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(PlayPauseMenuItem.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
     }
-
-
 }
