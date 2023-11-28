@@ -57,6 +57,8 @@ class SocketHandler(private val context: Context) {
                     "resume" in command -> spotifyRemote.playerApi.resume()
                     "previous" in command -> spotifyRemote.playerApi.skipPrevious()
                     "next" in command -> spotifyRemote.playerApi.skipNext()
+                    "shuffleOn" in command -> spotifyRemote.playerApi.setShuffle(true)
+                    "shuffleOff" in command -> spotifyRemote.playerApi.setShuffle(false)
                     "playlist" in command -> sendTracksDTO(socket)
                     "track" in command -> playTrackInPlaylist(command)
                     else -> Log.e("VuzixSidekick", "I got command \"$command\" and I don't know what to do with it")
