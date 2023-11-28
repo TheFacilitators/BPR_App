@@ -12,7 +12,9 @@ import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import com.spotify.protocol.client.CallResult
+import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.LibraryState
+import com.spotify.protocol.types.PlayerState
 import java.io.IOException
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
@@ -21,6 +23,12 @@ import java.util.concurrent.CompletableFuture
 class SocketHandler(private val context: Context) {
     private lateinit var spotifyRemote: SpotifyAppRemote
     private val gson = Gson()
+    private var currentTrackDTO: TrackDTO = TrackDTO(
+        title = "Sample Track",
+        artist = "Sample Artist",
+        uri = "spotify:track:123456789",
+        isFavorite = false
+    )
 
     init {
         Thread {
@@ -36,6 +44,7 @@ class SocketHandler(private val context: Context) {
                 SpotifyAppRemote.connect(context, connectionParams, object : Connector.ConnectionListener {
                         override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
                             spotifyRemote = spotifyAppRemote
+                            subscribeToPlayerState()
                             Log.i("VuzixSidekick", "SpotifyAppRemote connection established")
                         }
                         override fun onFailure(throwable: Throwable) {
@@ -46,6 +55,23 @@ class SocketHandler(private val context: Context) {
             Looper.loop()
             Looper.myLooper()?.quit()
         }.start()
+    }
+    private fun subscribeToPlayerState() {
+        spotifyRemote.playerApi.subscribeToPlayerState()
+            ?.setEventCallback { playerState: PlayerState ->
+                val track = playerState.track
+                if (track != null) {
+                    currentTrackDTO.uri = track.uri
+                    currentTrackDTO.artist = track.artist.name
+                    currentTrackDTO.title = track.name
+                    currentTrackDTO.isFavorite = false
+
+                    Log.d("VuzixSidekick", "${track.name} is set as current track")
+                }
+            }
+            ?.setErrorCallback {
+                Log.e("VuzixSidekick", "Something went wrong when subscribing to the player state")
+            }
     }
         fun handleClientCommand(command: String, socket: BluetoothSocket) {
             Thread {
@@ -58,6 +84,7 @@ class SocketHandler(private val context: Context) {
                     "previous" in command -> spotifyRemote.playerApi.skipPrevious()
                     "next" in command -> spotifyRemote.playerApi.skipNext()
                     "playlist" in command -> sendTracksDTO(socket)
+                    "currentTrack" in command -> sendCurrentTrack(socket)
                     "track" in command -> playTrackInPlaylist(command)
                     else -> Log.e("VuzixSidekick", "I got command \"$command\" and I don't know what to do with it")
                 }
@@ -74,6 +101,19 @@ class SocketHandler(private val context: Context) {
 
         try {
             writer.println(tracksDTOJsonUpdated)
+            writer.flush()
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun sendCurrentTrack(socket: BluetoothSocket) {
+        val writer = PrintWriter(OutputStreamWriter(socket.outputStream))
+        val currentTrackDTOJson = gson.toJson(currentTrackDTO)
+
+        try {
+            writer.println(currentTrackDTOJson)
             writer.flush()
 
         } catch (e: IOException) {
