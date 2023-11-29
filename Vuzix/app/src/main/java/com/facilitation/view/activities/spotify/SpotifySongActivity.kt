@@ -31,9 +31,12 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var PlayPauseMenuItem: MenuItem
     private lateinit var NextSongMenuItem: MenuItem
     private lateinit var PrevSongMenuItem: MenuItem
+    private lateinit var ShuffleMenuItem: MenuItem
     private lateinit var SongDetailsMenuItem: MenuItem
     private lateinit var FavoriteSongMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
+    private var isPaused = false
+    private var isShuffled = false
     private lateinit var currentTrackDTO: TrackDTO
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -56,11 +59,12 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
         menuInflater.inflate(R.menu.menu_spotify, menu)
-        PrevSongMenuItem = menu.findItem(R.id.menu_spotify_item1)
-        PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item2)
-        NextSongMenuItem = menu.findItem(R.id.menu_spotify_item3)
-        SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
-        FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_item5)
+        PrevSongMenuItem = menu.findItem(R.id.menu_spotify_previousSong)
+        PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_togglePlay)
+        NextSongMenuItem = menu.findItem(R.id.menu_spotify_nextSong)
+        ShuffleMenuItem = menu.findItem(R.id.menu_spotify_toggleShuffle)
+        SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_songDetails)
+        FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_toggleFavorite)
 
         setLocalTrackFromCache()
         return true
@@ -182,6 +186,17 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         }
         currentTrackDTO.isFavorite = !currentTrackDTO.isFavorite
         cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
+    }
+
+    fun toggleShuffle(item: MenuItem?) {
+        if (isShuffled) {
+            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_off)
+            sendBluetoothCommand("shuffleOff")
+        } else {
+            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_on)
+            sendBluetoothCommand("shuffleOn")
+        }
+        isShuffled = !isShuffled
     }
 
     private fun getBluetooth() {

@@ -27,6 +27,7 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     private val cacheHelper: CacheHelper = CacheHelper()
     private lateinit var SpotifyMenuItem: MenuItem
     private lateinit var SnakeMenuItem: MenuItem
+    private lateinit var BluetoothMenuItem: MenuItem
     private lateinit var binding: ActivityMainBinding
     private lateinit var receiver: TapReceiver
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
@@ -46,8 +47,9 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
         menuInflater.inflate(R.menu.menu, menu)
-        SpotifyMenuItem = menu.findItem(R.id.menu_item1)
-        SnakeMenuItem = menu.findItem(R.id.menu_item2)
+        SpotifyMenuItem = menu.findItem(R.id.menu_openSpotify)
+        SnakeMenuItem = menu.findItem(R.id.menu_openSnake)
+        BluetoothMenuItem = menu.findItem(R.id.menu_connectBt)
         return true
     }
 
