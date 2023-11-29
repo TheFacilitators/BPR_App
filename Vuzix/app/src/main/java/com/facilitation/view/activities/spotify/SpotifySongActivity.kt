@@ -145,7 +145,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     fun previousSong(item: MenuItem?) {
         sendBluetoothCommand("previous")
-        updateCurrentTrack()
+        showSongDetails(item)
     }
 
     fun togglePlayPause(item: MenuItem?) {
@@ -162,10 +162,11 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     fun nextSong(item: MenuItem?) {
         sendBluetoothCommand("next")
-        updateCurrentTrack()
+        showSongDetails(item)
     }
 
     fun showSongDetails(item: MenuItem?) {
+        updateCurrentTrack()
         showToast("${currentTrackDTO.title} - ${currentTrackDTO.artist}")
     }
 
