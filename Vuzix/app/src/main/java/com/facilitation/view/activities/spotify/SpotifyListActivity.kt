@@ -30,10 +30,11 @@ import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-
+/** An activity class to handle logic related to a list of TrackDTOs.*/
 class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private var playlistPosition: Int = 0
     private val gson = Gson()
+    /** Pre-populated list used for testing when disconnected from server.*/
     private var trackDTOList: List<TrackDTO> =  listOf(
         TrackDTO("Song 1", "Artist 1", "Uri 1", true),
         TrackDTO("Song 2", "Artist 2", "Uri 2", false),
@@ -54,6 +55,9 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
     private lateinit var inputMethodManager : InputMethodManager
+
+    /** Initializing activityLifecycleCallbacks from Intent Extra.
+     * Creating inputMethodManager & tapReceiver.*/
     override fun onCreate(savedInstanceState: Bundle?) {
         activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
@@ -67,6 +71,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         initSpotifyListView()
     }
 
+    /** Trying to call getBluetooth() & fetch a playlist.*/
     override fun onResume() {
         try{
             getBluetooth()
@@ -77,6 +82,9 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         super.onResume()
     }
 
+    /** Triggered on selection of a list item.
+     * Determines the position of the recyclerView, sending a Bluetooth command, displaying a toast
+     * of the selected track and opening SpotifySongActivity if the list position is a valid item.*/
     fun playSongFromList(view: View) {
         playlistPosition = recyclerView.getChildLayoutPosition(view)
         if (playlistPosition != RecyclerView.NO_POSITION) {
@@ -86,12 +94,16 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         }
     }
 
+    /** Initializing the bluetoothHandler & bluetoothAdapter from the ViewApplication class.*/
     private fun getBluetooth() {
         val app = application as ViewApplication
         bluetoothHandler = app.bluetoothHandler!!
         bluetoothAdapter = app.bluetoothAdapter!!
     }
 
+    /** Initializing the recyclerView by ID & setting its layoutManager.
+     * Initializing spotifyListAdapter with the trackDTOList variable.
+     * Setting recyclerView adapter to spotifyListAdapter.*/
     private fun initSpotifyListView() {
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -99,6 +111,8 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         recyclerView.adapter = spotifyListAdapter
     }
 
+    /** Tries to call sendCommand() on bluetoothHandler with the argument string.
+     * @param command a standardized, case-sensitive string of a command for the server.*/
     private fun sendBluetoothCommand(command: String) {
         try {
             bluetoothHandler.sendCommand(command)
@@ -107,7 +121,10 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         }
     }
 
-    private fun sendReturnableBluetoothCommand(command: String):String {
+    /** Tries to call sendCommand() on bluetoothHandler with the argument string.
+     * @param command a standardized, case-sensitive string of a command for the server.
+     * @return null or a string response from the server.*/
+    private fun sendReturnableBluetoothCommand(command: String): String {
         try {
             return bluetoothHandler.sendReturnableCommand(command)
         } catch(e: Exception) {
@@ -116,11 +133,15 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         return ""
     }
 
+    /** Shows a short toast with the argument string.
+     * @param text the string to display in the toast.*/
     private fun showToast(text: String) {
         val activity: Activity = this
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
     }
 
+    /** Requesting a playlist, parsing, setting the trackDTOList and posting the results to the UI
+     * in a sub-thread. Lint for NotifyDataSetChanged is suppressed to reduce noise.*/
     @SuppressLint("NotifyDataSetChanged")
     private fun requestPlaylist() {
         val handler = Handler(Looper.getMainLooper())
@@ -135,6 +156,9 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         }.start()
     }
 
+    /** Creates an Intent for SpotifySongActivity, passing activityLifecycleCallbacks and the
+     * track selected from the list as Extras and starting the activity.
+     * @param selectedTrack the TrackDTO that was selected from the list.*/
     private fun showSpotifySongActivity(selectedTrack: TrackDTO) {
         val intent = Intent(this, SpotifySongActivity::class.java)
         intent.putExtra("callback", activityLifecycleCallbacks)
@@ -142,6 +166,8 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
         startActivity(intent)
     }
 
+    /** Delegating handling of the input from the Tap device to the inputMethodManager.
+     * @param commandEnum a TapToCommandEnum containing the specific command to execute.*/
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
