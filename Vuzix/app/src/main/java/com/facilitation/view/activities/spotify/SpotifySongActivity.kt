@@ -24,7 +24,6 @@ import com.google.gson.Gson
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 class SpotifySongActivity : ActionMenuActivity(), ITapInput {
-    private val gson = Gson()
     private lateinit var binding : ActivitySpotifySongBinding
     private lateinit var PlayPauseMenuItem: MenuItem
     private lateinit var NextSongMenuItem: MenuItem
@@ -41,6 +40,8 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
     private lateinit var inputMethodManager : InputMethodManager
 
+    /** Initializing activityLifecycleCallbacks and currentTrackDTO from Intent Extras.
+     * Creating inputMethodManager & tapReceiver, as well as calling getBluetooth().*/
     override fun onCreate(savedInstanceState: Bundle?) {
         activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
@@ -56,6 +57,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         currentTrackDTO = intent.getSerializableExtra("track") as TrackDTO
     }
 
+    /** Initializing menu items by ID and calling updateFavorite().*/
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
         menuInflater.inflate(R.menu.menu_spotify, menu)
@@ -70,6 +72,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         return true
     }
 
+    /** Trying to sync UI button icon with currentTrackDTO.isFavorite boolean.*/
     private fun updateFavorite() {
         try {
             if (currentTrackDTO.isFavorite) {
@@ -82,6 +85,8 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         }
     }
 
+    /** Calls updateFavorite() & getBluetooth().
+     * Registers activityLifecycleCallbacks with the app.*/
     override fun onResume() {
         super.onResume()
         updateFavorite()
@@ -93,18 +98,25 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         }
     }
 
+    /** Sets the default focused item to the second menu item.*/
     override fun getDefaultAction(): Int {
         return 2
     }
 
+    /** Sets the menu to always be shown.*/
     override fun alwaysShowActionMenu(): Boolean {
         return true
     }
 
+    /** Calls sendBluetoothCommand() with the string "previous".*/
     fun previousSong(item: MenuItem?) {
         sendBluetoothCommand("previous")
     }
 
+    /** Sets the menu item icon in the UI and calls sendBluetoothCommand() with a string argument.
+     * If true: Sets 'Play' icon in UI and uses "resume"
+     * Else: Sets 'Pause' icon in UI and uses "pause".
+     * Inverts isPaused boolean.*/
     fun togglePlayPause(item: MenuItem?) {
         if (isPaused) {
             item?.setIcon(R.drawable.ic_pause)
@@ -116,14 +128,18 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         isPaused = !isPaused
     }
 
+    /** Calls sendBluetoothCommand() with the string "next".*/
     fun nextSong(item: MenuItem?) {
         sendBluetoothCommand("next")
     }
 
+    /** Calls showToast() with the currentTrackDTO title and artist in the format of:
+     * "<title> - <artist>"*/
     fun showSongDetails(item: MenuItem?) {
         showToast("${currentTrackDTO.title} - ${currentTrackDTO.artist}")
     }
 
+    /** Calls sendBluetoothCommand() with the string "previous".*/
     fun toggleFavorite(item: MenuItem?) {
         if (currentTrackDTO.isFavorite) {
             item?.setIcon(R.drawable.ic_add_favorite)
@@ -135,6 +151,10 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         currentTrackDTO.isFavorite = !currentTrackDTO.isFavorite
     }
 
+    /** Sets the menu item icon in the UI and calls sendBluetoothCommand() with a string argument.
+     * If true: Sets 'Shuffle off' icon in UI and uses "shuffleOff"
+     * Else: Sets 'Shuffle on' icon in UI and uses "shuffleOn".
+     * Inverts isShuffled boolean.*/
     fun toggleShuffle(item: MenuItem?) {
         if (isShuffled) {
             ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_off)
@@ -146,21 +166,28 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         isShuffled = !isShuffled
     }
 
+    /** Initializing the bluetoothHandler & bluetoothAdapter from the ViewApplication class.*/
     private fun getBluetooth() {
         val app = application as ViewApplication
         bluetoothHandler = app.bluetoothHandler
         bluetoothAdapter = app.bluetoothAdapter
     }
 
+    /** Tries to call sendCommand() on bluetoothHandler with the argument string.
+     * @param command a standardized, case-sensitive string of a command for the server.*/
     private fun sendBluetoothCommand(command: String) {
         bluetoothHandler!!.sendCommand(command)
     }
 
+    /** Shows a short toast with the argument string.
+     * @param text the string to display in the toast.*/
     private fun showToast(text: String) {
         val activity: Activity = this
         activity.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
     }
 
+    /** Delegating handling of the input from the Tap device to the inputMethodManager.
+     * @param commandEnum a TapToCommandEnum containing the specific command to execute.*/
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
         inputMethodManager.dispatchKeyEventFromInputMethod(PlayPauseMenuItem.actionView, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
         inputMethodManager.dispatchKeyEventFromInputMethod(PlayPauseMenuItem.actionView, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
