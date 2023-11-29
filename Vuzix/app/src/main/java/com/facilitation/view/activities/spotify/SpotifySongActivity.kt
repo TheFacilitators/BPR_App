@@ -137,10 +137,10 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     fun toggleShuffle(item: MenuItem?) {
         if (isShuffled) {
-            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_on)
+            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_off)
             sendBluetoothCommand("shuffleOff")
         } else {
-            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_off)
+            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_on)
             sendBluetoothCommand("shuffleOn")
         }
         isShuffled = !isShuffled
