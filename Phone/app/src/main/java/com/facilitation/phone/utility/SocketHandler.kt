@@ -23,11 +23,7 @@ import java.util.concurrent.CompletableFuture
 class SocketHandler(private val context: Context) {
     private lateinit var spotifyRemote: SpotifyAppRemote
     private val gson = Gson()
-    private var currentTrackDTO: TrackDTO = TrackDTO(
-        title = "Sample Track",
-        artist = "Sample Artist",
-        uri = "spotify:track:123456789",
-        isFavorite = false
+    private var currentTrackDTO: TrackDTO = TrackDTO(title = "Dummy", artist = "1", uri = "1", isFavorite = false
     )
 
     init {
@@ -62,11 +58,14 @@ class SocketHandler(private val context: Context) {
                 val track = playerState.track
                 if (track != null) {
                     currentTrackDTO.uri = track.uri
-                    currentTrackDTO.artist = track.artist.name
+                    currentTrackDTO.artist = track.artists.joinToString(", ") { it.name }
                     currentTrackDTO.title = track.name
-                    currentTrackDTO.isFavorite = false
-
-                    Log.d("VuzixSidekick", "${track.name} is set as current track")
+                    val callResult: CallResult<LibraryState> =
+                        spotifyRemote.userApi.getLibraryState(currentTrackDTO.uri)
+                    callResult.setResultCallback { libraryState ->
+                        currentTrackDTO.isFavorite = libraryState.isAdded
+                    }
+                    Log.d("VuzixSidekick", "${currentTrackDTO.title} is set as current track")
                 }
             }
             ?.setErrorCallback {
