@@ -59,12 +59,12 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
         menuInflater.inflate(R.menu.menu_spotify, menu)
-        PrevSongMenuItem = menu.findItem(R.id.menu_spotify_item1)
-        PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item2)
-        NextSongMenuItem = menu.findItem(R.id.menu_spotify_item3)
-        ShuffleMenuItem = menu.findItem(R.id.menu_spotify_item4)
-        SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item5)
-        FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_item6)
+        PrevSongMenuItem = menu.findItem(R.id.menu_spotify_previousSong)
+        PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_togglePlay)
+        NextSongMenuItem = menu.findItem(R.id.menu_spotify_nextSong)
+        ShuffleMenuItem = menu.findItem(R.id.menu_spotify_toggleShuffle)
+        SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_songDetails)
+        FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_toggleFavorite)
 
         updateFavorite()
         return true
