@@ -14,6 +14,7 @@ import android.widget.Toast
 import com.facilitation.view.R
 import com.facilitation.view.ViewApplication
 import com.facilitation.view.databinding.ActivitySpotifySongBinding
+import com.facilitation.view.model.PlayerStateDTO
 import com.facilitation.view.model.TrackDTO
 import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.BluetoothHandler
@@ -35,9 +36,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var SongDetailsMenuItem: MenuItem
     private lateinit var FavoriteSongMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
-    private var isPaused = false
-    private var isShuffled = false
-    private lateinit var currentTrackDTO: TrackDTO
+    private var currentStateDTO: PlayerStateDTO? = null
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private val cacheHelper: CacheHelper = CacheHelper()
@@ -66,7 +65,9 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_songDetails)
         FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_toggleFavorite)
 
-        setLocalTrackFromCache()
+        if (getPlayerState()) {
+            updateUI()
+        }
         return true
     }
 
@@ -75,7 +76,9 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
         try {
             getBluetooth()
-            updateCurrentTrack()
+            if (getPlayerState()) {
+                updateUI()
+            }
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, e.message.toString())
         }
@@ -100,43 +103,59 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
     }
 
-    private fun updateCurrentTrack() {
-        val response = sendReturnableBluetoothCommand("currentTrack")
-        try {
-            val track = gson.fromJson(response, TrackDTO::class.java)
-            track.isPlaying = true
-            currentTrackDTO = track
-            cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
+    /** Calls sendReturnableBluetoothCommand() to retrieve the player state from the server.
+     * On success: Parses the response & updates the local & cached PlayerStateDTO in shared preferences.
+     * On failure: Sets currentStateDTO to null and calls toggleMusicControlsEnabled()
+     * @return When state is successfully retrieved, parsed and assigned: 'true' else 'false'.*/
+    private fun getPlayerState(): Boolean {
+        val response = sendReturnableBluetoothCommand("currentPlayerState")
+        return try {
+            val state = gson.fromJson(response, PlayerStateDTO::class.java)
+            cacheHelper.setCachedPlayerState(this, state)
+            currentStateDTO = state
+            true
         } catch (e: Exception) {
             Log.e("ERROR", e.stackTraceToString())
-        }
-    }
-
-    private fun updateFavorite() {
-        try {
-            if (currentTrackDTO.isFavorite) {
-                FavoriteSongMenuItem.setIcon(R.drawable.ic_remove_favorite)
-            } else {
-                FavoriteSongMenuItem.setIcon(R.drawable.ic_add_favorite)
-            }
-            cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
-        } catch (e: Exception) {
-            Log.e("ERROR", e.stackTraceToString())
-        }
-    }
-
-    private fun setLocalTrackFromCache() {
-        val sharedTrack = cacheHelper.getCachedTrackDTO(this)
-
-        if (sharedTrack == null) {
-            Log.e("ERROR", "Song activity opened with no cached song in shared preferences")
+            currentStateDTO = null
             toggleMusicControlsEnabled(false)
-            return
+            false
         }
+    }
 
+    /** Enables and updates the state of the UI menu items based on currentStateDTO.*/
+    private fun updateUI() {
         toggleMusicControlsEnabled(true)
-        currentTrackDTO = sharedTrack
-        updateFavorite()
+        try {
+            updatePlayPauseMenuItem(currentStateDTO!!.isPlaying)
+            updateShuffleMenuItem(currentStateDTO!!.isShuffled)
+            updateFavoriteMenuItem(currentStateDTO!!.currentTrack.isFavorite)
+        } catch (e: NullPointerException) {
+            Log.e("SongActivity", "Error updating music control UI:\n" + e.stackTraceToString())
+        }
+    }
+
+    private fun updatePlayPauseMenuItem(isPlaying: Boolean) {
+        if (isPlaying) {
+            PlayPauseMenuItem.setIcon(R.drawable.ic_pause)
+        } else {
+            PlayPauseMenuItem.setIcon(R.drawable.ic_play)
+        }
+    }
+
+    private fun updateShuffleMenuItem(isShuffled: Boolean) {
+        if (isShuffled) {
+            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_on)
+        } else {
+            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_off)
+        }
+    }
+
+    private fun updateFavoriteMenuItem(isFavorite: Boolean) {
+        if (isFavorite) {
+            FavoriteSongMenuItem.setIcon(R.drawable.ic_remove_favorite)
+        } else {
+            FavoriteSongMenuItem.setIcon(R.drawable.ic_add_favorite)
+        }
     }
 
     private fun toggleMusicControlsEnabled(isEnabled: Boolean) {
@@ -149,54 +168,58 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     fun previousSong(item: MenuItem?) {
         sendBluetoothCommand("previous")
-        showSongDetails(item)
+        if (getPlayerState()) {
+            updateUI()
+        }
     }
 
     fun togglePlayPause(item: MenuItem?) {
-        if (currentTrackDTO.isPlaying) {
-            item?.setIcon(R.drawable.ic_play)
-            sendBluetoothCommand("pause")
-        } else {
-            item?.setIcon(R.drawable.ic_pause)
-            sendBluetoothCommand("resume")
+        if (getPlayerState()) {
+            if (currentStateDTO!!.isPlaying) {
+                sendBluetoothCommand("pause")
+            } else {
+                sendBluetoothCommand("resume")
+            }
+            updateUI()
         }
-        currentTrackDTO.isPlaying = !currentTrackDTO.isPlaying
-        cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
     }
 
     fun nextSong(item: MenuItem?) {
         sendBluetoothCommand("next")
-        showSongDetails(item)
+        if (getPlayerState()) {
+            updateUI()
+        }
     }
 
     fun showSongDetails(item: MenuItem?) {
-        updateCurrentTrack()
-        showToast("${currentTrackDTO.title} - ${currentTrackDTO.artist}")
+        if (getPlayerState()) {
+            showToast("${currentStateDTO!!.currentTrack.title} - ${currentStateDTO!!.currentTrack.artist}")
+        }
     }
 
     fun toggleFavorite(item: MenuItem?) {
-        if (currentTrackDTO.isFavorite) {
-            item?.setIcon(R.drawable.ic_add_favorite)
-            sendBluetoothCommand("removeFavorite:${currentTrackDTO.uri}")
-            showToast("Song removed from favorites")
-        } else {
-            item?.setIcon(R.drawable.ic_remove_favorite)
-            sendBluetoothCommand("addFavorite:${currentTrackDTO.uri}")
-            showToast("Song added to favorites")
+        if (getPlayerState()) {
+            if (currentStateDTO!!.currentTrack.isFavorite) {
+                sendBluetoothCommand("removeFavorite:${currentStateDTO!!.currentTrack.uri}")
+                showToast("Song removed from favorites")
+            } else {
+                item?.setIcon(R.drawable.ic_remove_favorite)
+                sendBluetoothCommand("addFavorite:${currentStateDTO!!.currentTrack.uri}")
+                showToast("Song added to favorites")
+            }
+            updateUI()
         }
-        currentTrackDTO.isFavorite = !currentTrackDTO.isFavorite
-        cacheHelper.setCachedTrackDTO(this, currentTrackDTO)
     }
 
     fun toggleShuffle(item: MenuItem?) {
-        if (isShuffled) {
-            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_off)
-            sendBluetoothCommand("shuffleOff")
-        } else {
-            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_on)
-            sendBluetoothCommand("shuffleOn")
+        if (getPlayerState()) {
+            if (currentStateDTO!!.isShuffled) {
+                sendBluetoothCommand("shuffleOff")
+            } else {
+                sendBluetoothCommand("shuffleOn")
+            }
+            updateUI()
         }
-        isShuffled = !isShuffled
     }
 
     private fun getBluetooth() {
