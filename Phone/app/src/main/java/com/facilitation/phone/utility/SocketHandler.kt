@@ -6,13 +6,13 @@ import android.os.Looper
 import android.util.Log
 import com.google.gson.Gson
 import com.facilitation.phone.R
+import com.facilitation.phone.model.PlayerStateDTO
 import com.facilitation.phone.model.TrackDTO
 import com.google.gson.reflect.TypeToken
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import com.spotify.protocol.client.CallResult
-import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.LibraryState
 import com.spotify.protocol.types.PlayerState
 import java.io.IOException
@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture
 class SocketHandler(private val context: Context) {
     private lateinit var spotifyRemote: SpotifyAppRemote
     private val gson = Gson()
-    private var currentTrackDTO: TrackDTO = TrackDTO(title = "Dummy", artist = "1", uri = "1", isFavorite = false)
+    private var playerStateDTO: PlayerStateDTO = PlayerStateDTO(TrackDTO(title = "Dummy", artist = "1", uri = "1", isFavorite = false), isPlaying = false, isShuffled = false)
     init {
         Thread {
             Looper.prepare()
@@ -63,7 +63,7 @@ class SocketHandler(private val context: Context) {
                     "shuffleOn" in command -> spotifyRemote.playerApi.setShuffle(true)
                     "shuffleOff" in command -> spotifyRemote.playerApi.setShuffle(false)
                     "playlist" in command -> sendTracksDTO(socket)
-                    "currentTrack" in command -> sendCurrentTrack(socket)
+                    "currentPlayerState" in command -> sendCurrentTrack(socket)
                     "track" in command -> playTrackInPlaylist(command)
                     else -> Log.e("VuzixSidekick", "I got command \"$command\" and I don't know what to do with it")
                 }
@@ -74,17 +74,19 @@ class SocketHandler(private val context: Context) {
     private fun subscribeToPlayerState() {
         spotifyRemote.playerApi.subscribeToPlayerState()
             ?.setEventCallback { playerState: PlayerState ->
-                val track = playerState.track
-                if (track != null) {
-                    currentTrackDTO.uri = track.uri
-                    currentTrackDTO.artist = track.artists.joinToString(", ") { it.name }
-                    currentTrackDTO.title = track.name
+                val callbackTrack = playerState.track
+                if (callbackTrack != null) {
+                    playerStateDTO.currentTrack.title = callbackTrack.name
+                    playerStateDTO.currentTrack.uri = callbackTrack.uri
+                    playerStateDTO.currentTrack.artist = callbackTrack.artists.joinToString(", ") { it.name }
                     val callResult: CallResult<LibraryState> =
-                        spotifyRemote.userApi.getLibraryState(currentTrackDTO.uri)
+                        spotifyRemote.userApi.getLibraryState(playerStateDTO.currentTrack.uri)
                     callResult.setResultCallback { libraryState ->
-                        currentTrackDTO.isFavorite = libraryState.isAdded
+                        playerStateDTO.currentTrack.isFavorite = libraryState.isAdded
                     }
-                    Log.d("VuzixSidekick", "${currentTrackDTO.title} is set as current track")
+                    playerStateDTO.isPlaying = !playerState.isPaused
+                    playerStateDTO.isShuffled = playerState.playbackOptions.isShuffling
+                    Log.d("VuzixSidekick", "${playerStateDTO.currentTrack.title} is set as current track")
                 }
             }
             ?.setErrorCallback {
@@ -108,7 +110,7 @@ class SocketHandler(private val context: Context) {
     }
     private fun sendCurrentTrack(socket: BluetoothSocket) {
         val writer = PrintWriter(OutputStreamWriter(socket.outputStream))
-        val currentTrackDTOJson = gson.toJson(currentTrackDTO)
+        val currentTrackDTOJson = gson.toJson(playerStateDTO)
 
         try {
             writer.println(currentTrackDTOJson)
