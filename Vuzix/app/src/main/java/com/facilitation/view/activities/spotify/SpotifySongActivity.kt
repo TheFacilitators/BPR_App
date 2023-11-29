@@ -29,10 +29,12 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var PlayPauseMenuItem: MenuItem
     private lateinit var NextSongMenuItem: MenuItem
     private lateinit var PrevSongMenuItem: MenuItem
+    private lateinit var ShuffleMenuItem: MenuItem
     private lateinit var SongDetailsMenuItem: MenuItem
     private lateinit var FavoriteSongMenuItem: MenuItem
     private lateinit var receiver: TapReceiver
     private var isPaused = false
+    private var isShuffled = false
     private lateinit var currentTrackDTO: TrackDTO
     private var bluetoothHandler: BluetoothHandler? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -60,8 +62,9 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         PrevSongMenuItem = menu.findItem(R.id.menu_spotify_item1)
         PlayPauseMenuItem = menu.findItem(R.id.menu_spotify_item2)
         NextSongMenuItem = menu.findItem(R.id.menu_spotify_item3)
-        SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item4)
-        FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_item5)
+        ShuffleMenuItem = menu.findItem(R.id.menu_spotify_item4)
+        SongDetailsMenuItem = menu.findItem(R.id.menu_spotify_item5)
+        FavoriteSongMenuItem = menu.findItem(R.id.menu_spotify_item6)
 
         updateFavorite()
         return true
@@ -130,6 +133,17 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
             sendBluetoothCommand("addFavorite:${currentTrackDTO.uri}")
         }
         currentTrackDTO.isFavorite = !currentTrackDTO.isFavorite
+    }
+
+    fun toggleShuffle(item: MenuItem?) {
+        if (isShuffled) {
+            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_off)
+            sendBluetoothCommand("shuffleOff")
+        } else {
+            ShuffleMenuItem.setIcon(R.drawable.ic_shuffle_on)
+            sendBluetoothCommand("shuffleOn")
+        }
+        isShuffled = !isShuffled
     }
 
     private fun getBluetooth() {
