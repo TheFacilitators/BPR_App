@@ -23,6 +23,7 @@ import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.google.gson.Gson
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
+/** Activity to handle music control logic.*/
 class SpotifySongActivity : ActionMenuActivity(), ITapInput {
     private lateinit var binding : ActivitySpotifySongBinding
     private lateinit var PlayPauseMenuItem: MenuItem
@@ -98,7 +99,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
         }
     }
 
-    /** Sets the default focused item to the second menu item.*/
+    /** Sets the default focused item to the third menu item.*/
     override fun getDefaultAction(): Int {
         return 2
     }
