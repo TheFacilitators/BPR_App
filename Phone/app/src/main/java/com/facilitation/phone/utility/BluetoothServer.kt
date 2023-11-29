@@ -21,7 +21,6 @@ class BluetoothServer(private val appContext: Application, private val activity 
 
         private var btAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         private var serverSocket: BluetoothServerSocket? = null
-        private val socketHandler: SocketHandler = SocketHandler(appContext)
      fun startServer(): Boolean {
         // Ensure Bluetooth is enabled
         if (!btAdapter.isEnabled) {
@@ -68,6 +67,7 @@ class BluetoothServer(private val appContext: Application, private val activity 
         Thread {
         try {
             Looper.prepare()
+            val socketHandler = SocketHandler(appContext, socket)
             val clientInput = BufferedReader(InputStreamReader(socket.inputStream))
             Log.i("VuzixSidekick", "Socket connection established")
             while (true) {
@@ -75,7 +75,7 @@ class BluetoothServer(private val appContext: Application, private val activity 
                 Log.i("VuzixSidekick", "Bluetooth server received \"$command\" command")
                 if(command == "exit" || command == "quit")
                     break
-                socketHandler.handleClientCommand(command, socket)
+                socketHandler.handleClientCommand(command)
                 Log.i("VuzixSidekick", "\"$command\" was executed successfully")
             }
             clientInput.close()
@@ -83,8 +83,7 @@ class BluetoothServer(private val appContext: Application, private val activity 
             Log.i("VuzixSidekick", "Socket connection closed")
         }
         catch (e : IOException) {
-            Log.e("VuzixSidekick", "Socket crashed. \nThe reason:\n${e.stackTrace}")
-            e.printStackTrace()
+            Log.e("VuzixSidekick", "Socket crashed. \nThe reason:\n${e.stackTraceToString()}")
         }
             Looper.loop()
             Looper.myLooper()?.quit()

@@ -20,9 +20,10 @@ import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.util.concurrent.CompletableFuture
 
-class SocketHandler(private val context: Context) {
+class SocketHandler(private val context: Context, socket : BluetoothSocket) {
     private lateinit var spotifyRemote: SpotifyAppRemote
     private val gson = Gson()
+    private val writer = PrintWriter(OutputStreamWriter(socket.outputStream))
     private var playerStateDTO: PlayerStateDTO = PlayerStateDTO(TrackDTO(title = "Dummy", artist = "1", uri = "1", isFavorite = false), isPlaying = false, isShuffled = false)
     init {
         Thread {
@@ -50,7 +51,7 @@ class SocketHandler(private val context: Context) {
             Looper.myLooper()?.quit()
         }.start()
     }
-        fun handleClientCommand(command: String, socket: BluetoothSocket) {
+        fun handleClientCommand(command: String) {
             Thread {
                 Looper.prepare()
                 when {
@@ -62,8 +63,7 @@ class SocketHandler(private val context: Context) {
                     "next" in command -> spotifyRemote.playerApi.skipNext()
                     "shuffleOn" in command -> spotifyRemote.playerApi.setShuffle(true)
                     "shuffleOff" in command -> spotifyRemote.playerApi.setShuffle(false)
-                    "playlist" in command -> sendTracksDTO(socket)
-                    "currentPlayerState" in command -> sendCurrentTrack(socket)
+                    "playlist" in command -> sendTracksDTO()
                     "track" in command -> playTrackInPlaylist(command)
                     else -> Log.e("VuzixSidekick", "I got command \"$command\" and I don't know what to do with it")
                 }
@@ -79,26 +79,24 @@ class SocketHandler(private val context: Context) {
                     playerStateDTO.currentTrack.title = callbackTrack.name
                     playerStateDTO.currentTrack.uri = callbackTrack.uri
                     playerStateDTO.currentTrack.artist = callbackTrack.artists.joinToString(", ") { it.name }
-                    val callResult: CallResult<LibraryState> =
-                        spotifyRemote.userApi.getLibraryState(playerStateDTO.currentTrack.uri)
-                    callResult.setResultCallback { libraryState ->
-                        playerStateDTO.currentTrack.isFavorite = libraryState.isAdded
-                    }
+                    val callResult: CallResult<LibraryState> = spotifyRemote.userApi.getLibraryState(playerStateDTO.currentTrack.uri)
+                    callResult.setResultCallback { libraryState -> playerStateDTO.currentTrack.isFavorite = libraryState.isAdded}
+
                     playerStateDTO.isPlaying = !playerState.isPaused
                     playerStateDTO.isShuffled = playerState.playbackOptions.isShuffling
+
                     Log.d("VuzixSidekick", "${playerStateDTO.currentTrack.title} is set as current track")
+                    sendCurrentTrack()
                 }
             }
             ?.setErrorCallback {
                 Log.e("VuzixSidekick", "Something went wrong when subscribing to the player state")
             }
     }
-    private fun sendTracksDTO(socket: BluetoothSocket) {
+    private fun sendTracksDTO() {
         val sharedPreferencesSpotify = context.getSharedPreferences("SPOTIFY", 0)
         val tracksDTOJson = sharedPreferencesSpotify.getString("tracksDTOJson", null)
         val tracksDTOJsonUpdated = updateTrackLibraryStatus(tracksDTOJson)
-
-        val writer = PrintWriter(OutputStreamWriter(socket.outputStream))
 
         try {
             writer.println(tracksDTOJsonUpdated)
@@ -108,14 +106,14 @@ class SocketHandler(private val context: Context) {
             e.printStackTrace()
         }
     }
-    private fun sendCurrentTrack(socket: BluetoothSocket) {
-        val writer = PrintWriter(OutputStreamWriter(socket.outputStream))
+    private fun sendCurrentTrack() {
         val currentTrackDTOJson = gson.toJson(playerStateDTO)
 
         try {
             writer.println(currentTrackDTOJson)
             writer.flush()
 
+            Log.d("VuzixSidekick", "${playerStateDTO.currentTrack.title} state is transmitted to the client")
         } catch (e: IOException) {
             e.printStackTrace()
         }
