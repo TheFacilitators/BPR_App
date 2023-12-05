@@ -103,6 +103,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     fun previousSong(item: MenuItem?) {
         sendBluetoothCommand("previous")
+        if (isPaused) { togglePlayPause(PlayPauseMenuItem) }
     }
 
     fun togglePlayPause(item: MenuItem?) {
@@ -118,6 +119,7 @@ class SpotifySongActivity : ActionMenuActivity(), ITapInput {
 
     fun nextSong(item: MenuItem?) {
         sendBluetoothCommand("next")
+        if (isPaused) { togglePlayPause(PlayPauseMenuItem) }
     }
 
     fun showSongDetails(item: MenuItem?) {
