@@ -56,6 +56,7 @@ class BluetoothHandler(
 
     /** Attempts to call sendCommand() with the argument, create a BufferedReader from the
      * 'connectedSocket's inputStream to read and assign the string to a local variable.
+     * @param command the string command to be sent to the server.
      * @see sendCommand for further details.
      * @return an empty string if any exception other than IOException is thrown, otherwise the string response read from the server.*/
     fun sendReturnableCommand(command: String): String {

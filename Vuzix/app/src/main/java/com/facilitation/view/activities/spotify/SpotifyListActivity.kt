@@ -30,11 +30,21 @@ import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-/** An activity class to handle logic related to a list of TrackDTOs.*/
+/** An activity class to handle logic related to a list of TrackDTOs.
+ * @property playlistPosition an integer value of the currently highlighted playlist item.
+ * @property gson an instance of Gson to use for serialization.
+ * @property trackDTOList a pre-populated list used for testing when disconnected from server.
+ * @property spotifyListAdapter custom adapter for RecyclerView.
+ * @property recyclerView the RecyclerView used to display the list of TrackDTOs.
+ * @property binding the binding to the view XML.
+ * @property receiver custom receiver for Tap device input.
+ * @property bluetoothHandler custom handler for Bluetooth communication.
+ * @property bluetoothAdapter adapter for the Bluetooth handler.
+ * @property activityLifecycleCallbacks custom implementation of activity lifecycle callbacks.
+ * @property inputMethodManager manager to translate & manage the user input to the application.*/
 class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private var playlistPosition: Int = 0
     private val gson = Gson()
-    /** Pre-populated list used for testing when disconnected from server.*/
     private var trackDTOList: List<TrackDTO> =  listOf(
         TrackDTO("Song 1", "Artist 1", "Uri 1", true),
         TrackDTO("Song 2", "Artist 2", "Uri 2", false),

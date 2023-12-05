@@ -19,7 +19,15 @@ import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.Snake
 import com.facilitation.view.utility.enums.TapToCommandEnum
 
-/** Activity to handle the logic of Snake.*/
+/** Activity to handle the logic of Snake.
+ * @property snakeGame the game logic.
+ * @property binding the binding to the view XML.
+ * @property handler a Handler created with a message Looper.
+ * @property gameLoopRunnable a nullable Runnable for running the game.
+ * @property gameOverDialog a nullable AlertDialog to display when the gaem is over.
+ * @property activityLifecycleCallbacks custom implementation of activity lifecycle callbacks.
+ * @property inputMethodManager manager to translate & manage the user input to the application.
+ * @property receiver custom receiver for Tap device input.*/
 class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
     private lateinit var snakeGame: Snake
     private lateinit var binding: ActivitySnakeBinding
@@ -32,7 +40,8 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
 
     /** Initializes activityLifecycleCallbacks, inputMethodManager, receiver and snakeGame.
      * Sets on key listener for user input and a game over listener.
-     * Calls startGameLoop().*/
+     * Calls startGameLoop().
+     * @param savedInstanceState a Bundle containing the state the Activity was in last.*/
     override fun onCreate(savedInstanceState: Bundle?) {
         activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
@@ -54,7 +63,7 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
         startGameLoop()
     }
 
-    /** If the gameLoopRunnable is instantiated then callbacks on it are removed.
+    /** If the gameLoopRunnable is instantiated: Callbacks on it are removed.
      * gameLoopRunnable is created with the function run() and the handler is called to post it
      * with a delay of a thousand divided by the device frame rate.*/
     private fun startGameLoop() {
@@ -102,14 +111,16 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
     }
 
     /** Calls showGameOverDialog(), removes the callbacks on the handler for the gameLoopRunnable
-     * and sets the runnable to null.*/
+     * and sets the runnable to null.
+     * @param score an integer value of the score earned in the game.*/
     override fun onGameOver(score: Int) {
         showGameOverDialog()
         handler.removeCallbacks(gameLoopRunnable!!)
         gameLoopRunnable = null
     }
 
-    /** Dismisses the gameOverDialog, calls resetGame() on snakeGame and calls startGameLoop().*/
+    /** Dismisses the gameOverDialog, calls resetGame() on snakeGame and calls startGameLoop().
+     * @param view the View item this method was called from.*/
     fun restartGame(view: View) {
         gameOverDialog?.dismiss()
         snakeGame.resetGame()
@@ -117,7 +128,8 @@ class SnakeActivity : AppCompatActivity(), Snake.GameOverListener, ITapInput {
     }
 
     /** Dismisses the gameOverDialog, calls finishAffinity() and creates & starts an intent for
-     * MainActivity.*/
+     * MainActivity.
+     * @param view the View item this method was called from.*/
     fun exitGame(view: View) {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)

@@ -18,7 +18,14 @@ import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
-/** Activity class to handle logic of routing based on user input.*/
+/** Activity class to handle logic of routing based on user input.
+ * @property SpotifyMenuItem the MenuItem for navigating to Spotify.
+ * @property SnakeMenuItem the MenuItem for navigating to Snake.
+ * @property binding the binding to the view XML.
+ * @property receiver custom receiver for Tap device input.
+ * @property activityLifecycleCallbacks custom implementation of activity lifecycle callbacks.
+ * @property inputMethodManager manager to translate & manage the user input to the application.
+ * @property app the ViewApplication.*/
 class MainActivity : ActionMenuActivity(), ITapInput {
     private lateinit var SpotifyMenuItem: MenuItem
     private lateinit var SnakeMenuItem: MenuItem
@@ -29,7 +36,8 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     private lateinit var app : ViewApplication
 
     /** Initializes receiver, app & inputMethodManager.
-     * Registers activityLifecycleCallbacks with the app.*/
+     * Registers activityLifecycleCallbacks with the app.
+     * @param savedInstanceState a Bundle containing the state the Activity was in last.*/
     override fun onCreate(savedInstanceState: Bundle?) {
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
         super.onCreate(savedInstanceState)
@@ -40,7 +48,9 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         app = application as ViewApplication
     }
 
-    /** Initializing menu items by ID.*/
+    /** Initializing menu items by ID.
+     * @param menu the Menu to create.
+     * @return 'true' on completion.*/
     override fun onCreateActionMenu(menu: Menu): Boolean {
         super.onCreateActionMenu(menu)
         menuInflater.inflate(R.menu.menu, menu)
@@ -49,12 +59,14 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         return true
     }
 
-    /** Sets the default focused item to the second menu item.*/
+    /** Sets the default focused item to the second menu item.
+     * @return the integer value of the default menu item's position in the menu.*/
     override fun getDefaultAction(): Int {
         return 1
     }
 
-    /** Sets the menu to always be shown.*/
+    /** Sets the menu to always be shown.
+     * @return 'true' to keep the action menu visible at all times.*/
     override fun alwaysShowActionMenu(): Boolean {
         return true
     }
@@ -69,14 +81,16 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     }
 
     /** Creates an Intent for SnakeActivity, passing activityLifecycleCallbacks as an Extra
-     * and starting the activity.*/
+     * and starting the activity.
+     * @param item the MenuItem this method was called from.*/
     fun showSnake(item: MenuItem?) {
         val intent = Intent(this, SnakeActivity::class.java)
         intent.putExtra("callback", activityLifecycleCallbacks)
         startActivity(intent)
     }
 
-    /** Calls connectToBluetooth() on app. In case of failure, calls showToast() with the error.*/
+    /** Calls connectToBluetooth() on app. In case of failure, calls showToast() with the error.
+     * @param item the MenuItem this method was called from.*/
     fun connectToBluetooth(item: MenuItem) {
         try {
             app.connectToBluetooth()

@@ -8,7 +8,6 @@ import android.content.Intent
 /** A class for handling dynamic changes to the UI theme.
  * Used for automatically switching between light and dark mode based on external conditions.*/
 class DynamicThemeReceiver : BroadcastReceiver() {
-
     /** Creates an Intent with the 'action' property set to the official update action for widgets.
      * Then sendBroadcast() is called with the created Intent.
      * @param context the context the changes should apply to.
