@@ -21,6 +21,7 @@ import com.facilitation.view.utility.ITapInput
 import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.google.gson.Gson
+import com.vuzix.connectivity.sdk.Connectivity
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 /** Activity to handle music control logic.
