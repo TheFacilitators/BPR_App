@@ -23,8 +23,8 @@ import com.facilitation.view.utility.enums.DirectionEnum
  * @property isFirstMove a boolean of whether a move is the first one of the current game.
  * @property gameOverListener a listener for when the game is over.
  * @see SnakeSegment
- * @see Direction
- * @see GameOverListener*/
+ * @see DirectionEnum
+ * @see IGameOverListener*/
 class Snake(private val view: View) {
     private val segmentSize = 20
     private var snakeSegments = mutableListOf(SnakeSegment(0, 0))
@@ -37,11 +37,11 @@ class Snake(private val view: View) {
     private val snakePaint = Paint()
     private val foodPaint = Paint()
     private var isFirstMove: Boolean = true
-    private var gameOverListener: GameOverListener? = null
+    private var gameOverListener: IGameOverListener? = null
 
     /** A setter for gameOverListener.
      * @param listener the GameOverListener to set the variable to.*/
-    fun setGameOverListener(listener: GameOverListener) {
+    fun setGameOverListener(listener: IGameOverListener) {
         gameOverListener = listener
     }
 
@@ -253,11 +253,4 @@ class Snake(private val view: View) {
      * @param x an integer for the X-coordinate of the segment.
      * @param y an integer for the Y-coordinate of the segment.*/
     data class SnakeSegment(val x: Int, val y: Int)
-
-    /** An interface containing a method for when the game is over.*/
-    interface GameOverListener {
-        /** Function to provide the logic for what happens when a game is over.
-         * @param score the integer of the score achieved in the game.*/
-        fun onGameOver(score: Int)
-    }
 }
