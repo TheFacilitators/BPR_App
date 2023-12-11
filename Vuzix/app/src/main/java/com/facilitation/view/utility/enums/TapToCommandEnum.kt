@@ -2,6 +2,7 @@ package com.facilitation.view.utility.enums
 
 import android.view.KeyEvent
 
+/** Enum class to define and map a string to a KeyEvent code.*/
 enum class TapToCommandEnum {
     XXOOO { override fun keyCode() = KeyEvent.KEYCODE_ENTER },
     XOXXO { override fun keyCode() = KeyEvent.KEYCODE_HOME },

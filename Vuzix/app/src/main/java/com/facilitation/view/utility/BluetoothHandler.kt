@@ -18,6 +18,14 @@ import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.util.UUID
 
+/** A class for handling the logic of Bluetooth connection with the server.
+ * @constructor
+ * @param context the context the class operates in.
+ * @property deviceNameToConnect hardcoded string defining which device to connect to.
+ * @property bluetoothString hardcoded UUID string of the device to connect to.
+ * @property bluetoothAdapter the contexts Bluetooth system service's adapter property.
+ * @property mainHandler a Handler created with a message Looper.
+ * @property connectedSocket the connected BluetoothSocket.*/
 class BluetoothHandler(
     private val context: Context
 ) {
@@ -30,6 +38,10 @@ class BluetoothHandler(
     private val mainHandler = Handler(Looper.getMainLooper())
     private lateinit var connectedSocket: BluetoothSocket
 
+    /** Attempts to create a PrintWriter for the 'connectedSocket's outputStream, printing the
+     * argument string and flushing it.
+     * In case of an IOException being thrown a local error is logged with details.
+     * @param command the string command to be sent to the server.*/
     fun sendCommand(command: String) {
         try {
             val writer = PrintWriter(OutputStreamWriter(connectedSocket.outputStream))
@@ -42,6 +54,11 @@ class BluetoothHandler(
         }
     }
 
+    /** Attempts to call sendCommand() with the argument, create a BufferedReader from the
+     * 'connectedSocket's inputStream to read and assign the string to a local variable.
+     * @param command the string command to be sent to the server.
+     * @see sendCommand for further details.
+     * @return an empty string if any exception other than IOException is thrown, otherwise the string response read from the server.*/
     fun sendReturnableCommand(command: String): String {
         var response = ""
         try{
@@ -55,11 +72,19 @@ class BluetoothHandler(
         return response
     }
 
+    /** Calls sendCommand() with 'exit' string argument and calls close() on connectedSocket.*/
     fun exitServer() {
         sendCommand("exit")
         connectedSocket.close()
     }
 
+    /** Checks the state of the bluetoothAdapter, logging an error and throwing an Exception if
+     * it is null or not enabled.
+     * Initiates a local variable for the server by checking the bluetoothAdapter bondedDevices
+     * for an object with a 'name' property of deviceNameToConnect.
+     * If this local variable is not null a ConnectThread is created with it and the
+     * bluetoothAdapter and then start() is called on it. Otherwise a local error is logged.
+     * @see ConnectThread for further details on the thread.*/
     @SuppressLint("MissingPermission")
     fun initiateConnection() {
         if (bluetoothAdapter == null || !bluetoothAdapter?.isEnabled!!) {
@@ -78,6 +103,12 @@ class BluetoothHandler(
         }
     }
 
+    /** Model class for a custom Thread.
+     * @constructor
+     * @param device the BluetoothDevice this thread runs for.
+     * @param bluetoothAdapter the adapter the thread uses.
+     * @property btSocket a BluetoothSocket created on the 'device' with bluetoothString
+     * @see bluetoothString*/
     @SuppressLint("MissingPermission")
     inner class ConnectThread(device: BluetoothDevice, private val bluetoothAdapter: BluetoothAdapter) : Thread() {
 
@@ -85,6 +116,9 @@ class BluetoothHandler(
             device.createRfcommSocketToServiceRecord(UUID.fromString(bluetoothString))
         }
 
+        /** Calls cancelDiscovery() on bluetoothAdapter, attempts to connect a socket and set
+         * connectedSocket to it.
+         * @see connectedSocket*/
         override fun run() {
             bluetoothAdapter.cancelDiscovery()
 
@@ -95,6 +129,9 @@ class BluetoothHandler(
             }
         }
     }
+
+    /** Posts a short Toast to the mainHandler.
+     * @param toast the text to display in the Toast.*/
     private fun showToast(toast: String) {
         mainHandler.post {
             Toast.makeText(context, toast, Toast.LENGTH_SHORT).show()
