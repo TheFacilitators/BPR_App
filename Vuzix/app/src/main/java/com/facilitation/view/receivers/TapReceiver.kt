@@ -17,7 +17,11 @@ import com.tapwithus.sdk.mouse.MousePacket
 /** A class to handle the logic of receiving, translating and relaying input from Tap devices.
  * @constructor
  * @param context the context in which this class should operate.
- * @param activityLifecycleCallbacks the activity lifecycle monitor.*/
+ * @param activityLifecycleCallbacks the activity lifecycle monitor.
+ * @property bluetoothManager custom handler for Bluetooth communication.
+ * @property tapBluetoothManager official TapBluetoothManager.
+ * @property tapSDK official Tap SDK.
+ * @property listener the activity that implements ITapInput that is currently receiving commands.*/
 class TapReceiver(context: Context, private var activityLifecycleCallbacks: MyActivityLifecycleCallbacks) : TapListener {
   private var bluetoothManager: BluetoothManager = BluetoothManager(context.applicationContext, BluetoothAdapter.getDefaultAdapter())
   private var tapBluetoothManager = TapBluetoothManager(bluetoothManager)

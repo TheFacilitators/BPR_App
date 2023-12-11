@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.view.KeyEvent
 import android.view.View
+import com.facilitation.view.utility.enums.DirectionEnum
 
 /** Class for handling the game logic of Snake.
  * @constructor
@@ -22,8 +23,8 @@ import android.view.View
  * @property isFirstMove a boolean of whether a move is the first one of the current game.
  * @property gameOverListener a listener for when the game is over.
  * @see SnakeSegment
- * @see Direction
- * @see GameOverListener*/
+ * @see DirectionEnum
+ * @see IGameOverListener*/
 class Snake(private val view: View) {
     private val segmentSize = 20
     private var snakeSegments = mutableListOf(SnakeSegment(0, 0))
@@ -32,15 +33,15 @@ class Snake(private val view: View) {
     var score: Int = 0
     private var snakeGrowth: Boolean = false
     var gameActive = true
-    private var currentDirection: Direction = Direction.RIGHT
+    private var currentDirection: DirectionEnum = DirectionEnum.RIGHT
     private val snakePaint = Paint()
     private val foodPaint = Paint()
     private var isFirstMove: Boolean = true
-    private var gameOverListener: GameOverListener? = null
+    private var gameOverListener: IGameOverListener? = null
 
     /** A setter for gameOverListener.
      * @param listener the GameOverListener to set the variable to.*/
-    fun setGameOverListener(listener: GameOverListener) {
+    fun setGameOverListener(listener: IGameOverListener) {
         gameOverListener = listener
     }
 
@@ -54,7 +55,6 @@ class Snake(private val view: View) {
     /** Setting the color of the Canvas to reflect the location of game objects.
      * @param canvas the UI Canvas that the game is shown on.*/
     fun draw(canvas: Canvas) {
-
         canvas.drawColor(Color.BLACK)
 
         for (segment in snakeSegments) {
@@ -99,7 +99,7 @@ class Snake(private val view: View) {
      * Sets snakeGrowth to 'false' and gameActive & isFirstMove to 'true'.
      * Sets currentDirection to RIGHT.
      * @see SnakeSegment
-     * @see Direction*/
+     * @see DirectionEnum*/
     fun resetGame() {
         snakeSegments.clear()
         snakeSegments.add(SnakeSegment(0, 0))
@@ -107,7 +107,7 @@ class Snake(private val view: View) {
         foodY = 0
         score = 0
         snakeGrowth = false
-        currentDirection = Direction.RIGHT
+        currentDirection = DirectionEnum.RIGHT
         gameActive = true
         isFirstMove = true
     }
@@ -138,24 +138,23 @@ class Snake(private val view: View) {
     /** Adds a new SnakeSegment coordinates for the next location based on currentDirection and if
      * snakeGrowth is 'false' then the last segment in snakeSegments.*/
     private fun moveSnake() {
-
         val newHeadX: Int
         val newHeadY: Int
 
         when (currentDirection) {
-            Direction.UP -> {
+            DirectionEnum.UP -> {
                 newHeadX = snakeSegments.first().x
                 newHeadY = snakeSegments.first().y - segmentSize
             }
-            Direction.DOWN -> {
+            DirectionEnum.DOWN -> {
                 newHeadX = snakeSegments.first().x
                 newHeadY = snakeSegments.first().y + segmentSize
             }
-            Direction.LEFT -> {
+            DirectionEnum.LEFT -> {
                 newHeadX = snakeSegments.first().x - segmentSize
                 newHeadY = snakeSegments.first().y
             }
-            Direction.RIGHT -> {
+            DirectionEnum.RIGHT -> {
                 newHeadX = snakeSegments.first().x + segmentSize
                 newHeadY = snakeSegments.first().y
             }
@@ -236,18 +235,13 @@ class Snake(private val view: View) {
      * @return 'true': On completion.*/
     fun handleInput(event: KeyEvent, keyCode: Int?): Boolean {
         currentDirection = when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_UP -> if (currentDirection != Direction.DOWN) Direction.UP else currentDirection
-            KeyEvent.KEYCODE_DPAD_DOWN -> if (currentDirection != Direction.UP) Direction.DOWN else currentDirection
-            KeyEvent.KEYCODE_DPAD_LEFT -> if (currentDirection != Direction.RIGHT) Direction.LEFT else currentDirection
-            KeyEvent.KEYCODE_DPAD_RIGHT -> if (currentDirection != Direction.LEFT) Direction.RIGHT else currentDirection
+            KeyEvent.KEYCODE_DPAD_UP -> if (currentDirection != DirectionEnum.DOWN) DirectionEnum.UP else currentDirection
+            KeyEvent.KEYCODE_DPAD_DOWN -> if (currentDirection != DirectionEnum.UP) DirectionEnum.DOWN else currentDirection
+            KeyEvent.KEYCODE_DPAD_LEFT -> if (currentDirection != DirectionEnum.RIGHT) DirectionEnum.LEFT else currentDirection
+            KeyEvent.KEYCODE_DPAD_RIGHT -> if (currentDirection != DirectionEnum.LEFT) DirectionEnum.RIGHT else currentDirection
             else -> currentDirection
         }
         return true
-    }
-
-    /** An enum class for directions.*/
-    enum class Direction {
-        UP, DOWN, LEFT, RIGHT
     }
 
     /** Model class for a single segment of the snake.
@@ -255,11 +249,4 @@ class Snake(private val view: View) {
      * @param x an integer for the X-coordinate of the segment.
      * @param y an integer for the Y-coordinate of the segment.*/
     data class SnakeSegment(val x: Int, val y: Int)
-
-    /** An interface containing a method for when the game is over.*/
-    interface GameOverListener {
-        /** Function to provide the logic for what happens when a game is over.
-         * @param score the integer of the score achieved in the game.*/
-        fun onGameOver(score: Int)
-    }
 }

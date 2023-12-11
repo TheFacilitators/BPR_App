@@ -6,7 +6,8 @@ import android.os.Bundle
 import java.io.Serializable
 
 /** A serializable customized class for handling the logic of activity lifecycle callbacks.
- * @property currentActivity a nullable Activity  of the one currently being used.*/
+ * @constructor
+ * @param currentActivity nullable Activity that is currently open.*/
 class MyActivityLifecycleCallbacks(currentActivity: Activity) : ActivityLifecycleCallbacks, Serializable {
     @Transient var currentActivity: Activity? = currentActivity
 
