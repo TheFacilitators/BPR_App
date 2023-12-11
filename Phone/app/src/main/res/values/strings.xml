@@ -1,18 +1,10 @@
 <resources>
     <string name="app_name">VuzixSidekick</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
-    <string name="title_login">Login</string>
     <string name="client_id">5e231a9b16ef44788f00ae06e1a93db0</string>
     <string name="client_secret">570f169fa60a4a91a7f5d493a251f41b</string>
     <string name="redirect_uri">http://localhost:8888/callback/</string>
     <string name="playlist_uri">https://api.spotify.com/v1/playlists/04wwOyhtie5aEUbvMdAOii?si=e2b67652ad034ce4/tracks</string>
     <string name="playlistID">04wwOyhtie5aEUbvMdAOii</string>
     <string name="request_code">9485</string>
-    <!-- Strings related to login -->
-    <string name="action_sign_in">Sign in</string>
-    <string name="welcome">"Welcome!"</string>
-    <string name="login_failed">"Login failed"</string>
-    <string name="login">Login</string>
 </resources>
