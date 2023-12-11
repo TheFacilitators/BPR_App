@@ -11,7 +11,6 @@ import android.view.View
  * @param context the Context in which the SnakeView will be operating.
  * @property paint the Paint object to use for drawing.*/
 class SnakeView(context: Context) : View(context) {
-
     private val paint = Paint()
 
     /** Calls super.onDraw(), sets the whole canvas to black and draws a green rectangle.

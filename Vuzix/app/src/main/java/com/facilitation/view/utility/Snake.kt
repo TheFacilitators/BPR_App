@@ -55,7 +55,6 @@ class Snake(private val view: View) {
     /** Setting the color of the Canvas to reflect the location of game objects.
      * @param canvas the UI Canvas that the game is shown on.*/
     fun draw(canvas: Canvas) {
-
         canvas.drawColor(Color.BLACK)
 
         for (segment in snakeSegments) {
@@ -139,7 +138,6 @@ class Snake(private val view: View) {
     /** Adds a new SnakeSegment coordinates for the next location based on currentDirection and if
      * snakeGrowth is 'false' then the last segment in snakeSegments.*/
     private fun moveSnake() {
-
         val newHeadX: Int
         val newHeadY: Int
 
@@ -245,8 +243,6 @@ class Snake(private val view: View) {
         }
         return true
     }
-
-
 
     /** Model class for a single segment of the snake.
      * @constructor

@@ -12,7 +12,6 @@ import com.facilitation.view.model.TrackDTO
  * @constructor
  * @param trackDisplayList a List of TrackDTOs to populate the RecyclerView with.*/
 class SpotifyListAdapter(var trackDisplayList: List<TrackDTO>) : RecyclerView.Adapter<SpotifyListAdapter.TrackViewHolder>() {
-
     /** Model class for a customized RecyclerView ViewHolder.
      * @constructor
      * @param itemView the View in which class instances will be portrayed.
