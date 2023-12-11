@@ -45,7 +45,7 @@ import com.google.gson.reflect.TypeToken
 class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private var playlistPosition: Int = 0
     private val gson = Gson()
-    private var trackDTOList: List<TrackDTO> =  listOf(
+    private var trackDTOList: List<TrackDTO> = listOf(
         TrackDTO("Song 1", "Artist 1", "Uri 1", true),
         TrackDTO("Song 2", "Artist 2", "Uri 2", false),
         TrackDTO("Song 3", "Artist 3", "Uri 3", false),
@@ -59,17 +59,18 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     )
     private lateinit var spotifyListAdapter: SpotifyListAdapter
     private lateinit var recyclerView: RecyclerView
-    private lateinit var binding : ActivitySpotifyListBinding
+    private lateinit var binding: ActivitySpotifyListBinding
     private lateinit var receiver: TapReceiver
     private lateinit var bluetoothHandler: BluetoothHandler
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var activityLifecycleCallbacks: MyActivityLifecycleCallbacks
-    private lateinit var inputMethodManager : InputMethodManager
+    private lateinit var inputMethodManager: InputMethodManager
 
     /** Initializing activityLifecycleCallbacks from Intent Extra.
      * Creating inputMethodManager & tapReceiver.*/
     override fun onCreate(savedInstanceState: Bundle?) {
-        activityLifecycleCallbacks = intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
+        activityLifecycleCallbacks =
+            intent.getSerializableExtra("callback") as MyActivityLifecycleCallbacks
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
         super.onCreate(savedInstanceState)
         binding = ActivitySpotifyListBinding.inflate(layoutInflater)
@@ -83,7 +84,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
 
     /** Trying to call getBluetooth() & fetch a playlist.*/
     override fun onResume() {
-        try{
+        try {
             getBluetooth()
             requestPlaylist()
         } catch (e: Exception) {
@@ -126,7 +127,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private fun sendBluetoothCommand(command: String) {
         try {
             bluetoothHandler.sendCommand(command)
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             Log.e(ContentValues.TAG, e.message.toString())
         }
     }
@@ -137,7 +138,7 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private fun sendReturnableBluetoothCommand(command: String): String {
         try {
             return bluetoothHandler.sendReturnableCommand(command)
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             Log.e(ContentValues.TAG, e.message.toString())
         }
         return ""
@@ -156,12 +157,16 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     private fun requestPlaylist() {
         val handler = Handler(Looper.getMainLooper())
         Thread {
-            val tmpList: String = sendReturnableBluetoothCommand("playlist")
-            trackDTOList = gson.fromJson(tmpList, object : TypeToken<List<TrackDTO>>() {}.type)
-            // Post the UI update to the main thread using a Handler
-            handler.post {
-                spotifyListAdapter.trackDisplayList = trackDTOList
-                recyclerView.adapter?.notifyDataSetChanged()
+            try {
+                val tmpList: String = sendReturnableBluetoothCommand("playlist")
+                trackDTOList = gson.fromJson(tmpList, object : TypeToken<List<TrackDTO>>() {}.type)
+                // Post the UI update to the main thread using a Handler
+                handler.post {
+                    spotifyListAdapter.trackDisplayList = trackDTOList
+                    recyclerView.adapter?.notifyDataSetChanged()
+                }
+            } catch (e: Exception) {
+                //swallow exception if connection fails
             }
         }.start()
     }
@@ -179,7 +184,13 @@ class SpotifyListActivity : AppCompatActivity(), ITapInput {
     /** Delegating handling of the input from the Tap device to the inputMethodManager.
      * @param commandEnum a TapToCommandEnum containing the specific command to execute.*/
     override fun onInputReceived(commandEnum: TapToCommandEnum) {
-        inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode()))
-        inputMethodManager.dispatchKeyEventFromInputMethod(binding.root, KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode()))
+        inputMethodManager.dispatchKeyEventFromInputMethod(
+            binding.root,
+            KeyEvent(KeyEvent.ACTION_DOWN, commandEnum.keyCode())
+        )
+        inputMethodManager.dispatchKeyEventFromInputMethod(
+            binding.root,
+            KeyEvent(KeyEvent.ACTION_UP, commandEnum.keyCode())
+        )
     }
 }
