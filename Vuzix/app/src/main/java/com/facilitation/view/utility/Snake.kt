@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.view.KeyEvent
 import android.view.View
+import com.facilitation.view.utility.enums.DirectionEnum
 
 /** Class for handling the game logic of Snake.
  * @constructor
@@ -32,7 +33,7 @@ class Snake(private val view: View) {
     var score: Int = 0
     private var snakeGrowth: Boolean = false
     var gameActive = true
-    private var currentDirection: Direction = Direction.RIGHT
+    private var currentDirection: DirectionEnum = DirectionEnum.RIGHT
     private val snakePaint = Paint()
     private val foodPaint = Paint()
     private var isFirstMove: Boolean = true
@@ -99,7 +100,7 @@ class Snake(private val view: View) {
      * Sets snakeGrowth to 'false' and gameActive & isFirstMove to 'true'.
      * Sets currentDirection to RIGHT.
      * @see SnakeSegment
-     * @see Direction*/
+     * @see DirectionEnum*/
     fun resetGame() {
         snakeSegments.clear()
         snakeSegments.add(SnakeSegment(0, 0))
@@ -107,7 +108,7 @@ class Snake(private val view: View) {
         foodY = 0
         score = 0
         snakeGrowth = false
-        currentDirection = Direction.RIGHT
+        currentDirection = DirectionEnum.RIGHT
         gameActive = true
         isFirstMove = true
     }
@@ -143,19 +144,19 @@ class Snake(private val view: View) {
         val newHeadY: Int
 
         when (currentDirection) {
-            Direction.UP -> {
+            DirectionEnum.UP -> {
                 newHeadX = snakeSegments.first().x
                 newHeadY = snakeSegments.first().y - segmentSize
             }
-            Direction.DOWN -> {
+            DirectionEnum.DOWN -> {
                 newHeadX = snakeSegments.first().x
                 newHeadY = snakeSegments.first().y + segmentSize
             }
-            Direction.LEFT -> {
+            DirectionEnum.LEFT -> {
                 newHeadX = snakeSegments.first().x - segmentSize
                 newHeadY = snakeSegments.first().y
             }
-            Direction.RIGHT -> {
+            DirectionEnum.RIGHT -> {
                 newHeadX = snakeSegments.first().x + segmentSize
                 newHeadY = snakeSegments.first().y
             }
@@ -236,19 +237,16 @@ class Snake(private val view: View) {
      * @return 'true': On completion.*/
     fun handleInput(event: KeyEvent, keyCode: Int?): Boolean {
         currentDirection = when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_UP -> if (currentDirection != Direction.DOWN) Direction.UP else currentDirection
-            KeyEvent.KEYCODE_DPAD_DOWN -> if (currentDirection != Direction.UP) Direction.DOWN else currentDirection
-            KeyEvent.KEYCODE_DPAD_LEFT -> if (currentDirection != Direction.RIGHT) Direction.LEFT else currentDirection
-            KeyEvent.KEYCODE_DPAD_RIGHT -> if (currentDirection != Direction.LEFT) Direction.RIGHT else currentDirection
+            KeyEvent.KEYCODE_DPAD_UP -> if (currentDirection != DirectionEnum.DOWN) DirectionEnum.UP else currentDirection
+            KeyEvent.KEYCODE_DPAD_DOWN -> if (currentDirection != DirectionEnum.UP) DirectionEnum.DOWN else currentDirection
+            KeyEvent.KEYCODE_DPAD_LEFT -> if (currentDirection != DirectionEnum.RIGHT) DirectionEnum.LEFT else currentDirection
+            KeyEvent.KEYCODE_DPAD_RIGHT -> if (currentDirection != DirectionEnum.LEFT) DirectionEnum.RIGHT else currentDirection
             else -> currentDirection
         }
         return true
     }
 
-    /** An enum class for directions.*/
-    enum class Direction {
-        UP, DOWN, LEFT, RIGHT
-    }
+
 
     /** Model class for a single segment of the snake.
      * @constructor
