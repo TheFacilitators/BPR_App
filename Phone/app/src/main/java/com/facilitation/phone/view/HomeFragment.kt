@@ -10,11 +10,10 @@ import com.facilitation.phone.databinding.FragmentHomeBinding
 import com.facilitation.phone.viewModel.HomeViewModel
 
 class HomeFragment : Fragment() {
-
     private var _binding: FragmentHomeBinding? = null
     private lateinit var homeViewModel : HomeViewModel
-
     private val binding get() = _binding!!
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -27,6 +26,7 @@ class HomeFragment : Fragment() {
 
         return binding.root
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
