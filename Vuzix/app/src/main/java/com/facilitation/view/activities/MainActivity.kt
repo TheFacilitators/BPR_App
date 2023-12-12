@@ -1,4 +1,5 @@
 package com.facilitation.view.activities
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -17,6 +18,7 @@ import com.facilitation.view.utility.ITapInput
 import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.TapToCommandEnum
 import com.vuzix.hud.actionmenu.ActionMenuActivity
+
 
 /** Activity class to handle logic of routing based on user input.
  * @property SpotifyMenuItem the MenuItem for navigating to Spotify.

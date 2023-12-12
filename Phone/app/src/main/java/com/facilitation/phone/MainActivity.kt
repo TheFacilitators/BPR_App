@@ -1,9 +1,13 @@
 package com.facilitation.phone
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -45,13 +49,38 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        if (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(
+                this, Manifest.permission.READ_CALL_LOG
+            ) != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(
+                this, Manifest.permission.READ_CONTACTS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Request permissions
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.READ_CALL_LOG,
+                    Manifest.permission.READ_CONTACTS
+                ),
+                1
+            )
+        }
         authorizationSpotify()
     }
 
 
     private fun authorizationSpotify() {
         val builder: AuthorizationRequest.Builder =
-            AuthorizationRequest.Builder(getString(R.string.client_id), AuthorizationResponse.Type.TOKEN, getString(R.string.redirect_uri))
+            AuthorizationRequest.Builder(
+                getString(R.string.client_id),
+                AuthorizationResponse.Type.TOKEN,
+                getString(R.string.redirect_uri)
+            )
         builder.setScopes(arrayOf("streaming"))
         val request: AuthorizationRequest = builder.build()
         AuthorizationClient.openLoginActivity(this, 9485, request)
@@ -75,9 +104,11 @@ class MainActivity : AppCompatActivity() {
                     //Retrieving the playlist only when the new token is acquired
                     retrievePlaylistTracks()
                 }
+
                 AuthorizationResponse.Type.ERROR -> {
                     Log.e("VuzixSidekick", "Error: ${response.error}")
                 }
+
                 else -> {
                     Log.e("VuzixSidekick", "Error: ${response.error}")
                 }
@@ -87,19 +118,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun retrievePlaylistTracks() {
         Thread {
-        val sharedPreferencesSpotify = getSharedPreferences("SPOTIFY", 0)
-        val token = sharedPreferencesSpotify.getString("token", null)
-        val client = OkHttpClient()
-        val request = Request.Builder()
-            .url(getString(R.string.playlist_uri))
-            .header("Authorization", "Bearer $token")
-            .build()
+            val sharedPreferencesSpotify = getSharedPreferences("SPOTIFY", 0)
+            val token = sharedPreferencesSpotify.getString("token", null)
+            val client = OkHttpClient()
+            val request = Request.Builder()
+                .url(getString(R.string.playlist_uri))
+                .header("Authorization", "Bearer $token")
+                .build()
 
-        val response = client.newCall(request).execute()
-        val responseData = response.body?.string()
-        deserializeIntoTracks(responseData)
+            val response = client.newCall(request).execute()
+            val responseData = response.body?.string()
+            deserializeIntoTracks(responseData)
         }.start()
     }
+
     private fun deserializeIntoTracks(response: String?) {
         val playlist = gson.fromJson(response, SpotifyPlaylist::class.java)
 
@@ -111,12 +143,16 @@ class MainActivity : AppCompatActivity() {
         }
         storeTracksDTO(tracksDTO)
     }
+
     private fun storeTracksDTO(tracksDTO: List<TrackDTO>) {
         val tracksDTOJson = gson.toJson(tracksDTO)
         val sharedPreferences = getSharedPreferences("SPOTIFY", 0)
         val editor = sharedPreferences.edit()
         editor.putString("tracksDTOJson", tracksDTOJson)
         editor.apply()
-        Log.i("VuzixSidekick", "Playlist with ${tracksDTO.size} tracks successfully retrieved and saved in shared preferences")
+        Log.i(
+            "VuzixSidekick",
+            "Playlist with ${tracksDTO.size} tracks successfully retrieved and saved in shared preferences"
+        )
     }
 }
