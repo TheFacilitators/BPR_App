@@ -1,4 +1,4 @@
-package com.facilitation.phone.utility
+package com.facilitation.phone.utility.communication
 
 import android.Manifest
 import android.app.Activity
@@ -9,12 +9,10 @@ import android.bluetooth.BluetoothSocket
 import android.content.pm.PackageManager
 import android.os.Looper
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
-import java.util.Locale
 import java.util.UUID
 
 class BluetoothServer(private val appContext: Application, private val activity : Activity) {

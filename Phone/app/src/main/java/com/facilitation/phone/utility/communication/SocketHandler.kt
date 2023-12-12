@@ -1,4 +1,4 @@
-package com.facilitation.phone.utility
+package com.facilitation.phone.utility.communication
 
 import android.bluetooth.BluetoothSocket
 import android.content.Context
