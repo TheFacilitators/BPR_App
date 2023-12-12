@@ -29,7 +29,7 @@
         android:theme="@style/Theme.Phone"
         tools:targetApi="33">
 
-        <receiver android:name=".utility.CallReceiver"
+        <receiver android:name=".utility.communication.CallReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
