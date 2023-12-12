@@ -1,12 +1,10 @@
 package com.facilitation.view.receivers
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 
 /** BroadcastReceiver for handling incoming call events. */
 class CallReceiver : BroadcastReceiver() {
@@ -20,22 +18,9 @@ class CallReceiver : BroadcastReceiver() {
             val contactName = intent.getStringExtra("contactName") ?: ""
 
 
-            val notification = Notification.Builder(context, "CallChannel")
-                .setContentTitle("Incoming Call from $contactName")
-                .setContentText("Phone number: $phoneNumber")
-                .build()
-
-            val notificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-            val channel = NotificationChannel(
-                "CallChannel",
-                "Call Notifications",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationManager.createNotificationChannel(channel)
-
-            notificationManager.notify(1, notification)
+            val message = "Incoming Call from $contactName\nPhone number: $phoneNumber"
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            
             Log.d(
                 "CallReceiver",
                 "Incoming call notification: Phone number: $phoneNumber, Name: $contactName"
