@@ -1,27 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/menu_spotify_item1"
+        android:id="@+id/menu_spotify_previousSong"
         android:title=""
         android:icon="@drawable/ic_backward_step"
         android:enabled="true"
         android:onClick="previousSong"/>
     <item
-        android:id="@+id/menu_spotify_item2"
+        android:id="@+id/menu_spotify_togglePlay"
         android:title=""
         android:icon="@drawable/ic_pause"
         android:enabled="true"
         android:onClick="togglePlayPause"/>
     <item
-        android:id="@+id/menu_spotify_item3"
+        android:id="@+id/menu_spotify_nextSong"
         android:title=""
         android:icon="@drawable/ic_forward_step"
         android:enabled="true"
         android:onClick="nextSong"/>
     <item
-        android:id="@+id/menu_spotify_item4"
+        android:id="@+id/menu_spotify_toggleShuffle"
+        android:title=""
+        android:icon="@drawable/ic_shuffle_off"
+        android:enabled="true"
+        android:onClick="toggleShuffle"/>
+    <item
+        android:id="@+id/menu_spotify_songDetails"
         android:title=""
         android:icon="@drawable/ic_song_details"
         android:enabled="true"
         android:onClick="showSongDetails"/>
+    <item
+        android:id="@+id/menu_spotify_toggleFavorite"
+        android:title=""
+        android:icon="@drawable/ic_add_favorite"
+        android:enabled="true"
+        android:onClick="toggleFavorite"/>
 </menu>

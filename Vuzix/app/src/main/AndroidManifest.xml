@@ -6,8 +6,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
         android:name=".ViewApplication"
@@ -50,12 +54,22 @@
                 android:name="com.vuzix.launcher.widget"
                 android:value="com.facilitation.view.MainActivity" />
         </receiver>
+
         <receiver
             android:name=".receivers.DynamicThemeReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.vuzix.intent.action.UI_DISPLAY_MODE" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".receivers.CallReceiver"
+            android:exported="true"
+            android:permission="android.permission.BLUETOOTH">
+            <intent-filter>
+                <action android:name="com.facilitation.view.CALL" />
             </intent-filter>
         </receiver>
 

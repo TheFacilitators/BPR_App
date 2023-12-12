@@ -1,4 +1,4 @@
-package com.facilitation.phone.utility
+package com.facilitation.phone.utility.communication
 
 import android.Manifest
 import android.app.Activity
@@ -9,21 +9,18 @@ import android.bluetooth.BluetoothSocket
 import android.content.pm.PackageManager
 import android.os.Looper
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
-import java.util.Locale
 import java.util.UUID
 
 class BluetoothServer(private val appContext: Application, private val activity : Activity) {
 
-        private var btAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        private var serverSocket: BluetoothServerSocket? = null
-        private val socketHandler: SocketHandler = SocketHandler(appContext)
+    private var btAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+    private var serverSocket: BluetoothServerSocket? = null
+    private val socketHandler: SocketHandler = SocketHandler(appContext)
      fun startServer(): Boolean {
-        // Ensure Bluetooth is enabled
         if (!btAdapter.isEnabled) {
             Log.e("VuzixSidekick", "Bluetooth not enabled")
             return false
@@ -48,7 +45,6 @@ class BluetoothServer(private val appContext: Application, private val activity 
         }
     }
     private fun startListeningForConnections() {
-        // Start listening for incoming connections in a separate thread
         Thread {
             var socket: BluetoothSocket?
             while (true) {
