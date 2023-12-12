@@ -2,10 +2,8 @@ package com.facilitation.phone
 
 import android.Manifest
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -18,7 +16,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.facilitation.phone.databinding.ActivityMainBinding
 import com.facilitation.phone.model.SpotifyPlaylist
 import com.facilitation.phone.model.TrackDTO
-import com.facilitation.phone.utility.CallReceiver
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.gson.Gson
 import com.spotify.sdk.android.auth.AuthorizationClient
@@ -32,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     private val gson = Gson()
-    private lateinit var callReceiver: CallReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
