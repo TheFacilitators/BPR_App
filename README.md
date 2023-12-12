@@ -8,8 +8,14 @@ The project group consists of three people:
 - [Joseph Carroll](https://github.com/carrolljody) [^1]
 - [Reimantas Tiuninas](https://github.com/SkyKalazar) [^2]
 
+##
+
 ### Author Reference
 
 [^0]: AKA Allie, AlleyCatRacer
 [^1]: AKA Jody, carrolljody
 [^2]: AKA Rei, SkyKalazar
+
+### Assets
+
+1. Icons for the UI of application running on Vuzix Blade 2 have been taken from here https://www.svgrepo.com/collection/dazzle-line-icons/
