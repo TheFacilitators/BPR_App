@@ -21,7 +21,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     private val gson = Gson()
@@ -47,7 +46,6 @@ class MainActivity : AppCompatActivity() {
 
         authorizationSpotify()
     }
-
 
     private fun authorizationSpotify() {
         val builder: AuthorizationRequest.Builder =
@@ -100,6 +98,7 @@ class MainActivity : AppCompatActivity() {
         deserializeIntoTracks(responseData)
         }.start()
     }
+
     private fun deserializeIntoTracks(response: String?) {
         val playlist = gson.fromJson(response, SpotifyPlaylist::class.java)
 
@@ -111,6 +110,7 @@ class MainActivity : AppCompatActivity() {
         }
         storeTracksDTO(tracksDTO)
     }
+
     private fun storeTracksDTO(tracksDTO: List<TrackDTO>) {
         val tracksDTOJson = gson.toJson(tracksDTO)
         val sharedPreferences = getSharedPreferences("SPOTIFY", 0)

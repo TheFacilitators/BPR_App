@@ -8,9 +8,7 @@ import com.facilitation.phone.utility.BluetoothServer
 
 
 class HomeViewModel(private val appContext: Application) : AndroidViewModel(appContext) {
-
     private var serverRunning = false
-
 
     fun initializeBluetoothServer(activity: Activity) {
         if(!serverRunning) {
