@@ -1,7 +1,6 @@
 package com.facilitation.view.activities
 
 import android.app.Activity
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -18,7 +17,6 @@ import com.facilitation.view.receivers.TapReceiver
 import com.facilitation.view.utility.ITapInput
 import com.facilitation.view.utility.MyActivityLifecycleCallbacks
 import com.facilitation.view.utility.enums.TapToCommandEnum
-import com.vuzix.connectivity.sdk.Connectivity
 import com.vuzix.hud.actionmenu.ActionMenuActivity
 
 
@@ -31,7 +29,6 @@ import com.vuzix.hud.actionmenu.ActionMenuActivity
  * @property inputMethodManager manager to translate & manage the user input to the application.
  * @property app the ViewApplication.*/
 class MainActivity : ActionMenuActivity(), ITapInput {
-    private var getReceiver: BroadcastReceiver? = null
     private lateinit var SpotifyMenuItem: MenuItem
     private lateinit var SnakeMenuItem: MenuItem
     private lateinit var BluetoothMenuItem: MenuItem
@@ -40,7 +37,6 @@ class MainActivity : ActionMenuActivity(), ITapInput {
     private val activityLifecycleCallbacks = MyActivityLifecycleCallbacks(this)
     private lateinit var inputMethodManager : InputMethodManager
     private lateinit var app : ViewApplication
-    private lateinit var c: Connectivity
 
     /** Initializes receiver, app & inputMethodManager.
      * Registers activityLifecycleCallbacks with the app.
@@ -53,8 +49,6 @@ class MainActivity : ActionMenuActivity(), ITapInput {
         receiver = TapReceiver(this, activityLifecycleCallbacks)
         inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         app = application as ViewApplication
-        c = Connectivity.get(context)
-
     }
 
     /** Initializing menu items by ID.

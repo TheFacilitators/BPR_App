@@ -23,8 +23,8 @@ class CallReceiver : BroadcastReceiver() {
 
                 when (phoneState) {
                     TelephonyManager.EXTRA_STATE_RINGING -> {
-                        Log.e("CallReceiver",
-                            "*********************************Incoming call from: $phoneNumber")
+                        Log.d("CallReceiver",
+                            "Incoming call from: $phoneNumber")
 
                         val contactName = getContactName(context, phoneNumber)
 
@@ -37,23 +37,10 @@ class CallReceiver : BroadcastReceiver() {
 
                     TelephonyManager.EXTRA_STATE_IDLE -> {
                         // Call ended
-                        Log.e(
+                        Log.d(
                             "CallReceiver",
-                            "**************************************Call ended: $phoneNumber"
+                            "Call ended: $phoneNumber"
                         )
-
-//                        // Check if the number is in contacts
-//                        val contactName = getContactName(context, phoneNumber)
-//
-//                        // Create an Intent with the action for the remote app
-//                        val myRemoteBroadcast = Intent("com.facilitation.view.CALL")
-//
-//                        // Add extras to the intent
-//                        myRemoteBroadcast.putExtra("phoneNumber", phoneNumber)
-//                        myRemoteBroadcast.putExtra("contactName", contactName)
-//
-//                        // Send the ordered broadcast
-//                        c.sendBroadcast(myRemoteBroadcast)
                     }
                 }
             }
